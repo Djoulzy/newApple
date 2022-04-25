@@ -45,7 +45,9 @@ var Colors [16]graphic.RGB = [16]graphic.RGB{
 
 // VIC :
 type CRTC struct {
-	Reg [18]byte
+	Reg          [18]byte
+	screenWidth  int
+	screenHeight int
 
 	conf        *config.ConfigData
 	BeamX       int

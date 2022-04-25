@@ -64,15 +64,15 @@ var (
 func setup() {
 	// ROMs & RAM Setup
 	RAM = make([]byte, ramSize)
-	IO = make([]byte, ramSize)
+	IO = make([]byte, ioSize)
 	BLANK = make([]byte, blanckSize)
 	ROM_CD = mem.LoadROM(romSize, "assets/roms/CD.bin")
 	ROM_EF = mem.LoadROM(romSize, "assets/roms/EF.bin")
 	KEYB = mem.LoadROM(keyboardSize, "assets/roms/Keyb.bin")
-	CHARGEN = mem.LoadROM(chargenSize, "assets/roms/Video.bin")
+	CHARGEN = mem.LoadROM(chargenSize, "assets/roms/Video_US.bin")
 
 	mem.Clear(RAM)
-	mem.DisplayCharRom(CHARGEN, 1, 8, 16)
+	// mem.DisplayCharRom(CHARGEN, 1, 8, 16)
 
 	// RAM[0x0001] = 0x00
 	// MEM = mem.InitBanks(nbMemLayout, &RAM[0x0001])
@@ -81,7 +81,7 @@ func setup() {
 	IOAccess = &accessor{}
 
 	// MEM Setup
-	
+
 	memLayouts()
 
 	outputDriver = &graphic.SDLDriver{}
