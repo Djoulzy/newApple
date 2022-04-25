@@ -3,7 +3,22 @@ package crtc
 import (
 	"newApple/config"
 	"newApple/graphic"
+	"time"
 )
+
+var blink bool = false
+
+func NE5555() {
+	ticker := time.NewTicker(time.Millisecond * 200)
+	defer func() {
+		ticker.Stop()
+	}()
+
+	for {
+		<-ticker.C
+		blink = !blink
+	}
+}
 
 func (C *CRTC) Init(ram []byte, io []byte, chargen []byte, video interface{}, conf *config.ConfigData) {
 	C.Reg[R0] = 63
@@ -37,6 +52,8 @@ func (C *CRTC) Init(ram []byte, io []byte, chargen []byte, video interface{}, co
 	C.RasterLine = 0
 	C.RasterCount = 0
 	C.CCLK = 0
+
+	go NE5555()
 }
 
 func (C *CRTC) drawChar(X int, Y int) {
@@ -52,7 +69,7 @@ func (C *CRTC) Run(debug bool) bool {
 	C.drawChar(C.BeamX, C.BeamY)
 
 	C.CCLK++
-	if C.CCLK >= C.Reg[R1] {
+	if C.CCLK == C.Reg[R1] {
 		C.CCLK = 0
 		C.BeamY++
 		if C.BeamY >= C.screenHeight {
@@ -68,8 +85,8 @@ func (C *CRTC) Run(debug bool) bool {
 			}
 		}
 	}
-	if debug {
-		C.graph.UpdateFrame()
-	}
+	// if debug {
+	// 	C.graph.UpdateFrame()
+	// }
 	return true
 }

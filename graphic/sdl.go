@@ -92,12 +92,14 @@ func (S *SDLDriver) UpdateFrame() {
 					if S.keybLine.KeyCode != sdl.K_RSHIFT {
 						S.keybLine.Mode = sdl.K_RSHIFT
 					}
-				case 3:
-					fallthrough
+				case 64:
+					if S.keybLine.KeyCode != sdl.K_LCTRL {
+						S.keybLine.Mode = sdl.K_LCTRL
+					}
 				default:
 					S.keybLine.Mode = S.keybLine.KeyCode
 				}
-				log.Printf("KEY DOWN : %d %d", S.keybLine.KeyCode, S.keybLine.Mode)
+				// log.Printf("KEY DOWN : %d - %d %d", t.Keysym.Mod, S.keybLine.KeyCode, S.keybLine.Mode)
 			case sdl.KEYUP:
 				// *S.keybLine = 1073742049
 				S.keybLine.KeyCode = 0

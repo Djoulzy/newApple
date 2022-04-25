@@ -21,7 +21,7 @@ import (
 const (
 	ramSize      = 65536
 	romSize      = 2048
-	ioSize       = 4096
+	ioSize       = 2048
 	chargenSize  = 2048
 	keyboardSize = 2048
 	blanckSize   = 12288
@@ -53,6 +53,7 @@ var (
 	MEM      mem.BANK
 	IOAccess mem.MEMAccess
 
+	InputLine    graphic.KEYPressed
 	outputDriver graphic.Driver
 	CRTC         crtc.CRTC
 	cpuTurn      bool
@@ -69,7 +70,7 @@ var (
 func setup() {
 	// ROMs & RAM Setup
 	RAM = make([]byte, ramSize)
-	// IO = make([]byte, ioSize)
+	IO = make([]byte, ioSize)
 	// BLANK = make([]byte, blanckSize)
 	ROM_D0 = mem.LoadROM(romSize, "assets/roms/II/3410011D0.bin")
 	ROM_D8 = mem.LoadROM(romSize, "assets/roms/II/3410012D8.bin")
@@ -82,7 +83,7 @@ func setup() {
 	CHARGEN = mem.LoadROM(chargenSize, "assets/roms/II/3410036.bin")
 
 	mem.Clear(RAM)
-	// mem.DisplayCharRom(CHARGEN, 1, 8, 16)
+	mem.DisplayCharRom(CHARGEN, 1, 8, 16)
 
 	// RAM[0x0001] = 0x00
 	// MEM = mem.InitBanks(nbMemLayout, &RAM[0x0001])
@@ -95,6 +96,8 @@ func setup() {
 	memLayouts()
 
 	outputDriver = &graphic.SDLDriver{}
+	initKeyboard()
+	outputDriver.SetKeyboardLine(&InputLine)
 	CRTC.Init(RAM, IO, CHARGEN, outputDriver, conf)
 
 	// CPU Setup
@@ -136,8 +139,10 @@ func input() {
 			// fmt.Printf("\n(s) Stack Dump - (z) Zero Page - (r) Run - (sp) Pause / unpause > ")
 		case 'w':
 			fmt.Printf("\nFill Screen")
-			for i := 0x0400; i < 0x0800; i++ {
-				MEM.Write(uint16(i), byte(i))
+			cpt := 0
+			for i := 0x0400; i < 0x0450; i++ {
+				MEM.Write(uint16(i), byte(cpt))
+				cpt++
 			}
 			// for i := 0x0800; i < 0x0C00; i++ {
 			// 	IO[uint16(i)] = 0
@@ -169,10 +174,21 @@ func timeTrack(start time.Time, name string) {
 }
 
 func RunEmulation() {
+	var key byte
 	// defer timeTrack(time.Now(), "RunEmulation")
 	CRTC.Run(!run)
 	if cpu.State == mos6510.ReadInstruction && !run {
 		execInst.Lock()
+	}
+
+	if MEM.Read(0xC000) == 0 {
+		key = keyMap[InputLine.KeyCode]
+		if InputLine.Mode == 1073742048 {
+			key -= 0x40
+		}
+		MEM.Write(0xC000, key)
+		InputLine.KeyCode = 0
+		InputLine.Mode = 0
 	}
 
 	cpu.NextCycle()
@@ -215,6 +231,7 @@ func main() {
 	run = true
 	cpuTurn = true
 	// go func() {
+	RAM[0xC000] = 0xC1
 	for {
 		RunEmulation()
 	}
