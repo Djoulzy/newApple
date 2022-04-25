@@ -18,6 +18,10 @@ func (C *CRTC) Init(ram []byte, io []byte, chargen []byte, video interface{}, co
 	C.Reg[R12] = 0
 	C.Reg[R13] = 0
 
+	C.RAM = ram
+	C.VideoPage = 0x0400
+	C.VideoSize = 1024
+
 	C.screenWidth = int(C.Reg[R1]) * 7
 	C.screenHeight = int(C.Reg[R6]) * 8
 
@@ -25,7 +29,7 @@ func (C *CRTC) Init(ram []byte, io []byte, chargen []byte, video interface{}, co
 	C.graph.Init(C.screenWidth, C.screenHeight)
 	C.conf = conf
 
-	C.videoRam = ram[screenStart : screenStart+screenSize]
+	C.videoRam = ram[C.VideoPage : C.VideoPage+C.VideoSize]
 	C.charRom = chargen
 
 	C.BeamX = 0

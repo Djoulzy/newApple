@@ -46,6 +46,7 @@ var Colors [16]graphic.RGB = [16]graphic.RGB{
 // VIC :
 type CRTC struct {
 	Reg          [18]byte
+	RAM          []byte
 	screenWidth  int
 	screenHeight int
 
@@ -56,8 +57,8 @@ type CRTC struct {
 	RasterCount byte
 	CCLK        byte
 
-	visibleArea bool
-	syncArea    bool
+	VideoPage uint16
+	VideoSize uint16
 
 	graph graphic.Driver
 	MODE  byte
@@ -85,9 +86,4 @@ const (
 	R15
 	R16
 	R17
-)
-
-const (
-	screenStart = 0x0400
-	screenSize  = 1024
 )

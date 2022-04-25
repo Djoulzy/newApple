@@ -20,9 +20,9 @@ import (
 
 const (
 	ramSize      = 65536
-	romSize      = 8192
+	romSize      = 2048
 	ioSize       = 4096
-	chargenSize  = 4096
+	chargenSize  = 2048
 	keyboardSize = 2048
 	blanckSize   = 12288
 
@@ -39,8 +39,13 @@ var (
 	cpu mos6510.CPU
 
 	RAM      []byte
-	ROM_CD   []byte
-	ROM_EF   []byte
+	ROM_AID  []byte
+	ROM_D0   []byte
+	ROM_D8   []byte
+	ROM_E0   []byte
+	ROM_E8   []byte
+	ROM_F0   []byte
+	ROM_F8   []byte
 	IO       []byte
 	KEYB     []byte
 	CHARGEN  []byte
@@ -64,12 +69,17 @@ var (
 func setup() {
 	// ROMs & RAM Setup
 	RAM = make([]byte, ramSize)
-	IO = make([]byte, ioSize)
-	BLANK = make([]byte, blanckSize)
-	ROM_CD = mem.LoadROM(romSize, "assets/roms/CD.bin")
-	ROM_EF = mem.LoadROM(romSize, "assets/roms/EF.bin")
-	KEYB = mem.LoadROM(keyboardSize, "assets/roms/Keyb.bin")
-	CHARGEN = mem.LoadROM(chargenSize, "assets/roms/Video_US.bin")
+	// IO = make([]byte, ioSize)
+	// BLANK = make([]byte, blanckSize)
+	ROM_D0 = mem.LoadROM(romSize, "assets/roms/II/3410011D0.bin")
+	ROM_D8 = mem.LoadROM(romSize, "assets/roms/II/3410012D8.bin")
+	ROM_E0 = mem.LoadROM(romSize, "assets/roms/II/3410013E0.bin")
+	ROM_E8 = mem.LoadROM(romSize, "assets/roms/II/3410014E8.bin")
+	ROM_F0 = mem.LoadROM(romSize, "assets/roms/II/3410015F0.bin")
+	ROM_F8 = mem.LoadROM(romSize, "assets/roms/II/3410020F8.bin")
+	ROM_AID = mem.LoadROM(romSize, "assets/roms/II/3410016.bin")
+	// KEYB = mem.LoadROM(keyboardSize, "assets/roms/Keyb.bin")
+	CHARGEN = mem.LoadROM(chargenSize, "assets/roms/II/3410036.bin")
 
 	mem.Clear(RAM)
 	// mem.DisplayCharRom(CHARGEN, 1, 8, 16)
@@ -125,9 +135,9 @@ func input() {
 			}
 			// fmt.Printf("\n(s) Stack Dump - (z) Zero Page - (r) Run - (sp) Pause / unpause > ")
 		case 'w':
-			fmt.Printf("\nFill Color RAM")
-			for i := 0xD800; i < 0xDC00; i++ {
-				MEM.Write(uint16(i), 0)
+			fmt.Printf("\nFill Screen")
+			for i := 0x0400; i < 0x0800; i++ {
+				MEM.Write(uint16(i), byte(i))
 			}
 			// for i := 0x0800; i < 0x0C00; i++ {
 			// 	IO[uint16(i)] = 0
