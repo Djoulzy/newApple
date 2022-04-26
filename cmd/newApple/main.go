@@ -102,6 +102,7 @@ func setup() {
 
 	// CPU Setup
 	cpu.Init(&MEM, conf)
+	outputDriver.SetCodeList(cpu.DumpCode())
 }
 
 func input() {
@@ -193,6 +194,7 @@ func RunEmulation() {
 
 	cpu.NextCycle()
 	if cpu.State == mos6510.ReadInstruction {
+		outputDriver.ShowCode(cpu.PC)
 		if conf.Breakpoint == cpu.InstStart {
 			conf.Disassamble = true
 			run = false

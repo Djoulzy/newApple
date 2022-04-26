@@ -2,16 +2,17 @@ package graphic
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
 )
 
-// const (
-// 	Xadjust = -75
-// 	Yadjust = -20
-// )
+const (
+	Xadjust = 200
+	Yadjust = 100
+)
 
 type KEYPressed struct {
 	KeyCode uint
@@ -21,11 +22,14 @@ type KEYPressed struct {
 type SDLDriver struct {
 	winHeight int
 	winWidth  int
+	emuHeight int
+	emuWidth  int
 	window    *sdl.Window
 	renderer  *sdl.Renderer
 	texture   *sdl.Texture
 	screen    []byte
 	keybLine  *KEYPressed
+	codeList  []string
 }
 
 var setFPS uint32 = 50
@@ -54,8 +58,10 @@ func (S *SDLDriver) CloseAll() {
 }
 
 func (S *SDLDriver) Init(winWidth, winHeight int, title string) {
-	S.winHeight = winHeight
-	S.winWidth = winWidth
+	S.emuHeight = winHeight
+	S.emuWidth = winWidth
+	S.winHeight = S.emuHeight * 2
+	S.winWidth = S.emuWidth*2 + Xadjust
 
 	err := sdl.Init(sdl.INIT_EVERYTHING)
 	if err != nil {
@@ -66,17 +72,17 @@ func (S *SDLDriver) Init(winWidth, winHeight int, title string) {
 
 	// S.window, S.renderer, err = sdl.CreateWindowAndRenderer(int32(S.winWidth*2), int32(S.winHeight*2), sdl.WINDOW_SHOWN|sdl.WINDOW_RESIZABLE)
 	// S.window.SetTitle(title)
-	S.window, err = sdl.CreateWindow(title, sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, int32(S.winWidth*2), int32(S.winHeight*2), sdl.WINDOW_SHOWN|sdl.WINDOW_RESIZABLE)
+	S.window, err = sdl.CreateWindow(title, sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, int32(S.winWidth), int32(S.winHeight), sdl.WINDOW_SHOWN)
 	S.renderer, err = sdl.CreateRenderer(S.window, -1, sdl.RENDERER_ACCELERATED)
 
-	S.texture, err = S.renderer.CreateTexture(sdl.PIXELFORMAT_RGB24, sdl.TEXTUREACCESS_STREAMING, int32(S.winWidth), int32(S.winHeight))
+	S.texture, err = S.renderer.CreateTexture(sdl.PIXELFORMAT_RGB24, sdl.TEXTUREACCESS_STREAMING, int32(S.emuWidth), int32(S.emuHeight))
 	if err != nil {
 		panic(err)
 	}
 
 	S.screen = make([]byte, S.winWidth*S.winHeight*3)
 	ttf.Init()
-	font, err = ttf.OpenFont("assets/ttf/unispace.ttf", 12)
+	font, err = ttf.OpenFont("assets/ttf/MONOFONT.TTF", 60)
 	if err != nil {
 		panic(err)
 	}
@@ -84,6 +90,10 @@ func (S *SDLDriver) Init(winWidth, winHeight int, title string) {
 
 func (S *SDLDriver) SetKeyboardLine(line *KEYPressed) {
 	S.keybLine = line
+}
+
+func (S *SDLDriver) SetCodeList(list []string) {
+	S.codeList = list
 }
 
 func (S *SDLDriver) getFPS() {
@@ -95,7 +105,17 @@ func (S *SDLDriver) getFPS() {
 	}
 	fpsDisp, _ = font.RenderUTF8Solid(fmt.Sprintf("%d", fps), sdl.Color{255, 255, 255, 255})
 	debug, _ = S.renderer.CreateTextureFromSurface(fpsDisp)
-	S.renderer.Copy(debug, &sdl.Rect{0, 0, 20, 20}, &sdl.Rect{int32(S.winWidth*2) - 20, 0, 20, 20})
+	S.renderer.Copy(debug, nil, &sdl.Rect{int32(S.winWidth) - 32, 2, 30, 30})
+}
+
+func (S *SDLDriver) ShowCode(pc uint16) {
+	var tmp string
+	for i := pc - 10; i < pc+10; i++ {
+		tmp = fmt.Sprintf("%s%s\n", tmp, S.codeList[i])
+	}
+	tmp2, _ := font.RenderUTF8Solid(tmp, sdl.Color{255, 255, 255, 255})
+	debug2, _ := S.renderer.CreateTextureFromSurface(tmp2)
+	S.renderer.Copy(debug2, nil, &sdl.Rect{0, 0, 100, int32(S.winHeight)})
 }
 
 func (S *SDLDriver) UpdateFrame() {
@@ -125,7 +145,7 @@ func (S *SDLDriver) UpdateFrame() {
 				default:
 					S.keybLine.Mode = S.keybLine.KeyCode
 				}
-				// log.Printf("KEY DOWN : %d - %d %d", t.Keysym.Mod, S.keybLine.KeyCode, S.keybLine.Mode)
+				log.Printf("KEY DOWN : %d - %d %d", t.Keysym.Mod, S.keybLine.KeyCode, S.keybLine.Mode)
 			case sdl.KEYUP:
 				// *S.keybLine = 1073742049
 				S.keybLine.KeyCode = 0
@@ -142,9 +162,8 @@ func (S *SDLDriver) UpdateFrame() {
 		// return
 	}
 	frameCount++
-
 	S.texture.Update(nil, S.screen, S.winWidth*3)
-	S.renderer.Copy(S.texture, nil, nil)
+	S.renderer.Copy(S.texture, nil, &sdl.Rect{Xadjust, 0, int32(S.emuWidth) * 2, int32(S.emuHeight) * 2})
 	S.getFPS()
 	S.renderer.Present()
 }

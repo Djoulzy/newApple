@@ -96,6 +96,7 @@ type CPU struct {
 
 	conf      *config.ConfigData
 	ram       *mem.BANK
+	ramSize   int
 	stack     []byte
 	InstStart uint16
 	instDump  string
@@ -110,8 +111,8 @@ type CPU struct {
 	val_absXY    byte
 	comp_result  byte
 
-	cycleCount  int
-	State       cpuState
+	cycleCount int
+	State      cpuState
 
 	NMI_Raised bool
 	IRQ_Raised bool

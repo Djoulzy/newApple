@@ -75,4 +75,5 @@ func initKeyboard() {
 	keyMap[13] = 0x8D // Return
 	keyMap[32] = 0xA0 // Space
 	keyMap[45] = 0xAD // Minus
+	keyMap[59] = 0xAE // Semicolon
 }

@@ -50,6 +50,8 @@ func (C *CPU) Init(MEM *mem.BANK, conf *config.ConfigData) {
 	C.conf = conf
 	C.ram = MEM
 	C.stack = MEM.Layouts[0].Layers[0][StackStart : StackStart+256]
+	C.ramSize = len(MEM.Layouts[0].Layers[0])
+	fmt.Printf("%d\n", C.ramSize)
 	C.initLanguage()
 	C.Reset()
 }
@@ -104,6 +106,43 @@ func (C *CPU) Disassemble() string {
 		token = fmt.Sprintf("($%02X),Y", C.oper)
 	}
 	return fmt.Sprintf("%s%-10s%c[0m\t", buf, token, 27)
+}
+
+func (C *CPU) DumpCode() []string {
+	var pc int = 0
+	var code byte
+	var listing []string
+	var inst instruction
+	var ok bool
+
+	listing = make([]string, C.ramSize)
+	for pc < C.ramSize {
+		code = C.ram.Read(uint16(pc))
+		if inst, ok = mnemonic[code]; ok {
+			switch inst.bytes {
+			case 1:
+				listing[pc] = fmt.Sprintf("%04X: %03s", pc, inst.name)
+			case 2:
+				listing[pc] = fmt.Sprintf("%04X: %03s %02X", pc, inst.name, C.ram.Read(uint16(pc)+1))
+			case 3:
+				listing[pc] = fmt.Sprintf("%04X: %03s %04X", pc, inst.name, C.readWord(uint16(pc)+1))
+			}
+			pc += int(inst.bytes)
+		} else {
+			pc++
+		}
+	}
+	// tmp, err := os.Create("./dump.txt")
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// for i := range listing {
+	// 	if len(listing[i]) > 0 {
+	// 		tmp.Write([]byte(fmt.Sprintf("%s\n", listing[i])))
+	// 	}
+	// }
+	// tmp.Close()
+	return listing
 }
 
 //////////////////////////////////

@@ -14,5 +14,7 @@ type Driver interface {
 	// Run()
 	IOEvents() *KEYPressed
 	SetKeyboardLine(*KEYPressed)
+	SetCodeList([]string)
+	ShowCode(uint16)
 	CloseAll()
 }
