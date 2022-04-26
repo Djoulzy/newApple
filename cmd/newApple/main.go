@@ -83,7 +83,7 @@ func setup() {
 	CHARGEN = mem.LoadROM(chargenSize, "assets/roms/II/3410036.bin")
 
 	mem.Clear(RAM)
-	mem.DisplayCharRom(CHARGEN, 1, 8, 16)
+	// mem.DisplayCharRom(CHARGEN, 1, 8, 16)
 
 	// RAM[0x0001] = 0x00
 	// MEM = mem.InitBanks(nbMemLayout, &RAM[0x0001])

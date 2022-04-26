@@ -1,16 +1,17 @@
 package graphic
 
 import (
-	"log"
+	"fmt"
 	"os"
 
 	"github.com/veandco/go-sdl2/sdl"
+	"github.com/veandco/go-sdl2/ttf"
 )
 
-const (
-	Xadjust = -75
-	Yadjust = -20
-)
+// const (
+// 	Xadjust = -75
+// 	Yadjust = -20
+// )
 
 type KEYPressed struct {
 	KeyCode uint
@@ -26,6 +27,12 @@ type SDLDriver struct {
 	screen    []byte
 	keybLine  *KEYPressed
 }
+
+var setFPS uint32 = 50
+var fps, frameCount, lastFrame, lastTime, timerFPS uint32
+var font *ttf.Font
+var fpsDisp *sdl.Surface
+var debug *sdl.Texture
 
 func (S *SDLDriver) DirectDrawPixel(x, y int, color RGB) {
 	S.renderer.SetDrawColor(byte(color.R), byte(color.G), byte(color.B), 255)
@@ -46,7 +53,7 @@ func (S *SDLDriver) CloseAll() {
 	sdl.Quit()
 }
 
-func (S *SDLDriver) Init(winWidth, winHeight int) {
+func (S *SDLDriver) Init(winWidth, winHeight int, title string) {
 	S.winHeight = winHeight
 	S.winWidth = winWidth
 
@@ -57,8 +64,10 @@ func (S *SDLDriver) Init(winWidth, winHeight int) {
 
 	sdl.SetHint(sdl.HINT_RENDER_SCALE_QUALITY, "0")
 
-	S.window, S.renderer, err = sdl.CreateWindowAndRenderer(int32(S.winWidth*2), int32(S.winHeight*2), sdl.WINDOW_SHOWN|sdl.WINDOW_RESIZABLE)
-	S.window.SetTitle("Go Commodore 64")
+	// S.window, S.renderer, err = sdl.CreateWindowAndRenderer(int32(S.winWidth*2), int32(S.winHeight*2), sdl.WINDOW_SHOWN|sdl.WINDOW_RESIZABLE)
+	// S.window.SetTitle(title)
+	S.window, err = sdl.CreateWindow(title, sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, int32(S.winWidth*2), int32(S.winHeight*2), sdl.WINDOW_SHOWN|sdl.WINDOW_RESIZABLE)
+	S.renderer, err = sdl.CreateRenderer(S.window, -1, sdl.RENDERER_ACCELERATED)
 
 	S.texture, err = S.renderer.CreateTexture(sdl.PIXELFORMAT_RGB24, sdl.TEXTUREACCESS_STREAMING, int32(S.winWidth), int32(S.winHeight))
 	if err != nil {
@@ -66,10 +75,27 @@ func (S *SDLDriver) Init(winWidth, winHeight int) {
 	}
 
 	S.screen = make([]byte, S.winWidth*S.winHeight*3)
+	ttf.Init()
+	font, err = ttf.OpenFont("assets/ttf/unispace.ttf", 12)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func (S *SDLDriver) SetKeyboardLine(line *KEYPressed) {
 	S.keybLine = line
+}
+
+func (S *SDLDriver) getFPS() {
+	lastFrame = sdl.GetTicks()
+	if lastFrame >= (lastTime + 1000) {
+		lastTime = lastFrame
+		fps = frameCount
+		frameCount = 0
+	}
+	fpsDisp, _ = font.RenderUTF8Solid(fmt.Sprintf("%d", fps), sdl.Color{255, 255, 255, 255})
+	debug, _ = S.renderer.CreateTextureFromSurface(fpsDisp)
+	S.renderer.Copy(debug, &sdl.Rect{0, 0, 20, 20}, &sdl.Rect{int32(S.winWidth*2) - 20, 0, 20, 20})
 }
 
 func (S *SDLDriver) UpdateFrame() {
@@ -109,10 +135,17 @@ func (S *SDLDriver) UpdateFrame() {
 			// buffer = 0
 		}
 	}
-	// S.renderer.SetDrawColor(0, 0, 0, 255)
-	// S.renderer.Clear()
+
+	timerFPS = sdl.GetTicks() - lastFrame
+	if timerFPS < (1000 / setFPS) {
+		sdl.Delay((1000 / setFPS) - timerFPS)
+		// return
+	}
+	frameCount++
+
 	S.texture.Update(nil, S.screen, S.winWidth*3)
 	S.renderer.Copy(S.texture, nil, nil)
+	S.getFPS()
 	S.renderer.Present()
 }
 
@@ -120,51 +153,51 @@ func (S *SDLDriver) IOEvents() *KEYPressed {
 	return S.keybLine
 }
 
-func (S *SDLDriver) Run() {
-	var isOpen bool = true
+// func (S *SDLDriver) Run() {
+// 	var isOpen bool = true
 
-	for isOpen {
-		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
-			switch t := event.(type) {
-			case *sdl.QuitEvent:
-				isOpen = false
-				break
-			case *sdl.KeyboardEvent:
-				switch t.Type {
-				case sdl.KEYDOWN:
-					S.keybLine.KeyCode = uint(t.Keysym.Sym)
-					S.keybLine.Mode = 0
-					switch t.Keysym.Mod {
-					case 1:
-						if S.keybLine.KeyCode != sdl.K_LSHIFT {
-							S.keybLine.Mode = sdl.K_LSHIFT
-						}
-					case 2:
-						if S.keybLine.KeyCode != sdl.K_RSHIFT {
-							S.keybLine.Mode = sdl.K_RSHIFT
-						}
-					case 3:
-						S.keybLine.Mode = 0
-					}
-					log.Printf("KEY DOWN : %d %d", S.keybLine.KeyCode, S.keybLine.Mode)
-				case sdl.KEYUP:
-					// *S.keybLine = 1073742049
-					S.keybLine.KeyCode = 0
-					S.keybLine.Mode = 0
-				}
-			default:
-				// buffer = 0
-			}
-		}
+// 	for isOpen {
+// 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
+// 			switch t := event.(type) {
+// 			case *sdl.QuitEvent:
+// 				isOpen = false
+// 				break
+// 			case *sdl.KeyboardEvent:
+// 				switch t.Type {
+// 				case sdl.KEYDOWN:
+// 					S.keybLine.KeyCode = uint(t.Keysym.Sym)
+// 					S.keybLine.Mode = 0
+// 					switch t.Keysym.Mod {
+// 					case 1:
+// 						if S.keybLine.KeyCode != sdl.K_LSHIFT {
+// 							S.keybLine.Mode = sdl.K_LSHIFT
+// 						}
+// 					case 2:
+// 						if S.keybLine.KeyCode != sdl.K_RSHIFT {
+// 							S.keybLine.Mode = sdl.K_RSHIFT
+// 						}
+// 					case 3:
+// 						S.keybLine.Mode = 0
+// 					}
+// 					log.Printf("KEY DOWN : %d %d", S.keybLine.KeyCode, S.keybLine.Mode)
+// 				case sdl.KEYUP:
+// 					// *S.keybLine = 1073742049
+// 					S.keybLine.KeyCode = 0
+// 					S.keybLine.Mode = 0
+// 				}
+// 			default:
+// 				// buffer = 0
+// 			}
+// 		}
 
-		// S.renderer.SetDrawColor(0, 0, 0, 255)
-		// S.renderer.Clear()
-		// S.renderer.SetDrawColor(255, 255, 255, 255)
-		// for i := 0; i < 1000; i++ {
-		// 	S.renderer.DrawPoint(int32(rand.Intn(S.winWidth)), int32(rand.Intn(S.winHeight)))
-		// }
-		S.renderer.Present()
-	}
+// 		// S.renderer.SetDrawColor(0, 0, 0, 255)
+// 		// S.renderer.Clear()
+// 		// S.renderer.SetDrawColor(255, 255, 255, 255)
+// 		// for i := 0; i < 1000; i++ {
+// 		// 	S.renderer.DrawPoint(int32(rand.Intn(S.winWidth)), int32(rand.Intn(S.winHeight)))
+// 		// }
+// 		S.renderer.Present()
+// 	}
 
-	S.CloseAll()
-}
+// 	S.CloseAll()
+// }

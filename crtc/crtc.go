@@ -41,7 +41,7 @@ func (C *CRTC) Init(ram []byte, io []byte, chargen []byte, video interface{}, co
 	C.screenHeight = int(C.Reg[R6]) * 8
 
 	C.graph = video.(graphic.Driver)
-	C.graph.Init(C.screenWidth, C.screenHeight)
+	C.graph.Init(C.screenWidth, C.screenHeight, "Go Apple II")
 	C.conf = conf
 
 	C.videoRam = ram[C.VideoPage : C.VideoPage+C.VideoSize]

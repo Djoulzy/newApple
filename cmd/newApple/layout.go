@@ -16,5 +16,5 @@ func memLayouts() {
 	MEM.Layouts[0].Attach("ROM_F8", 0xF800, ROM_F8, mem.READONLY)
 	// MEM.Layouts[0].Attach("KERNAL", 0xF000, KERNAL, mem.READONLY)
 	MEM.Layouts[0].Accessor("IO", IOAccess)
-	MEM.Layouts[0].Show()
+	// MEM.Layouts[0].Show()
 }
