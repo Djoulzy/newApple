@@ -1,20 +1,16 @@
 package graphic
 
-type RGB struct {
-	R byte
-	G byte
-	B byte
-}
+import "image/color"
 
 type Driver interface {
 	Init(int, int, string)
-	DirectDrawPixel(int, int, RGB)
-	DrawPixel(int, int, RGB)
+	DirectDrawPixel(int, int, color.Color)
+	DrawPixel(int, int, color.Color)
 	UpdateFrame()
 	// Run()
 	IOEvents() *KEYPressed
 	SetKeyboardLine(*KEYPressed)
 	SetCodeList([]string)
-	ShowCode(uint16)
+	ShowCode(int)
 	CloseAll()
 }

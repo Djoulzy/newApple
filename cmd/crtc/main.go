@@ -48,7 +48,7 @@ func start() {
 	IO = make([]byte, ioSize)
 	mem.Clear(IO)
 	CHARGEN = mem.LoadROM(chargenSize, "assets/roms/characters-2.901447-10")
-	outputDriver = &graphic.SDLDriver{}
+	outputDriver = &graphic.SDL2Driver{}
 	CRTC.Init(RAM, IO, CHARGEN, outputDriver, &conf)
 }
 

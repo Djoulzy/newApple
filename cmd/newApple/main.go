@@ -95,7 +95,7 @@ func setup() {
 
 	memLayouts()
 
-	outputDriver = &graphic.SDLDriver{}
+	outputDriver = &graphic.SDL2Driver{}
 	initKeyboard()
 	outputDriver.SetKeyboardLine(&InputLine)
 	CRTC.Init(RAM, IO, CHARGEN, outputDriver, conf)
@@ -194,7 +194,7 @@ func RunEmulation() {
 
 	cpu.NextCycle()
 	if cpu.State == mos6510.ReadInstruction {
-		outputDriver.ShowCode(cpu.PC)
+		outputDriver.ShowCode(int(cpu.PC))
 		if conf.Breakpoint == cpu.InstStart {
 			conf.Disassamble = true
 			run = false
