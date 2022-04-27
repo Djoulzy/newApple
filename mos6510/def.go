@@ -45,7 +45,7 @@ const (
 )
 
 type instruction struct {
-	name   string
+	Name   string
 	addr   addressing
 	bytes  int
 	Cycles int
@@ -94,6 +94,8 @@ type CPU struct {
 	IRQ_pin int
 	NMI_pin int
 
+	Mnemonic map[byte]instruction
+
 	conf      *config.ConfigData
 	ram       *mem.BANK
 	ramSize   int
@@ -118,6 +120,3 @@ type CPU struct {
 	IRQ_Raised bool
 	INT_delay  bool
 }
-
-// Mnemonic :
-var mnemonic map[byte]instruction

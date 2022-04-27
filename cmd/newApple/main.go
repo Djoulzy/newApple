@@ -102,8 +102,7 @@ func setup() {
 
 	// CPU Setup
 	cpu.Init(&MEM, conf)
-	outputDriver.SetCodeList(cpu.DumpCode(0xD000))
-	outputDriver.GenCodeImage()
+	outputDriver.SetCodeList(cpu.DumpRom(0xD000))
 }
 
 func input() {
@@ -167,7 +166,7 @@ func input() {
 
 func Disassamble() {
 	// fmt.Printf("\n%s %s", vic.Disassemble(), cpu.Disassemble())
-	fmt.Printf("%s\n", cpu.Disassemble())
+	fmt.Printf("%s\n", cpu.Trace())
 }
 
 func timeTrack(start time.Time, name string) {
@@ -195,7 +194,7 @@ func RunEmulation() {
 
 	cpu.NextCycle()
 	if cpu.State == mos6510.ReadInstruction {
-		outputDriver.ShowCode(int(cpu.PC))
+		// go outputDriver.ShowCode(int(cpu.PC))
 		if conf.Breakpoint == cpu.InstStart {
 			conf.Disassamble = true
 			run = false
@@ -234,7 +233,7 @@ func main() {
 	run = true
 	cpuTurn = true
 	// go func() {
-	RAM[0xC000] = 0xC1
+	go CRTC.Run(!run)
 	for {
 		RunEmulation()
 	}

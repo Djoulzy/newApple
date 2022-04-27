@@ -11,7 +11,6 @@ type Driver interface {
 	IOEvents() *KEYPressed
 	SetKeyboardLine(*KEYPressed)
 	SetCodeList(map[int][]rune)
-	GenCodeImage()
 	ShowCode(int)
 	CloseAll()
 }

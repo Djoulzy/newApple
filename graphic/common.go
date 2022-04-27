@@ -5,8 +5,12 @@ import (
 )
 
 const (
-	Xadjust = 200
-	Yadjust = 100
+	Xadjust        = 200
+	Yadjust        = 100
+	fontWidth      = 7
+	fontHeight     = 9
+	mnemonicWidth  = fontWidth * 3
+	mnemonicHeight = fontHeight
 )
 
 type KEYPressed struct {

@@ -20,7 +20,6 @@ type SDL2Driver struct {
 	renderer  *sdl.Renderer
 	texture   *sdl.Texture
 	bitmap    *sdl.Surface
-	screen    []byte
 	keybLine  *KEYPressed
 	codeList  map[int][]rune
 }
@@ -71,7 +70,7 @@ func (S *SDL2Driver) Init(winWidth, winHeight int, title string) {
 		panic(err)
 	}
 
-	S.screen = make([]byte, S.winWidth*S.winHeight*3)
+	go S.getFPS()
 }
 
 func (S *SDL2Driver) SetKeyboardLine(line *KEYPressed) {
@@ -91,37 +90,18 @@ func getGlyph(char rune) *sdl.Rect {
 }
 
 func (S *SDL2Driver) getFPS() {
-	lastFrame = sdl.GetTicks()
-	if lastFrame >= (lastTime + 1000) {
-		lastTime = lastFrame
-		fps = frameCount
-		frameCount = 0
-	}
-	runes := []rune(fmt.Sprintf("%d", fps))
-	for i, r := range runes {
-		S.bitmap.Blit(getGlyph(r), S.surface, &sdl.Rect{int32(S.emuWidth - 21 + i*7), 2, 7, 9})
-	}
-}
-
-func (S *SDL2Driver) GenCodeImage() {
-	tmpSurface, err := sdl.CreateRGBSurface(0, int32(Xadjust), int32(10*7), 32, 0, 0, 0, 0)
-	if err != nil {
-		panic(err)
-	}
-	for pc, runes := range S.codeList {
+	for {
+		lastFrame = sdl.GetTicks()
+		if lastFrame >= (lastTime + 1000) {
+			lastTime = lastFrame
+			fps = frameCount
+			frameCount = 0
+		}
+		runes := []rune(fmt.Sprintf("%d", fps))
 		for i, r := range runes {
-			err = S.bitmap.Blit(getGlyph(r), tmpSurface, &sdl.Rect{int32(i * 7), int32((pc-0xD000) * 9), 7, 9})
-			if err != nil {
-				panic(err)
-			}
+			S.bitmap.Blit(getGlyph(r), S.surface, &sdl.Rect{int32(S.emuWidth - 21 + i*7), 2, 7, 9})
 		}
 	}
-
-	err = tmpSurface.SaveBMP("code.bmp")
-	if err != nil {
-		panic(err)
-	}
-	tmpSurface.Free()
 }
 
 func (S *SDL2Driver) ShowCode(pc int) {
@@ -181,7 +161,6 @@ func (S *SDL2Driver) UpdateFrame() {
 	// S.renderer.Clear()
 	// S.texture.Update(nil, S.screen, S.winWidth*3)
 	// S.renderer.Copy(S.texture, nil, &sdl.Rect{Xadjust, 0, int32(S.emuWidth) * 2, int32(S.emuHeight) * 2})
-	S.getFPS()
 
 	S.texture, _ = S.renderer.CreateTextureFromSurface(S.surface)
 	S.renderer.Copy(S.texture, nil, &sdl.Rect{Xadjust, 0, int32(S.emuWidth) * 2, int32(S.emuHeight) * 2})

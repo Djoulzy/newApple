@@ -77,7 +77,7 @@ func (TS *TestSuite) Add(td TestData) {
 }
 
 func (TD *TestData) run() {
-	proc.Inst = mnemonic[TD.inst]
+	proc.Inst = proc.Mnemonic[TD.inst]
 	proc.PC = TD.pc + uint16(proc.Inst.bytes)
 	proc.S = TD.flag
 	proc.A = TD.acc
@@ -95,7 +95,7 @@ func (TD *TestData) run() {
 
 func (TD *TestData) checkBit(t *testing.T, val1, val2 byte, name string) bool {
 	if val1 != val2 {
-		t.Errorf("%s %s - Incorrect %s - get: %08b - want: %08b", mnemonic[TD.inst].name, getAddrName(mnemonic[TD.inst].addr), name, val1, val2)
+		t.Errorf("%s %s - Incorrect %s - get: %08b - want: %08b", proc.Mnemonic[TD.inst].Name, getAddrName(proc.Mnemonic[TD.inst].addr), name, val1, val2)
 		return false
 	}
 	return true
@@ -103,7 +103,7 @@ func (TD *TestData) checkBit(t *testing.T, val1, val2 byte, name string) bool {
 
 func (TD *TestData) checkByte(t *testing.T, val1, val2 byte, name string) bool {
 	if val1 != val2 {
-		t.Errorf("%s %s - Incorrect %s - get: %02X - want: %02X", mnemonic[TD.inst].name, getAddrName(mnemonic[TD.inst].addr), name, val1, val2)
+		t.Errorf("%s %s - Incorrect %s - get: %02X - want: %02X", proc.Mnemonic[TD.inst].Name, getAddrName(proc.Mnemonic[TD.inst].addr), name, val1, val2)
 		return false
 	}
 	return true
@@ -111,7 +111,7 @@ func (TD *TestData) checkByte(t *testing.T, val1, val2 byte, name string) bool {
 
 func (TD *TestData) checkWord(t *testing.T, val1, val2 uint16, name string) bool {
 	if val1 != val2 {
-		t.Errorf("%s %s - Incorrect %s - get: %04X - want: %04X", mnemonic[TD.inst].name, getAddrName(mnemonic[TD.inst].addr), name, val1, val2)
+		t.Errorf("%s %s - Incorrect %s - get: %04X - want: %04X", proc.Mnemonic[TD.inst].Name, getAddrName(proc.Mnemonic[TD.inst].addr), name, val1, val2)
 		return false
 	}
 	return true
@@ -193,7 +193,7 @@ func TestLDA(t *testing.T) {
 		allGood = allGood && table.checkBit(t, proc.S, table.resFlag, "Status Flag")
 		allGood = allGood && table.checkByte(t, proc.A, byte(table.res), "Assignement")
 	}
-	finalize(mnemonic[ts.inst].name, allGood)
+	finalize(proc.Mnemonic[ts.inst].Name, allGood)
 }
 
 func TestBNE(t *testing.T) {
@@ -208,7 +208,7 @@ func TestBNE(t *testing.T) {
 		table.run()
 		allGood = allGood && table.checkWord(t, proc.PC, table.res, "Address")
 	}
-	finalize(mnemonic[ts.inst].name, allGood)
+	finalize(proc.Mnemonic[ts.inst].Name, allGood)
 }
 
 func TestADC(t *testing.T) {
@@ -260,7 +260,7 @@ func TestADC(t *testing.T) {
 		allGood = allGood && table.checkByte(t, proc.A, byte(table.res), "Result")
 		allGood = allGood && table.checkBit(t, proc.S, table.resFlag, "Flags")
 	}
-	finalize(mnemonic[ts.inst].name, allGood)
+	finalize(proc.Mnemonic[ts.inst].Name, allGood)
 }
 
 func TestSBC(t *testing.T) {
@@ -311,7 +311,7 @@ func TestSBC(t *testing.T) {
 		allGood = allGood && table.checkByte(t, proc.A, byte(table.res), "Result")
 		allGood = allGood && table.checkBit(t, proc.S, table.resFlag, "Flags")
 	}
-	finalize(mnemonic[ts.inst].name, allGood)
+	finalize(proc.Mnemonic[ts.inst].Name, allGood)
 }
 
 func TestCMP(t *testing.T) {
@@ -342,7 +342,7 @@ func TestCMP(t *testing.T) {
 		table.run()
 		allGood = allGood && table.checkBit(t, proc.S, table.resFlag, "Flags")
 	}
-	finalize(mnemonic[ts.inst].name, allGood)
+	finalize(proc.Mnemonic[ts.inst].Name, allGood)
 }
 
 func TestROR(t *testing.T) {
@@ -359,7 +359,7 @@ func TestROR(t *testing.T) {
 		allGood = allGood && table.checkByte(t, proc.ram.Read(0x0014), byte(table.res), "Result")
 		allGood = allGood && table.checkBit(t, proc.S, table.resFlag, "Flags")
 	}
-	finalize(mnemonic[ts.inst].name, allGood)
+	finalize(proc.Mnemonic[ts.inst].Name, allGood)
 }
 
 func TestROL(t *testing.T) {
@@ -378,7 +378,7 @@ func TestROL(t *testing.T) {
 		allGood = allGood && table.checkByte(t, proc.ram.Read(0x0014), byte(table.res), "Result")
 		allGood = allGood && table.checkBit(t, proc.S, table.resFlag, "Flags")
 	}
-	finalize(mnemonic[ts.inst].name, allGood)
+	finalize(proc.Mnemonic[ts.inst].Name, allGood)
 }
 
 func TestLSR(t *testing.T) {
@@ -397,7 +397,7 @@ func TestLSR(t *testing.T) {
 		allGood = allGood && table.checkByte(t, proc.ram.Read(0x0014), byte(table.res), "Result")
 		allGood = allGood && table.checkBit(t, proc.S, table.resFlag, "Flags")
 	}
-	finalize(mnemonic[ts.inst].name, allGood)
+	finalize(proc.Mnemonic[ts.inst].Name, allGood)
 }
 
 func TestASL(t *testing.T) {
@@ -419,7 +419,7 @@ func TestASL(t *testing.T) {
 		allGood = allGood && table.checkByte(t, proc.ram.Read(uint16(table.memDest)), byte(table.res), "Result")
 		allGood = allGood && table.checkBit(t, proc.S, table.resFlag, "Flags")
 	}
-	finalize(mnemonic[ts.inst].name, allGood)
+	finalize(proc.Mnemonic[ts.inst].Name, allGood)
 }
 
 func TestEOR(t *testing.T) {
@@ -438,7 +438,7 @@ func TestEOR(t *testing.T) {
 		allGood = allGood && table.checkByte(t, proc.A, byte(table.res), "Result")
 		allGood = allGood && table.checkBit(t, proc.S, table.resFlag, "Flags")
 	}
-	finalize(mnemonic[ts.inst].name, allGood)
+	finalize(proc.Mnemonic[ts.inst].Name, allGood)
 }
 
 func TestBIT(t *testing.T) {
@@ -462,5 +462,5 @@ func TestBIT(t *testing.T) {
 		table.run()
 		allGood = allGood && table.checkBit(t, proc.S, table.resFlag, "Flags")
 	}
-	finalize(mnemonic[ts.inst].name, allGood)
+	finalize(proc.Mnemonic[ts.inst].Name, allGood)
 }

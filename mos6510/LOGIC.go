@@ -247,7 +247,7 @@ func (C *CPU) ora() {
 }
 
 func (C *CPU) rla() {
-	fmt.Printf("%s\nNot implemented: %v\n", C.Disassemble(), C.Inst)
+	fmt.Printf("%s\nNot implemented: %v\n", C.Trace(), C.Inst)
 }
 
 func (C *CPU) rol() {
