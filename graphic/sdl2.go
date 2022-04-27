@@ -7,7 +7,6 @@ import (
 	"os"
 
 	"github.com/veandco/go-sdl2/sdl"
-	"github.com/veandco/go-sdl2/ttf"
 )
 
 type SDL2Driver struct {
@@ -23,7 +22,7 @@ type SDL2Driver struct {
 	bitmap    *sdl.Surface
 	screen    []byte
 	keybLine  *KEYPressed
-	codeList  []string
+	codeList  map[int][]rune
 }
 
 func (S *SDL2Driver) DirectDrawPixel(x, y int, c color.Color) {
@@ -73,26 +72,22 @@ func (S *SDL2Driver) Init(winWidth, winHeight int, title string) {
 	}
 
 	S.screen = make([]byte, S.winWidth*S.winHeight*3)
-	ttf.Init()
-	font, err = ttf.OpenFont("assets/ttf/PetMe.ttf", 8)
-	if err != nil {
-		panic(err)
-	}
 }
 
 func (S *SDL2Driver) SetKeyboardLine(line *KEYPressed) {
 	S.keybLine = line
 }
 
-func (S *SDL2Driver) SetCodeList(list []string) {
+func (S *SDL2Driver) SetCodeList(list map[int][]rune) {
 	S.codeList = list
 }
 
 func getGlyph(char rune) *sdl.Rect {
 	pos := int32(char - 32)
-	posy := int32(pos / 7)
-	posx := pos - posy
-	return &sdl.Rect{posx * 7, posy * 9, 7, 9}
+	// posy := int32(pos / 18)
+	// posx := pos - int32(pos / 18)*18
+	// fmt.Printf("r: %c ASCII: %d - abs: %d - x: %d - y: %d\n", char, char, pos, posx, posy)
+	return &sdl.Rect{pos*7 - int32(pos/18)*126, int32(pos/18) * 9, 7, 9}
 }
 
 func (S *SDL2Driver) getFPS() {
@@ -103,16 +98,39 @@ func (S *SDL2Driver) getFPS() {
 		frameCount = 0
 	}
 	runes := []rune(fmt.Sprintf("%d", fps))
-	fpsDisp, _ = font.RenderUTF8Solid(fmt.Sprintf("%d", fps), sdl.Color{255, 255, 255, 255})
-	S.bitmap.Blit(getGlyph(runes[0]), S.surface, &sdl.Rect{int32(S.emuWidth) - 32, 2, 24, 12})
+	for i, r := range runes {
+		S.bitmap.Blit(getGlyph(r), S.surface, &sdl.Rect{int32(S.emuWidth - 21 + i*7), 2, 7, 9})
+	}
+}
+
+func (S *SDL2Driver) GenCodeImage() {
+	tmpSurface, err := sdl.CreateRGBSurface(0, int32(Xadjust), int32(10*7), 32, 0, 0, 0, 0)
+	if err != nil {
+		panic(err)
+	}
+	for pc, runes := range S.codeList {
+		for i, r := range runes {
+			err = S.bitmap.Blit(getGlyph(r), tmpSurface, &sdl.Rect{int32(i * 7), int32((pc-0xD000) * 9), 7, 9})
+			if err != nil {
+				panic(err)
+			}
+		}
+	}
+
+	err = tmpSurface.SaveBMP("code.bmp")
+	if err != nil {
+		panic(err)
+	}
+	tmpSurface.Free()
 }
 
 func (S *SDL2Driver) ShowCode(pc int) {
 	S.debug.FillRect(&sdl.Rect{0, 0, Xadjust, int32(S.winHeight)}, 16)
 
 	for i := -10; i < 10; i++ {
-		tmp2, _ := font.RenderUTF8Solid(S.codeList[pc+i], sdl.Color{255, 255, 255, 255})
-		tmp2.Blit(nil, S.debug, &sdl.Rect{0, 12 * int32(i), 100, 12})
+		for ri, r := range S.codeList[pc+i] {
+			S.bitmap.Blit(getGlyph(r), S.debug, &sdl.Rect{int32(ri * 7), int32(i+10) * 9, 7, 9})
+		}
 	}
 }
 
@@ -154,11 +172,11 @@ func (S *SDL2Driver) UpdateFrame() {
 		}
 	}
 
-	timerFPS = sdl.GetTicks() - lastFrame
-	if timerFPS < (1000 / setFPS) {
-		sdl.Delay((1000 / setFPS) - timerFPS)
-		// return
-	}
+	// timerFPS = sdl.GetTicks() - lastFrame
+	// if timerFPS < (1000 / setFPS) {
+	// 	sdl.Delay((1000 / setFPS) - timerFPS)
+	// 	// return
+	// }
 	frameCount++
 	// S.renderer.Clear()
 	// S.texture.Update(nil, S.screen, S.winWidth*3)

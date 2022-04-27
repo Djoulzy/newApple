@@ -102,7 +102,8 @@ func setup() {
 
 	// CPU Setup
 	cpu.Init(&MEM, conf)
-	outputDriver.SetCodeList(cpu.DumpCode())
+	outputDriver.SetCodeList(cpu.DumpCode(0xD000))
+	outputDriver.GenCodeImage()
 }
 
 func input() {

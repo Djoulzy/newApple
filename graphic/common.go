@@ -2,7 +2,6 @@ package graphic
 
 import (
 	"github.com/veandco/go-sdl2/sdl"
-	"github.com/veandco/go-sdl2/ttf"
 )
 
 const (
@@ -17,6 +16,4 @@ type KEYPressed struct {
 
 var setFPS uint32 = 50
 var fps, frameCount, lastFrame, lastTime, timerFPS uint32
-var font *ttf.Font
-var fpsDisp *sdl.Surface
 var debug *sdl.Texture

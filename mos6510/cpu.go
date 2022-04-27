@@ -108,38 +108,38 @@ func (C *CPU) Disassemble() string {
 	return fmt.Sprintf("%s%-10s%c[0m\t", buf, token, 27)
 }
 
-func (C *CPU) DumpCode() []string {
-	var pc int = 0
+func (C *CPU) DumpCode(start int) map[int][]rune {
 	var code byte
-	var listing []string
+	var listing map[int][]rune
 	var inst instruction
 	var ok bool
 
-	listing = make([]string, C.ramSize)
-	for pc < C.ramSize {
+	listing = make(map[int][]rune, 4096)
+	pc := start
+	for pc < start+4096 {
 		code = C.ram.Read(uint16(pc))
 		if inst, ok = mnemonic[code]; ok {
 			switch inst.bytes {
 			case 1:
-				listing[pc] = fmt.Sprintf("%04X: %03s\n", pc, inst.name)
+				listing[pc] = []rune(fmt.Sprintf("%04X: %03s", pc, inst.name))
 			case 2:
-				listing[pc] = fmt.Sprintf("%04X: %03s %02X\n", pc, inst.name, C.ram.Read(uint16(pc)+1))
+				listing[pc] = []rune(fmt.Sprintf("%04X: %03s %02X", pc, inst.name, C.ram.Read(uint16(pc)+1)))
 			case 3:
-				listing[pc] = fmt.Sprintf("%04X: %03s %04X\n", pc, inst.name, C.readWord(uint16(pc)+1))
+				listing[pc] = []rune(fmt.Sprintf("%04X: %03s %04X", pc, inst.name, C.readWord(uint16(pc)+1)))
 			}
 			pc += int(inst.bytes)
 		} else {
+			listing[pc] = []rune(fmt.Sprintf("%04X:", pc))
 			pc++
 		}
+		fmt.Printf("ok")
 	}
-	// tmp, err := os.Create("./dump.txt")
+	// tmp, err := os.Create(fmt.Sprintf("%04X.txt", pc))
 	// if err != nil {
 	// 	panic(err)
 	// }
 	// for i := range listing {
-	// 	if len(listing[i]) > 0 {
-	// 		tmp.Write([]byte(fmt.Sprintf("%s\n", listing[i])))
-	// 	}
+	// 	tmp.Write([]byte(fmt.Sprintf("%s\n", listing[i])))
 	// }
 	// tmp.Close()
 	return listing
