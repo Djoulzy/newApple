@@ -62,39 +62,58 @@ func (C *CPU) Trace() string {
 		C.registers(), 27, C.A, 27, 27, C.X, 27, 27, C.Y, 27, 27, C.SP, 27, 27, C.InstStart, 27, C.instDump, 27, C.Inst.Cycles, 27, 27, Disassemble(C.Inst, C.oper), 27)
 }
 
-func (C *CPU) DumpRom(start int) map[int][]rune {
+func (C *CPU) DumpRom(start int) [][]byte {
 	var code byte
-	var listing map[int][]rune
+	var listing [][]byte
 	var inst instruction
 	var ok bool
 
-	listing = make(map[int][]rune, 4096)
+	listing = make([][]byte, C.ramSize)
 	pc := start
-	for pc < start+4096 {
+	for pc < C.ramSize {
 		code = C.ram.Read(uint16(pc))
 		if inst, ok = C.Mnemonic[code]; ok {
-			switch inst.bytes {
-			case 1:
-				listing[pc] = []rune(fmt.Sprintf("%04X: %03s", pc, inst.Name))
-			case 2:
-				listing[pc] = []rune(fmt.Sprintf("%04X: %03s %02X", pc, inst.Name, C.ram.Read(uint16(pc)+1)))
-			case 3:
-				listing[pc] = []rune(fmt.Sprintf("%04X: %03s %04X", pc, inst.Name, C.readWord(uint16(pc)+1)))
+			// listing[pc] = make([]byte, 5)
+			switch inst.addr {
+			case implied:
+				listing[pc] = []byte{code}
+			case immediate:
+				// token = fmt.Sprintf(" #$%02X", oper)
+				listing[pc] = []byte{code, 1, C.ram.Read(uint16(pc) + 1)}
+			case relative:
+			case zeropage:
+				// token = fmt.Sprintf(" $%02X", oper)
+				listing[pc] = []byte{code, 2, C.ram.Read(uint16(pc) + 1)}
+			case zeropageX:
+				// token = fmt.Sprintf(" $%02X,X", oper)
+				listing[pc] = []byte{code, 2, C.ram.Read(uint16(pc) + 1), 0, 1}
+			case zeropageY:
+				// token = fmt.Sprintf(" $%02X,Y", oper)
+				listing[pc] = []byte{code, 2, C.ram.Read(uint16(pc) + 1), 0, 2}
+			case absolute:
+				// token = fmt.Sprintf(" $%04X", oper)
+				listing[pc] = []byte{code, 2, C.ram.Read(uint16(pc) + 2), C.ram.Read(uint16(pc) + 1)}
+			case absoluteX:
+				// token = fmt.Sprintf(" $%04X,X", oper)
+				listing[pc] = []byte{code, 2, C.ram.Read(uint16(pc) + 2), C.ram.Read(uint16(pc) + 1), 4}
+			case absoluteY:
+				// token = fmt.Sprintf(" $%04X,Y", oper)
+				listing[pc] = []byte{code, 2, C.ram.Read(uint16(pc) + 2), C.ram.Read(uint16(pc) + 1), 5}
+			case indirect:
+				// token = fmt.Sprintf(" ($%04X)", oper)
+				listing[pc] = []byte{code, 3, C.ram.Read(uint16(pc) + 2), C.ram.Read(uint16(pc) + 1), 6}
+			case indirectX:
+				// token = fmt.Sprintf(" ($%02X,X)", oper)
+				listing[pc] = []byte{code, 3, C.ram.Read(uint16(pc) + 1), 0, 7}
+			case indirectY:
+				// token = fmt.Sprintf(" ($%02X),Y", oper)
+				listing[pc] = []byte{code, 3, C.ram.Read(uint16(pc) + 1), 0, 8}
 			}
 			pc += int(inst.bytes)
 		} else {
-			listing[pc] = []rune(fmt.Sprintf("%04X:", pc))
 			pc++
 		}
 	}
-	// tmp, err := os.Create(fmt.Sprintf("%04X.txt", pc))
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// for i := range listing {
-	// 	tmp.Write([]byte(fmt.Sprintf("%s\n", listing[i])))
-	// }
-	// tmp.Close()
 	return listing
 }
 

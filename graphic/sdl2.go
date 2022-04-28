@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image/color"
 	"log"
+	"math"
 	"os"
 
 	"github.com/veandco/go-sdl2/sdl"
@@ -15,23 +16,27 @@ type SDL2Driver struct {
 	emuHeight int
 	emuWidth  int
 	window    *sdl.Window
-	surface   *sdl.Surface
-	debug     *sdl.Surface
+	emul      *sdl.Surface
+	debug     [2]*sdl.Surface
+	debugShow int
 	renderer  *sdl.Renderer
 	texture   *sdl.Texture
 	bitmap    *sdl.Surface
+	mnemo     *sdl.Surface
+	num       *sdl.Surface
+	cmd       *sdl.Surface
 	keybLine  *KEYPressed
-	codeList  map[int][]rune
+	codeList  [][]byte
 }
 
 func (S *SDL2Driver) DirectDrawPixel(x, y int, c color.Color) {
 	// S.renderer.SetDrawColor(byte(color.R), byte(color.G), byte(color.B), 255)
 	// S.renderer.DrawPoint(int32(x), int32(y))
-	S.surface.Set(x, y, c)
+	S.emul.Set(x, y, c)
 }
 
 func (S *SDL2Driver) DrawPixel(x, y int, c color.Color) {
-	S.surface.Set(x, y, c)
+	S.emul.Set(x, y, c)
 }
 
 func (S *SDL2Driver) CloseAll() {
@@ -59,8 +64,11 @@ func (S *SDL2Driver) Init(winWidth, winHeight int, title string) {
 	if err != nil {
 		panic(err)
 	}
-	S.surface, err = sdl.CreateRGBSurface(0, int32(S.emuWidth), int32(S.emuHeight), 32, 0, 0, 0, 0)
-	S.debug, err = sdl.CreateRGBSurface(0, int32(Xadjust), int32(S.winHeight), 32, 0, 0, 0, 0)
+	S.emul, err = sdl.CreateRGBSurface(0, int32(S.emuWidth), int32(S.emuHeight), 32, 0, 0, 0, 0)
+	S.debug[0], err = sdl.CreateRGBSurface(0, int32(Xadjust), int32(S.winHeight), 32, 0, 0, 0, 0)
+	S.debug[1], err = sdl.CreateRGBSurface(0, int32(Xadjust), int32(S.winHeight), 32, 0, 0, 0, 0)
+	S.debugShow = 1
+
 	if err != nil {
 		panic(err)
 	}
@@ -69,15 +77,26 @@ func (S *SDL2Driver) Init(winWidth, winHeight int, title string) {
 	if err != nil {
 		panic(err)
 	}
-
-	go S.getFPS()
+	S.mnemo, err = sdl.LoadBMP("graphic/assets/mnemonic.bmp")
+	if err != nil {
+		panic(err)
+	}
+	S.num, err = sdl.LoadBMP("graphic/assets/num.bmp")
+	if err != nil {
+		panic(err)
+	}
+	S.cmd, err = sdl.LoadBMP("graphic/assets/cmd.bmp")
+	if err != nil {
+		panic(err)
+	}
+	// go S.getFPS()
 }
 
 func (S *SDL2Driver) SetKeyboardLine(line *KEYPressed) {
 	S.keybLine = line
 }
 
-func (S *SDL2Driver) SetCodeList(list map[int][]rune) {
+func (S *SDL2Driver) SetCodeList(list [][]byte) {
 	S.codeList = list
 }
 
@@ -91,7 +110,6 @@ func getGlyph(char rune) *sdl.Rect {
 
 func (S *SDL2Driver) getFPS() {
 	for {
-		lastFrame = sdl.GetTicks()
 		if lastFrame >= (lastTime + 1000) {
 			lastTime = lastFrame
 			fps = frameCount
@@ -99,19 +117,51 @@ func (S *SDL2Driver) getFPS() {
 		}
 		runes := []rune(fmt.Sprintf("%d", fps))
 		for i, r := range runes {
-			S.bitmap.Blit(getGlyph(r), S.surface, &sdl.Rect{int32(S.emuWidth - 21 + i*7), 2, 7, 9})
+			S.bitmap.Blit(getGlyph(r), S.emul, &sdl.Rect{int32(S.emuWidth - 21 + i*7), 2, 7, 9})
 		}
+		// sdl.Delay(1000)
 	}
 }
 
-func (S *SDL2Driver) ShowCode(pc int) {
-	S.debug.FillRect(&sdl.Rect{0, 0, Xadjust, int32(S.winHeight)}, 16)
+func (S *SDL2Driver) ShowCode(pc *uint16) {
+	var lastPC uint16 = 0
+	var debugHide int
+	// var shiftX int32 = 0
 
-	for i := -10; i < 10; i++ {
-		for ri, r := range S.codeList[pc+i] {
-			S.bitmap.Blit(getGlyph(r), S.debug, &sdl.Rect{int32(ri * 7), int32(i+10) * 9, 7, 9})
-		}
+	if lastPC == *pc {
+		return
 	}
+	lastPC = *pc
+	// for i := -10; i < 10; i++ {
+	if S.codeList[lastPC] == nil {
+		return
+	}
+
+	debugHide = int(math.Abs(float64(S.debugShow - 1)))
+	S.debug[debugHide].FillRect(&sdl.Rect{0, 0, Xadjust, int32(S.winHeight)}, 16)
+	S.debug[S.debugShow].Blit(&sdl.Rect{0, fontHeight, Xadjust, int32(S.winHeight - fontHeight)}, S.debug[debugHide], nil)
+
+	S.num.Blit(&sdl.Rect{int32(((lastPC & 0xFF00) >> 8) * fontWidth * 2), 0, fontWidth * 2, fontHeight}, S.debug[debugHide], &sdl.Rect{fontWidth, int32(S.winHeight - fontHeight*2), fontWidth * 2, fontHeight})
+	S.num.Blit(&sdl.Rect{int32((lastPC & 0x00FF) * fontWidth * 2), 0, fontWidth * 2, fontHeight}, S.debug[debugHide], &sdl.Rect{fontWidth * 3, int32(S.winHeight - fontHeight*2), fontWidth * 2, fontHeight})
+
+	// shiftX = fontWidth * 5
+	for part_i, part := range S.codeList[lastPC] {
+		switch part_i {
+		case 0: // Mnemonic
+			y := part / 16
+			S.mnemo.Blit(&sdl.Rect{int32((part - y*16) * mnemonicWidth), int32(y * mnemonicHeight), mnemonicWidth, mnemonicHeight}, S.debug[debugHide], &sdl.Rect{fontWidth * 6, int32(S.winHeight - fontHeight*2), mnemonicWidth, mnemonicHeight})
+			// S.mnemo.Blit(&sdl.Rect{0, int32(y), mnemonicWidth, mnemonicHeight}, S.debug, &sdl.Rect{10, 10, 7, 9})
+
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+		}
+
+	}
+	// }
+
+	S.debugShow = debugHide
 }
 
 func (S *SDL2Driver) UpdateFrame() {
@@ -152,22 +202,24 @@ func (S *SDL2Driver) UpdateFrame() {
 		}
 	}
 
-	// timerFPS = sdl.GetTicks() - lastFrame
-	// if timerFPS < (1000 / setFPS) {
-	// 	sdl.Delay((1000 / setFPS) - timerFPS)
-	// 	// return
-	// }
-	frameCount++
+	timerFPS = sdl.GetTicks() - lastFrame
+	if timerFPS < (1000 / setFPS) {
+		sdl.Delay((1000 / setFPS) - timerFPS)
+		// return
+	}
+
 	// S.renderer.Clear()
 	// S.texture.Update(nil, S.screen, S.winWidth*3)
 	// S.renderer.Copy(S.texture, nil, &sdl.Rect{Xadjust, 0, int32(S.emuWidth) * 2, int32(S.emuHeight) * 2})
 
-	S.texture, _ = S.renderer.CreateTextureFromSurface(S.surface)
+	S.texture, _ = S.renderer.CreateTextureFromSurface(S.emul)
 	S.renderer.Copy(S.texture, nil, &sdl.Rect{Xadjust, 0, int32(S.emuWidth) * 2, int32(S.emuHeight) * 2})
-	S.texture, _ = S.renderer.CreateTextureFromSurface(S.debug)
+	S.texture, _ = S.renderer.CreateTextureFromSurface(S.debug[S.debugShow])
 	S.renderer.Copy(S.texture, nil, &sdl.Rect{0, 0, int32(Xadjust), int32(S.winHeight)})
 	S.renderer.Present()
 
+	lastFrame = sdl.GetTicks()
+	frameCount++
 	// S.window.UpdateSurface()
 }
 

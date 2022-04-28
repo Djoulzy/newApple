@@ -9,7 +9,7 @@ import (
 var bitmap *sdl.Surface
 
 func buildNumeric() {
-	numeric, err := sdl.CreateRGBSurface(0, int32(fontWidth*256), int32(fontHeight), 32, 0, 0, 0, 0)
+	numeric, err := sdl.CreateRGBSurface(0, int32(fontWidth*256*2), int32(fontHeight), 32, 0, 0, 0, 0)
 	if err != nil {
 		panic(err)
 	}
@@ -34,11 +34,29 @@ func buildMnemonic(inst []string) {
 		for x := 0; x < 16; x++ {
 			val := []rune(fmt.Sprintf("%s", inst[y*16+x]))
 			for i, r := range val {
-				bitmap.Blit(getGlyph(r), mne, &sdl.Rect{int32((x*mnemonicWidth) +(i*fontWidth)), int32(y*mnemonicHeight), mnemonicWidth, mnemonicHeight})
+				bitmap.Blit(getGlyph(r), mne, &sdl.Rect{int32((x * mnemonicWidth) + (i * fontWidth)), int32(y * mnemonicHeight), mnemonicWidth, mnemonicHeight})
 			}
 		}
 	}
 	err = mne.SaveBMP("graphic/assets/mnemonic.bmp")
+	if err != nil {
+		panic(err)
+	}
+}
+
+func buildCmd() {
+	var modele []string = []string{"   ", " #$", "  $", " ($", ",X ", ")  ", ",Y ", ",X)", "),Y"}
+	cmd, err := sdl.CreateRGBSurface(0, int32(mnemonicWidth*len(modele)), int32(fontHeight), 32, 0, 0, 0, 0)
+	if err != nil {
+		panic(err)
+	}
+	for pos, m := range modele {
+		val := []rune(m)
+		for i, r := range val {
+			bitmap.Blit(getGlyph(r), cmd, &sdl.Rect{int32(pos*fontWidth*3 + i*fontWidth), 0, fontWidth, fontHeight})
+		}
+	}
+	err = cmd.SaveBMP("graphic/assets/cmd.bmp")
 	if err != nil {
 		panic(err)
 	}
@@ -59,4 +77,5 @@ func MakeAsset(inst []string) {
 
 	buildNumeric()
 	buildMnemonic(inst)
+	buildCmd()
 }

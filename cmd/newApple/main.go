@@ -194,7 +194,7 @@ func RunEmulation() {
 
 	cpu.NextCycle()
 	if cpu.State == mos6510.ReadInstruction {
-		// go outputDriver.ShowCode(int(cpu.PC))
+		// go outputDriver.ShowCode(&cpu.PC)
 		if conf.Breakpoint == cpu.InstStart {
 			conf.Disassamble = true
 			run = false
@@ -233,7 +233,7 @@ func main() {
 	run = true
 	cpuTurn = true
 	// go func() {
-	go CRTC.Run(!run)
+
 	for {
 		RunEmulation()
 	}

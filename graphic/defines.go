@@ -10,7 +10,7 @@ type Driver interface {
 	// Run()
 	IOEvents() *KEYPressed
 	SetKeyboardLine(*KEYPressed)
-	SetCodeList(map[int][]rune)
-	ShowCode(int)
+	SetCodeList([][]byte)
+	ShowCode(*uint16)
 	CloseAll()
 }
