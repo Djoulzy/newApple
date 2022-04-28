@@ -10,16 +10,16 @@ func (C *CPU) and() {
 
 	switch C.Inst.addr {
 	case immediate:
-		C.A &= byte(C.oper)
+		C.A &= byte(C.Oper)
 	case zeropage:
-		C.A &= C.ram.Read(C.oper)
+		C.A &= C.ram.Read(C.Oper)
 	case zeropageX:
-		C.A &= C.ram.Read(C.oper + uint16(C.X))
+		C.A &= C.ram.Read(C.Oper + uint16(C.X))
 	case absolute:
-		C.A &= C.ram.Read(C.oper)
+		C.A &= C.ram.Read(C.Oper)
 	case absoluteX:
-		C.cross_oper = C.oper + uint16(C.X)
-		if C.oper&0xFF00 == C.cross_oper&0xFF00 {
+		C.cross_oper = C.Oper + uint16(C.X)
+		if C.Oper&0xFF00 == C.cross_oper&0xFF00 {
 			C.A &= C.ram.Read(C.cross_oper)
 		} else {
 			C.Inst.addr = CrossPage
@@ -28,8 +28,8 @@ func (C *CPU) and() {
 			return
 		}
 	case absoluteY:
-		C.cross_oper = C.oper + uint16(C.Y)
-		if C.oper&0xFF00 == C.cross_oper&0xFF00 {
+		C.cross_oper = C.Oper + uint16(C.Y)
+		if C.Oper&0xFF00 == C.cross_oper&0xFF00 {
 			C.A &= C.ram.Read(C.cross_oper)
 		} else {
 			C.Inst.addr = CrossPage
@@ -38,9 +38,9 @@ func (C *CPU) and() {
 			return
 		}
 	case indirectX:
-		C.A &= C.ReadIndirectX(C.oper)
+		C.A &= C.ReadIndirectX(C.Oper)
 	case indirectY:
-		C.cross_oper = C.GetIndirectYAddr(C.oper, &crossed)
+		C.cross_oper = C.GetIndirectYAddr(C.Oper, &crossed)
 		if crossed {
 			C.A &= C.ram.Read(C.cross_oper)
 		} else {
@@ -70,24 +70,24 @@ func (C *CPU) asl() {
 		val = oper << 1
 		C.A = val
 	case zeropage:
-		oper = C.ram.Read(C.oper)
-		C.ram.Write(C.oper, oper)
+		oper = C.ram.Read(C.Oper)
+		C.ram.Write(C.Oper, oper)
 		val = oper << 1
-		C.ram.Write(C.oper, val)
+		C.ram.Write(C.Oper, val)
 	case zeropageX:
-		dest = C.oper + uint16(C.X)
+		dest = C.Oper + uint16(C.X)
 		oper = C.ram.Read(dest)
 		C.ram.Write(dest, oper)
 		val = oper << 1
 		C.ram.Write(dest, val)
 	case absolute:
-		oper = C.ram.Read(C.oper)
-		C.ram.Write(C.oper, oper)
+		oper = C.ram.Read(C.Oper)
+		C.ram.Write(C.Oper, oper)
 		val = oper << 1
-		C.ram.Write(C.oper, val)
+		C.ram.Write(C.Oper, val)
 	case absoluteX:
-		C.cross_oper = C.oper + uint16(C.X)
-		if C.oper&0xFF00 == C.cross_oper&0xFF00 {
+		C.cross_oper = C.Oper + uint16(C.X)
+		if C.Oper&0xFF00 == C.cross_oper&0xFF00 {
 			oper = C.ram.Read(C.cross_oper)
 			C.ram.Write(C.cross_oper, oper)
 			val = oper << 1
@@ -117,16 +117,16 @@ func (C *CPU) eor() {
 
 	switch C.Inst.addr {
 	case immediate:
-		C.A ^= byte(C.oper)
+		C.A ^= byte(C.Oper)
 	case zeropage:
-		C.A ^= C.ram.Read(C.oper)
+		C.A ^= C.ram.Read(C.Oper)
 	case zeropageX:
-		C.A ^= C.ram.Read(C.oper + uint16(C.X))
+		C.A ^= C.ram.Read(C.Oper + uint16(C.X))
 	case absolute:
-		C.A ^= C.ram.Read(C.oper)
+		C.A ^= C.ram.Read(C.Oper)
 	case absoluteX:
-		C.cross_oper = C.oper + uint16(C.X)
-		if C.oper&0xFF00 == C.cross_oper&0xFF00 {
+		C.cross_oper = C.Oper + uint16(C.X)
+		if C.Oper&0xFF00 == C.cross_oper&0xFF00 {
 			C.A ^= C.ram.Read(C.cross_oper)
 		} else {
 			C.Inst.addr = CrossPage
@@ -135,8 +135,8 @@ func (C *CPU) eor() {
 			return
 		}
 	case absoluteY:
-		C.cross_oper = C.oper + uint16(C.Y)
-		if C.oper&0xFF00 == C.cross_oper&0xFF00 {
+		C.cross_oper = C.Oper + uint16(C.Y)
+		if C.Oper&0xFF00 == C.cross_oper&0xFF00 {
 			C.A ^= C.ram.Read(C.cross_oper)
 		} else {
 			C.Inst.addr = CrossPage
@@ -145,9 +145,9 @@ func (C *CPU) eor() {
 			return
 		}
 	case indirectX:
-		C.A ^= C.ReadIndirectX(C.oper)
+		C.A ^= C.ReadIndirectX(C.Oper)
 	case indirectY:
-		C.cross_oper = C.GetIndirectYAddr(C.oper, &crossed)
+		C.cross_oper = C.GetIndirectYAddr(C.Oper, &crossed)
 		if crossed {
 			C.A ^= C.ram.Read(C.cross_oper)
 		} else {
@@ -177,27 +177,27 @@ func (C *CPU) lsr() {
 		val = C.A >> 1
 		C.A = val
 	case zeropage:
-		val = C.ram.Read(C.oper)
-		C.ram.Write(C.oper, val)
+		val = C.ram.Read(C.Oper)
+		C.ram.Write(C.Oper, val)
 		C.setC(val&0x01 == 0x01)
 		val >>= 1
-		C.ram.Write(C.oper, val)
+		C.ram.Write(C.Oper, val)
 	case zeropageX:
-		dest = C.oper + uint16(C.X)
+		dest = C.Oper + uint16(C.X)
 		val = C.ram.Read(dest)
 		C.ram.Write(dest, val)
 		C.setC(val&0x01 == 0x01)
 		val >>= 1
 		C.ram.Write(dest, val)
 	case absolute:
-		val = C.ram.Read(C.oper)
-		C.ram.Write(C.oper, val)
+		val = C.ram.Read(C.Oper)
+		C.ram.Write(C.Oper, val)
 		C.setC(val&0x01 == 0x01)
 		val >>= 1
-		C.ram.Write(C.oper, val)
+		C.ram.Write(C.Oper, val)
 	case absoluteX:
-		C.cross_oper = C.oper + uint16(C.X)
-		if C.oper&0xFF00 == C.cross_oper&0xFF00 {
+		C.cross_oper = C.Oper + uint16(C.X)
+		if C.Oper&0xFF00 == C.cross_oper&0xFF00 {
 			oper = C.ram.Read(C.cross_oper)
 			C.ram.Write(C.cross_oper, oper)
 			val = oper >> 1
@@ -223,21 +223,21 @@ func (C *CPU) lsr() {
 func (C *CPU) ora() {
 	switch C.Inst.addr {
 	case immediate:
-		C.A |= byte(C.oper)
+		C.A |= byte(C.Oper)
 	case zeropage:
-		C.A |= C.ram.Read(C.oper)
+		C.A |= C.ram.Read(C.Oper)
 	case zeropageX:
-		C.A |= C.ram.Read(C.oper + uint16(C.X))
+		C.A |= C.ram.Read(C.Oper + uint16(C.X))
 	case absolute:
-		C.A |= C.ram.Read(C.oper)
+		C.A |= C.ram.Read(C.Oper)
 	case absoluteX:
-		C.A |= C.ram.Read(C.oper + uint16(C.X))
+		C.A |= C.ram.Read(C.Oper + uint16(C.X))
 	case absoluteY:
-		C.A |= C.ram.Read(C.oper + uint16(C.Y))
+		C.A |= C.ram.Read(C.Oper + uint16(C.Y))
 	case indirectX:
-		C.A |= C.ReadIndirectX(C.oper)
+		C.A |= C.ReadIndirectX(C.Oper)
 	case indirectY:
-		C.A |= C.ReadIndirectY(C.oper)
+		C.A |= C.ReadIndirectY(C.Oper)
 	default:
 		log.Fatal("Bad addressing mode")
 	}
@@ -262,15 +262,15 @@ func (C *CPU) rol() {
 		}
 		C.A = byte(val)
 	case zeropage:
-		val = uint16(C.ram.Read(C.oper))
-		C.ram.Write(C.oper, byte(val))
+		val = uint16(C.ram.Read(C.Oper))
+		C.ram.Write(C.Oper, byte(val))
 		val <<= 1
 		if C.issetC() {
 			val++
 		}
-		C.ram.Write(C.oper, byte(val))
+		C.ram.Write(C.Oper, byte(val))
 	case zeropageX:
-		dest = C.oper + uint16(C.X)
+		dest = C.Oper + uint16(C.X)
 		val = uint16(C.ram.Read(dest))
 		C.ram.Write(dest, byte(val))
 		val <<= 1
@@ -279,15 +279,15 @@ func (C *CPU) rol() {
 		}
 		C.ram.Write(dest, byte(val))
 	case absolute:
-		val = uint16(C.ram.Read(C.oper))
-		C.ram.Write(C.oper, byte(val))
+		val = uint16(C.ram.Read(C.Oper))
+		C.ram.Write(C.Oper, byte(val))
 		val <<= 1
 		if C.issetC() {
 			val++
 		}
-		C.ram.Write(C.oper, byte(val))
+		C.ram.Write(C.Oper, byte(val))
 	case absoluteX:
-		dest = C.oper + uint16(C.X)
+		dest = C.Oper + uint16(C.X)
 		val = uint16(C.ram.Read(dest))
 		C.ram.Write(dest, byte(val))
 		val <<= 1
@@ -317,17 +317,17 @@ func (C *CPU) ror() {
 		C.setC(carry)
 		val = C.A
 	case zeropage:
-		val = C.ram.Read(C.oper)
-		C.ram.Write(C.oper, val)
+		val = C.ram.Read(C.Oper)
+		C.ram.Write(C.Oper, val)
 		carry := val&0b00000001 > 0
 		val >>= 1
 		if C.issetC() {
 			val |= 0b10000000
 		}
 		C.setC(carry)
-		C.ram.Write(C.oper, val)
+		C.ram.Write(C.Oper, val)
 	case zeropageX:
-		dest := C.oper + uint16(C.X)
+		dest := C.Oper + uint16(C.X)
 		val = C.ram.Read(dest)
 		C.ram.Write(dest, val)
 		carry := val&0b00000001 > 0
@@ -338,17 +338,17 @@ func (C *CPU) ror() {
 		C.setC(carry)
 		C.ram.Write(dest, val)
 	case absolute:
-		val = C.ram.Read(C.oper)
-		C.ram.Write(C.oper, val)
+		val = C.ram.Read(C.Oper)
+		C.ram.Write(C.Oper, val)
 		carry := val&0b00000001 > 0
 		val >>= 1
 		if C.issetC() {
 			val |= 0b10000000
 		}
 		C.setC(carry)
-		C.ram.Write(C.oper, val)
+		C.ram.Write(C.Oper, val)
 	case absoluteX:
-		dest := C.oper + uint16(C.X)
+		dest := C.Oper + uint16(C.X)
 		val = C.ram.Read(dest)
 		C.ram.Write(dest, val)
 		carry := val&0b00000001 > 0

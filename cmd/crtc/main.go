@@ -19,7 +19,7 @@ var (
 	conf             config.ConfigData
 	RAM, IO, CHARGEN []byte
 	CRTC             crtc.CRTC
-	outputDriver     graphic.Driver
+	outputDriver     graphic.SDL2Driver
 )
 
 func init() {
@@ -48,8 +48,7 @@ func start() {
 	IO = make([]byte, ioSize)
 	mem.Clear(IO)
 	CHARGEN = mem.LoadROM(chargenSize, "assets/roms/characters-2.901447-10")
-	outputDriver = &graphic.SDL2Driver{}
-	CRTC.Init(RAM, IO, CHARGEN, outputDriver, &conf)
+	CRTC.Init(RAM, IO, CHARGEN, &outputDriver, &conf)
 }
 
 func main() {

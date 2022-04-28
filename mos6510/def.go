@@ -44,7 +44,7 @@ const (
 	CrossPage
 )
 
-type instruction struct {
+type Instruction struct {
 	Name   string
 	addr   addressing
 	bytes  int
@@ -94,7 +94,7 @@ type CPU struct {
 	IRQ_pin int
 	NMI_pin int
 
-	Mnemonic map[byte]instruction
+	Mnemonic map[byte]Instruction
 
 	conf      *config.ConfigData
 	ram       *mem.BANK
@@ -103,9 +103,10 @@ type CPU struct {
 	InstStart uint16
 	instDump  string
 	instCode  byte
-	Inst      instruction
+	FullInst  string
+	Inst      Instruction
 
-	oper         uint16
+	Oper         uint16
 	cross_oper   uint16
 	val_zp_lo    byte
 	val_zp_hi    byte

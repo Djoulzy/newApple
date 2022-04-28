@@ -32,7 +32,7 @@ func (C *CPU) adc() {
 	case immediate:
 		if C.getD() == 1 {
 			A_bcd := uint16(bcd.ToUint8(C.A))
-			oper_bcd := uint16(bcd.ToUint8(byte(C.oper)))
+			oper_bcd := uint16(bcd.ToUint8(byte(C.Oper)))
 			val_bcd := A_bcd + oper_bcd + uint16(C.getC())
 			vals := bcd.FromUint16(val_bcd)
 			C.setC(vals[0] > 0)
@@ -42,15 +42,15 @@ func (C *CPU) adc() {
 			C.A = vals[1]
 			return
 		} else {
-			val = uint16(C.A) + C.oper + uint16(C.getC())
+			val = uint16(C.A) + C.Oper + uint16(C.getC())
 			C.setC(val > 0x00FF)
-			C.updateV(C.A, byte(C.oper), byte(val))
+			C.updateV(C.A, byte(C.Oper), byte(val))
 			C.A = byte(val)
 		}
 	case zeropage:
 		fallthrough
 	case absolute:
-		oper = C.ram.Read(C.oper)
+		oper = C.ram.Read(C.Oper)
 		if C.getD() == 1 {
 			A_bcd := uint16(bcd.ToUint8(C.A))
 			oper_bcd := uint16(bcd.ToUint8(oper))
@@ -69,7 +69,7 @@ func (C *CPU) adc() {
 		C.updateV(C.A, oper, byte(val))
 		C.A = byte(val)
 	case zeropageX:
-		oper = C.ram.Read(C.oper + uint16(C.X))
+		oper = C.ram.Read(C.Oper + uint16(C.X))
 		if C.getD() == 1 {
 			A_bcd := uint16(bcd.ToUint8(C.A))
 			oper_bcd := uint16(bcd.ToUint8(oper))
@@ -88,8 +88,8 @@ func (C *CPU) adc() {
 		C.updateV(C.A, oper, byte(val))
 		C.A = byte(val)
 	case absoluteX:
-		C.cross_oper = C.oper + uint16(C.X)
-		if C.oper&0xFF00 == C.cross_oper&0xFF00 {
+		C.cross_oper = C.Oper + uint16(C.X)
+		if C.Oper&0xFF00 == C.cross_oper&0xFF00 {
 			oper = C.ram.Read(C.cross_oper)
 			if C.getD() == 1 {
 				A_bcd := uint16(bcd.ToUint8(C.A))
@@ -115,8 +115,8 @@ func (C *CPU) adc() {
 			return
 		}
 	case absoluteY:
-		C.cross_oper = C.oper + uint16(C.Y)
-		if C.oper&0xFF00 == C.cross_oper&0xFF00 {
+		C.cross_oper = C.Oper + uint16(C.Y)
+		if C.Oper&0xFF00 == C.cross_oper&0xFF00 {
 			oper = C.ram.Read(C.cross_oper)
 			if C.getD() == 1 {
 				A_bcd := uint16(bcd.ToUint8(C.A))
@@ -142,7 +142,7 @@ func (C *CPU) adc() {
 			return
 		}
 	case indirectX:
-		oper = C.ReadIndirectX(C.oper)
+		oper = C.ReadIndirectX(C.Oper)
 		if C.getD() == 1 {
 			A_bcd := uint16(bcd.ToUint8(C.A))
 			oper_bcd := uint16(bcd.ToUint8(oper))
@@ -161,7 +161,7 @@ func (C *CPU) adc() {
 		C.updateV(C.A, oper, byte(val))
 		C.A = byte(val)
 	case indirectY:
-		C.cross_oper = C.GetIndirectYAddr(C.oper, &crossed)
+		C.cross_oper = C.GetIndirectYAddr(C.Oper, &crossed)
 		if crossed {
 			oper = C.ram.Read(C.cross_oper)
 			if C.getD() == 1 {
@@ -222,7 +222,7 @@ func (C *CPU) sbc() {
 	case immediate:
 		if C.getD() == 1 {
 			A_bcd := uint16(bcd.ToUint8(C.A))
-			oper_bcd := uint16(bcd.ToUint8(byte(C.oper)))
+			oper_bcd := uint16(bcd.ToUint8(byte(C.Oper)))
 			val_bcd := A_bcd - oper_bcd
 			if C.getC() == 0 {
 				val_bcd -= 1
@@ -235,17 +235,17 @@ func (C *CPU) sbc() {
 			C.A = vals[1]
 			return
 		} else {
-			val = int(C.A) - int(C.oper)
+			val = int(C.A) - int(C.Oper)
 		}
 		if C.getC() == 0 {
 			val -= 1
 		}
-		C.updateV(C.A, ^byte(C.oper), byte(val))
+		C.updateV(C.A, ^byte(C.Oper), byte(val))
 		C.A = byte(val)
 	case zeropage:
 		fallthrough
 	case absolute:
-		oper = C.ram.Read(C.oper)
+		oper = C.ram.Read(C.Oper)
 		if C.getD() == 1 {
 			A_bcd := uint16(bcd.ToUint8(C.A))
 			oper_bcd := uint16(bcd.ToUint8(byte(oper)))
@@ -269,7 +269,7 @@ func (C *CPU) sbc() {
 		C.updateV(C.A, ^oper, byte(val))
 		C.A = byte(val)
 	case zeropageX:
-		oper = C.ram.Read(C.oper + uint16(C.X))
+		oper = C.ram.Read(C.Oper + uint16(C.X))
 		if C.getD() == 1 {
 			A_bcd := uint16(bcd.ToUint8(C.A))
 			oper_bcd := uint16(bcd.ToUint8(byte(oper)))
@@ -293,8 +293,8 @@ func (C *CPU) sbc() {
 		C.updateV(C.A, ^oper, byte(val))
 		C.A = byte(val)
 	case absoluteX:
-		C.cross_oper = C.oper + uint16(C.X)
-		if C.oper&0xFF00 == C.cross_oper&0xFF00 {
+		C.cross_oper = C.Oper + uint16(C.X)
+		if C.Oper&0xFF00 == C.cross_oper&0xFF00 {
 			oper = C.ram.Read(C.cross_oper)
 			if C.getD() == 1 {
 				A_bcd := uint16(bcd.ToUint8(C.A))
@@ -325,8 +325,8 @@ func (C *CPU) sbc() {
 			return
 		}
 	case absoluteY:
-		C.cross_oper = C.oper + uint16(C.Y)
-		if C.oper&0xFF00 == C.cross_oper&0xFF00 {
+		C.cross_oper = C.Oper + uint16(C.Y)
+		if C.Oper&0xFF00 == C.cross_oper&0xFF00 {
 			oper = C.ram.Read(C.cross_oper)
 			if C.getD() == 1 {
 				A_bcd := uint16(bcd.ToUint8(C.A))
@@ -357,7 +357,7 @@ func (C *CPU) sbc() {
 			return
 		}
 	case indirectX:
-		oper = C.ReadIndirectX(C.oper)
+		oper = C.ReadIndirectX(C.Oper)
 		if C.getD() == 1 {
 			A_bcd := uint16(bcd.ToUint8(C.A))
 			oper_bcd := uint16(bcd.ToUint8(byte(oper)))
@@ -381,7 +381,7 @@ func (C *CPU) sbc() {
 		C.updateV(C.A, ^oper, byte(val))
 		C.A = byte(val)
 	case indirectY:
-		C.cross_oper = C.GetIndirectYAddr(C.oper, &crossed)
+		C.cross_oper = C.GetIndirectYAddr(C.Oper, &crossed)
 		if crossed {
 			oper = C.ram.Read(C.cross_oper)
 			if C.getD() == 1 {

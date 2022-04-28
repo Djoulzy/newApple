@@ -9,23 +9,23 @@ func (C *CPU) dec() {
 
 	switch C.Inst.addr {
 	case zeropage:
-		val = C.ram.Read(C.oper)
-		C.ram.Write(C.oper, val)
+		val = C.ram.Read(C.Oper)
+		C.ram.Write(C.Oper, val)
 		val--
-		C.ram.Write(C.oper, val)
+		C.ram.Write(C.Oper, val)
 	case zeropageX:
-		oper := C.oper + uint16(C.X)
+		oper := C.Oper + uint16(C.X)
 		val = C.ram.Read(oper)
 		C.ram.Write(oper, val)
 		val--
 		C.ram.Write(oper, val)
 	case absolute:
-		val = C.ram.Read(C.oper)
-		C.ram.Write(C.oper, val)
+		val = C.ram.Read(C.Oper)
+		C.ram.Write(C.Oper, val)
 		val--
-		C.ram.Write(C.oper, val)
+		C.ram.Write(C.Oper, val)
 	case absoluteX:
-		oper := C.oper + uint16(C.X)
+		oper := C.Oper + uint16(C.X)
 		C.ram.Write(oper, val)
 		val--
 		C.ram.Write(oper, val)
@@ -66,23 +66,23 @@ func (C *CPU) inc() {
 
 	switch C.Inst.addr {
 	case zeropage:
-		val = C.ram.Read(C.oper)
-		C.ram.Write(C.oper, val)
+		val = C.ram.Read(C.Oper)
+		C.ram.Write(C.Oper, val)
 		val++
-		C.ram.Write(C.oper, val)
+		C.ram.Write(C.Oper, val)
 	case zeropageX:
-		oper := C.oper + uint16(C.X)
+		oper := C.Oper + uint16(C.X)
 		val = C.ram.Read(oper)
 		C.ram.Write(oper, val)
 		val++
 		C.ram.Write(oper, val)
 	case absolute:
-		val = C.ram.Read(C.oper)
-		C.ram.Write(C.oper, val)
+		val = C.ram.Read(C.Oper)
+		C.ram.Write(C.Oper, val)
 		val++
-		C.ram.Write(C.oper, val)
+		C.ram.Write(C.Oper, val)
 	case absoluteX:
-		oper := C.oper + uint16(C.X)
+		oper := C.Oper + uint16(C.X)
 		C.ram.Write(oper, val)
 		val++
 		C.ram.Write(oper, val)

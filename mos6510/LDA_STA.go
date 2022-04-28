@@ -9,16 +9,16 @@ func (C *CPU) lda() {
 
 	switch C.Inst.addr {
 	case immediate:
-		C.A = byte(C.oper)
+		C.A = byte(C.Oper)
 	case zeropageX:
-		C.A = C.ram.Read(C.oper + uint16(C.X))
+		C.A = C.ram.Read(C.Oper + uint16(C.X))
 	case zeropage:
 		fallthrough
 	case absolute:
-		C.A = C.ram.Read(C.oper)
+		C.A = C.ram.Read(C.Oper)
 	case absoluteX:
-		C.cross_oper = C.oper + uint16(C.X)
-		if C.oper&0xFF00 == C.cross_oper&0xFF00 {
+		C.cross_oper = C.Oper + uint16(C.X)
+		if C.Oper&0xFF00 == C.cross_oper&0xFF00 {
 			C.A = C.ram.Read(C.cross_oper)
 		} else {
 			C.Inst.addr = CrossPage
@@ -27,8 +27,8 @@ func (C *CPU) lda() {
 			return
 		}
 	case absoluteY:
-		C.cross_oper = C.oper + uint16(C.Y)
-		if C.oper&0xFF00 == C.cross_oper&0xFF00 {
+		C.cross_oper = C.Oper + uint16(C.Y)
+		if C.Oper&0xFF00 == C.cross_oper&0xFF00 {
 			C.A = C.ram.Read(C.cross_oper)
 		} else {
 			C.Inst.addr = CrossPage
@@ -37,9 +37,9 @@ func (C *CPU) lda() {
 			return
 		}
 	case indirectX:
-		C.A = C.ReadIndirectX(C.oper)
+		C.A = C.ReadIndirectX(C.Oper)
 	case indirectY:
-		C.cross_oper = C.GetIndirectYAddr(C.oper, &crossed)
+		C.cross_oper = C.GetIndirectYAddr(C.Oper, &crossed)
 		if crossed {
 			C.A = C.ram.Read(C.cross_oper)
 		} else {
@@ -60,19 +60,19 @@ func (C *CPU) lda() {
 func (C *CPU) sta() {
 	switch C.Inst.addr {
 	case zeropage:
-		C.ram.Write(C.oper, C.A)
+		C.ram.Write(C.Oper, C.A)
 	case zeropageX:
-		C.ram.Write(C.oper+uint16(C.X), C.A)
+		C.ram.Write(C.Oper+uint16(C.X), C.A)
 	case absolute:
-		C.ram.Write(C.oper, C.A)
+		C.ram.Write(C.Oper, C.A)
 	case absoluteX:
-		C.ram.Write(C.oper+uint16(C.X), C.A)
+		C.ram.Write(C.Oper+uint16(C.X), C.A)
 	case absoluteY:
-		C.ram.Write(C.oper+uint16(C.Y), C.A)
+		C.ram.Write(C.Oper+uint16(C.Y), C.A)
 	case indirectX:
-		C.WriteIndirectX(C.oper, C.A)
+		C.WriteIndirectX(C.Oper, C.A)
 	case indirectY:
-		C.WriteIndirectY(C.oper, C.A)
+		C.WriteIndirectY(C.Oper, C.A)
 	default:
 		log.Fatal("Bad addressing mode")
 	}
@@ -82,15 +82,15 @@ func (C *CPU) sta() {
 func (C *CPU) ldx() {
 	switch C.Inst.addr {
 	case immediate:
-		C.X = byte(C.oper)
+		C.X = byte(C.Oper)
 	case zeropage:
-		C.X = C.ram.Read(C.oper)
+		C.X = C.ram.Read(C.Oper)
 	case zeropageY:
-		C.X = C.ram.Read(C.oper + uint16(C.Y))
+		C.X = C.ram.Read(C.Oper + uint16(C.Y))
 	case absolute:
-		C.X = C.ram.Read(C.oper)
+		C.X = C.ram.Read(C.Oper)
 	case absoluteY:
-		C.X = C.ram.Read(C.oper + uint16(C.Y))
+		C.X = C.ram.Read(C.Oper + uint16(C.Y))
 	default:
 		log.Fatal("Bad addressing mode")
 	}
@@ -102,11 +102,11 @@ func (C *CPU) ldx() {
 func (C *CPU) stx() {
 	switch C.Inst.addr {
 	case zeropage:
-		C.ram.Write(C.oper, C.X)
+		C.ram.Write(C.Oper, C.X)
 	case zeropageY:
-		C.ram.Write(C.oper+uint16(C.Y), C.X)
+		C.ram.Write(C.Oper+uint16(C.Y), C.X)
 	case absolute:
-		C.ram.Write(C.oper, C.X)
+		C.ram.Write(C.Oper, C.X)
 	default:
 		log.Fatal("Bad addressing mode")
 	}
@@ -116,15 +116,15 @@ func (C *CPU) stx() {
 func (C *CPU) ldy() {
 	switch C.Inst.addr {
 	case immediate:
-		C.Y = byte(C.oper)
+		C.Y = byte(C.Oper)
 	case zeropage:
-		C.Y = C.ram.Read(C.oper)
+		C.Y = C.ram.Read(C.Oper)
 	case zeropageX:
-		C.Y = C.ram.Read(C.oper + uint16(C.X))
+		C.Y = C.ram.Read(C.Oper + uint16(C.X))
 	case absolute:
-		C.Y = C.ram.Read(C.oper)
+		C.Y = C.ram.Read(C.Oper)
 	case absoluteX:
-		C.Y = C.ram.Read(C.oper + uint16(C.X))
+		C.Y = C.ram.Read(C.Oper + uint16(C.X))
 	default:
 		log.Fatal("Bad addressing mode")
 	}
@@ -136,11 +136,11 @@ func (C *CPU) ldy() {
 func (C *CPU) sty() {
 	switch C.Inst.addr {
 	case zeropage:
-		C.ram.Write(C.oper, C.Y)
+		C.ram.Write(C.Oper, C.Y)
 	case zeropageX:
-		C.ram.Write(C.oper+uint16(C.X), C.Y)
+		C.ram.Write(C.Oper+uint16(C.X), C.Y)
 	case absolute:
-		C.ram.Write(C.oper, C.Y)
+		C.ram.Write(C.Oper, C.Y)
 	default:
 		log.Fatal("Bad addressing mode")
 	}

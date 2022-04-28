@@ -1,7 +1,7 @@
 package mos6510
 
 func (C *CPU) initLanguage() {
-	C.Mnemonic = map[byte]instruction{
+	C.Mnemonic = map[byte]Instruction{
 
 		0x69: {Name: "ADC", bytes: 2, Cycles: 2, action: C.adc, addr: immediate},
 		0x65: {Name: "ADC", bytes: 2, Cycles: 3, action: C.adc, addr: zeropage},

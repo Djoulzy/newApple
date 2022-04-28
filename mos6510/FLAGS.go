@@ -9,12 +9,12 @@ func (C *CPU) bit() {
 
 	switch C.Inst.addr {
 	case zeropage:
-		oper = C.ram.Read(C.oper)
+		oper = C.ram.Read(C.Oper)
 		val = C.A & oper
 		C.setV(oper&0b01000000 == 0b01000000)
 		C.setN(oper&0b10000000 == 0b10000000)
 	case absolute:
-		oper = C.ram.Read(C.oper)
+		oper = C.ram.Read(C.Oper)
 		val = C.A & oper
 		C.setV(oper&0b01000000 == 0b01000000)
 		C.setN(oper&0b10000000 == 0b10000000)

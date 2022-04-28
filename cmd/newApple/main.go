@@ -54,11 +54,12 @@ var (
 	IOAccess mem.MEMAccess
 
 	InputLine    graphic.KEYPressed
-	outputDriver graphic.Driver
+	outputDriver graphic.SDL2Driver
 	CRTC         crtc.CRTC
 	cpuTurn      bool
 	run          bool
 	execInst     sync.Mutex
+	lastPC       uint16
 )
 
 // func init() {
@@ -95,10 +96,10 @@ func setup() {
 
 	memLayouts()
 
-	outputDriver = &graphic.SDL2Driver{}
+	outputDriver = graphic.SDL2Driver{}
 	initKeyboard()
+	CRTC.Init(RAM, IO, CHARGEN, &outputDriver, conf)
 	outputDriver.SetKeyboardLine(&InputLine)
-	CRTC.Init(RAM, IO, CHARGEN, outputDriver, conf)
 
 	// CPU Setup
 	cpu.Init(&MEM, conf)
@@ -177,33 +178,35 @@ func timeTrack(start time.Time, name string) {
 func RunEmulation() {
 	var key byte
 	// defer timeTrack(time.Now(), "RunEmulation")
-	CRTC.Run(!run)
-	if cpu.State == mos6510.ReadInstruction && !run {
-		execInst.Lock()
-	}
-
-	if MEM.Read(0xC000) == 0 {
-		key = keyMap[InputLine.KeyCode]
-		if InputLine.Mode == 1073742048 {
-			key -= 0x40
+	for {
+		CRTC.Run(!run)
+		if cpu.State == mos6510.ReadInstruction && !run {
+			execInst.Lock()
 		}
-		MEM.Write(0xC000, key)
-		InputLine.KeyCode = 0
-		InputLine.Mode = 0
-	}
 
-	cpu.NextCycle()
-	if cpu.State == mos6510.ReadInstruction {
-		// go outputDriver.ShowCode(&cpu.PC)
-		if conf.Breakpoint == cpu.InstStart {
-			conf.Disassamble = true
-			run = false
+		if MEM.Read(0xC000) == 0 {
+			key = keyMap[InputLine.KeyCode]
+			if InputLine.Mode == 1073742048 {
+				key -= 0x40
+			}
+			MEM.Write(0xC000, key)
+			InputLine.KeyCode = 0
+			InputLine.Mode = 0
 		}
-	}
 
-	if cpu.State == mos6510.ReadInstruction {
-		if !run || conf.Disassamble {
-			Disassamble()
+		cpu.NextCycle()
+		if cpu.State == mos6510.ReadInstruction {
+			outputDriver.ShowCode(cpu.PC, cpu.FullInst)
+			if conf.Breakpoint == cpu.InstStart {
+				conf.Disassamble = true
+				run = false
+			}
+		}
+
+		if cpu.State == mos6510.ReadInstruction {
+			if !run || conf.Disassamble {
+				Disassamble()
+			}
 		}
 	}
 }
@@ -233,13 +236,11 @@ func main() {
 	run = true
 	cpuTurn = true
 	// go func() {
-
-	for {
-		RunEmulation()
-	}
+	// go outputDriver.ShowCode()
+	go RunEmulation()
 	// }()
 
-	// outputDriver.Run()
+	outputDriver.Run()
 
 	// cpu.DumpStats()
 	// <-exit

@@ -21,7 +21,7 @@ func (C *CPU) registers() string {
 	return res
 }
 
-func Disassemble(inst instruction, oper uint16) string {
+func Disassemble(inst Instruction, oper uint16) string {
 	var token string
 
 	switch inst.addr {
@@ -59,13 +59,13 @@ func Disassemble(inst instruction, oper uint16) string {
 
 func (C *CPU) Trace() string {
 	return fmt.Sprintf("%s   A:%c[1;33m%02X%c[0m X:%c[1;33m%02X%c[0m Y:%c[1;33m%02X%c[0m SP:%c[1;33m%02X%c[0m   %c[1;31m%04X%c[0m: %-8s %c[1;30m(%d)%c[0m %c[1;37m%-10s%c[0m",
-		C.registers(), 27, C.A, 27, 27, C.X, 27, 27, C.Y, 27, 27, C.SP, 27, 27, C.InstStart, 27, C.instDump, 27, C.Inst.Cycles, 27, 27, Disassemble(C.Inst, C.oper), 27)
+		C.registers(), 27, C.A, 27, 27, C.X, 27, 27, C.Y, 27, 27, C.SP, 27, 27, C.InstStart, 27, C.instDump, 27, C.Inst.Cycles, 27, 27, C.FullInst, 27)
 }
 
 func (C *CPU) DumpRom(start int) [][]byte {
 	var code byte
 	var listing [][]byte
-	var inst instruction
+	var inst Instruction
 	var ok bool
 
 	listing = make([][]byte, C.ramSize)

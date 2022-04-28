@@ -20,7 +20,7 @@ func NE5555() {
 	}
 }
 
-func (C *CRTC) Init(ram []byte, io []byte, chargen []byte, video interface{}, conf *config.ConfigData) {
+func (C *CRTC) Init(ram []byte, io []byte, chargen []byte, video *graphic.SDL2Driver, conf *config.ConfigData) {
 	C.Reg[R0] = 63
 	C.Reg[R1] = 40
 	C.Reg[R2] = 50
@@ -40,7 +40,7 @@ func (C *CRTC) Init(ram []byte, io []byte, chargen []byte, video interface{}, co
 	C.screenWidth = int(C.Reg[R1]) * 7
 	C.screenHeight = int(C.Reg[R6]) * 8
 
-	C.graph = video.(graphic.Driver)
+	C.graph = video
 	C.graph.Init(C.screenWidth, C.screenHeight, "Go Apple II")
 	C.conf = conf
 

@@ -9,7 +9,7 @@ func (C *CPU) alr() {
 
 	switch C.Inst.addr {
 	case immediate:
-		C.A &= byte(C.oper)
+		C.A &= byte(C.Oper)
 		C.setC(C.A&0x01 == 0x01)
 		val = C.A >> 1
 		C.A = val
@@ -26,7 +26,7 @@ func (C *CPU) sbx() {
 
 	switch C.Inst.addr {
 	case immediate:
-		C.X = (C.A & C.X) - byte(C.oper)
+		C.X = (C.A & C.X) - byte(C.Oper)
 	default:
 		log.Fatal("Bad addressing mode")
 	}
@@ -39,10 +39,9 @@ func (C *CPU) anc() {
 
 	log.Fatal("Illegal: ANC")
 
-
 	switch C.Inst.addr {
 	case immediate:
-		C.A &= byte(C.oper)
+		C.A &= byte(C.Oper)
 	default:
 		log.Fatal("Bad addressing mode")
 	}
@@ -60,7 +59,7 @@ func (C *CPU) isc() {
 
 	switch C.Inst.addr {
 	case immediate:
-		oper = byte(C.oper + 1)
+		oper = byte(C.Oper + 1)
 		val = int(C.A) - int(oper)
 		if C.getC() == 0 {
 			val -= 1
@@ -70,7 +69,7 @@ func (C *CPU) isc() {
 	case zeropage:
 		fallthrough
 	case absolute:
-		oper = byte(C.ram.Read(C.oper) + 1)
+		oper = byte(C.ram.Read(C.Oper) + 1)
 		val = int(C.A) - int(oper)
 		if C.getC() == 0 {
 			val -= 1
@@ -78,7 +77,7 @@ func (C *CPU) isc() {
 		C.updateV(C.A, ^oper, byte(val))
 		C.A = byte(val)
 	case zeropageX:
-		oper = byte(C.ram.Read(C.oper+uint16(C.X)) + 1)
+		oper = byte(C.ram.Read(C.Oper+uint16(C.X)) + 1)
 		val = int(C.A) - int(oper)
 		if C.getC() == 0 {
 			val -= 1
@@ -86,8 +85,8 @@ func (C *CPU) isc() {
 		C.updateV(C.A, ^oper, byte(val))
 		C.A = byte(val)
 	case absoluteX:
-		C.cross_oper = C.oper + uint16(C.X)
-		if C.oper&0xFF00 == C.cross_oper&0xFF00 {
+		C.cross_oper = C.Oper + uint16(C.X)
+		if C.Oper&0xFF00 == C.cross_oper&0xFF00 {
 			oper = C.ram.Read(C.cross_oper) + 1
 			val = int(C.A) - int(oper)
 			if C.getC() == 0 {
@@ -102,8 +101,8 @@ func (C *CPU) isc() {
 			return
 		}
 	case absoluteY:
-		C.cross_oper = C.oper + uint16(C.Y)
-		if C.oper&0xFF00 == C.cross_oper&0xFF00 {
+		C.cross_oper = C.Oper + uint16(C.Y)
+		if C.Oper&0xFF00 == C.cross_oper&0xFF00 {
 			oper = C.ram.Read(C.cross_oper) + 1
 			val = int(C.A) - int(oper)
 			if C.getC() == 0 {
@@ -118,7 +117,7 @@ func (C *CPU) isc() {
 			return
 		}
 	case indirectX:
-		oper = byte(C.ReadIndirectX(C.oper) + 1)
+		oper = byte(C.ReadIndirectX(C.Oper) + 1)
 		val = int(C.A) - int(oper)
 		if C.getC() == 0 {
 			val -= 1
@@ -126,7 +125,7 @@ func (C *CPU) isc() {
 		C.updateV(C.A, ^oper, byte(val))
 		C.A = byte(val)
 	case indirectY:
-		C.cross_oper = C.GetIndirectYAddr(C.oper, &crossed)
+		C.cross_oper = C.GetIndirectYAddr(C.Oper, &crossed)
 		if crossed {
 			oper = C.ram.Read(C.cross_oper) + 1
 			val = int(C.A) - int(oper)
@@ -165,16 +164,16 @@ func (C *CPU) dcp() {
 
 	switch C.Inst.addr {
 	case immediate:
-		val = int(C.A) - int(C.oper - 1)
+		val = int(C.A) - int(C.Oper-1)
 	case zeropage:
-		val = int(C.A) - int(C.ram.Read(C.oper) - 1)
+		val = int(C.A) - int(C.ram.Read(C.Oper)-1)
 	case zeropageX:
-		val = int(C.A) - int(C.ram.Read(C.oper+uint16(C.X)) - 1)
+		val = int(C.A) - int(C.ram.Read(C.Oper+uint16(C.X))-1)
 	case absolute:
-		val = int(C.A) - int(C.ram.Read(C.oper) - 1)
+		val = int(C.A) - int(C.ram.Read(C.Oper)-1)
 	case absoluteX:
-		C.cross_oper = C.oper + uint16(C.X)
-		if C.oper&0xFF00 == C.cross_oper&0xFF00 {
+		C.cross_oper = C.Oper + uint16(C.X)
+		if C.Oper&0xFF00 == C.cross_oper&0xFF00 {
 			val = int(C.A) - int(C.ram.Read(C.cross_oper)) - 1
 		} else {
 			C.Inst.addr = CrossPage
@@ -183,8 +182,8 @@ func (C *CPU) dcp() {
 			return
 		}
 	case absoluteY:
-		C.cross_oper = C.oper + uint16(C.Y)
-		if C.oper&0xFF00 == C.cross_oper&0xFF00 {
+		C.cross_oper = C.Oper + uint16(C.Y)
+		if C.Oper&0xFF00 == C.cross_oper&0xFF00 {
 			val = int(C.A) - int(C.ram.Read(C.cross_oper)) - 1
 		} else {
 			C.Inst.addr = CrossPage
@@ -193,9 +192,9 @@ func (C *CPU) dcp() {
 			return
 		}
 	case indirectX:
-		val = int(C.A) - int(C.ReadIndirectX(C.oper)) - 1
+		val = int(C.A) - int(C.ReadIndirectX(C.Oper)) - 1
 	case indirectY:
-		C.cross_oper = C.GetIndirectYAddr(C.oper, &crossed)
+		C.cross_oper = C.GetIndirectYAddr(C.Oper, &crossed)
 		if crossed {
 			val = int(C.A) - int(C.ram.Read(C.cross_oper)) - 1
 		} else {

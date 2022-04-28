@@ -162,8 +162,9 @@ func (C *CPU) ComputeInstruction() {
 	if C.conf.RunPerfStats {
 		defer C.timeTrack(time.Now(), "ComputeInstruction")
 	}
+	C.FullInst = Disassemble(C.Inst, C.Oper)
 	if C.cycleCount != C.Inst.Cycles {
-		log.Printf("%s - Wanted: %d - Getting: %d\n", Disassemble(C.Inst, C.oper), C.Inst.Cycles, C.cycleCount)
+		log.Printf("%s - Wanted: %d - Getting: %d\n", C.FullInst, C.Inst.Cycles, C.cycleCount)
 	}
 	if C.cycleCount == C.Inst.Cycles {
 		if C.NMI_Raised || C.IRQ_Raised {
@@ -223,8 +224,8 @@ func (C *CPU) NextCycle() {
 	// Cycle 2
 	////////////////////////////////////////////////
 	case ReadOperLO:
-		C.oper = uint16(C.ram.Read(C.PC + 1))
-		C.instDump += fmt.Sprintf(" %02X", C.oper)
+		C.Oper = uint16(C.ram.Read(C.PC + 1))
+		C.instDump += fmt.Sprintf(" %02X", C.Oper)
 
 		switch C.Inst.addr {
 		case relative:
@@ -288,13 +289,13 @@ func (C *CPU) NextCycle() {
 
 	case ReadOperHI: // Cycle 3
 		tmp := C.ram.Read(C.PC + 2)
-		C.oper += uint16(tmp) << 8
+		C.Oper += uint16(tmp) << 8
 		C.instDump += fmt.Sprintf(" %02X", tmp)
 
 		C.PC += 3
 		switch C.Inst.addr {
 		case absolute:
-			// C.ram.Write(C.oper, C.ram.Read(C.oper)) // Pour Bruce Lee mais pourquoi ?
+			// C.ram.Write(C.Oper, C.ram.Read(C.Oper)) // Pour Bruce Lee mais pourquoi ?
 			C.State = Compute
 			if C.Inst.Cycles == 3 {
 				C.ComputeInstruction()

@@ -83,7 +83,7 @@ func (TD *TestData) run() {
 	proc.A = TD.acc
 	proc.X = TD.x
 	proc.Y = TD.y
-	proc.oper = uint16(TD.oper)
+	proc.Oper = uint16(TD.oper)
 	for {
 		cycle := proc.Inst.Cycles
 		proc.Inst.action()
