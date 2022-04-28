@@ -162,9 +162,15 @@ func (S *SDL2Driver) ShowCode(pc_done uint16, inst string) {
 	S.debug[debugHide].FillRect(&sdl.Rect{0, 0, Xadjust, int32(S.winHeight)}, 16)
 	S.debug[S.debugShow].Blit(&sdl.Rect{0, fontHeight, Xadjust, int32(S.winHeight - fontHeight)}, S.debug[debugHide], nil)
 
-	surf, _ := S.font.RenderUTF8Solid(fmt.Sprintf("%04X: %s", pc_done, inst), sdl.Color(color.RGBA{R: 255, G: 255, B: 255, A: 255}))
-	surf.Blit(nil, S.debug[debugHide], &sdl.Rect{5, int32(S.winHeight - fontHeight*2), mnemonicWidth, 8})
-	surf.Free()
+	// surf, _ := S.font.RenderUTF8Solid(fmt.Sprintf("%04X: %s", pc_done, inst), sdl.Color(color.RGBA{R: 255, G: 255, B: 255, A: 255}))
+	// surf.Blit(nil, S.debug[debugHide], &sdl.Rect{5, int32(S.winHeight - fontHeight*2), mnemonicWidth, 8})
+	// surf.Free()
+	y := int32(S.winHeight - fontHeight*2)
+	runes := []rune(inst)
+	for i, r := range runes {
+		S.bitmap.Blit(getGlyph(r), S.debug[debugHide], &sdl.Rect{int32(5 + (i * 7)), y, 7, 9})
+	}
+
 	S.debugShow = debugHide
 }
 

@@ -162,7 +162,7 @@ func (C *CPU) ComputeInstruction() {
 	if C.conf.RunPerfStats {
 		defer C.timeTrack(time.Now(), "ComputeInstruction")
 	}
-	C.FullInst = Disassemble(C.Inst, C.Oper)
+	C.FullInst = fmt.Sprintf("%04X: %s", C.InstStart, Disassemble(C.Inst, C.Oper))
 	if C.cycleCount != C.Inst.Cycles {
 		log.Printf("%s - Wanted: %d - Getting: %d\n", C.FullInst, C.Inst.Cycles, C.cycleCount)
 	}
