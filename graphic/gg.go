@@ -2,16 +2,17 @@ package graphic
 
 import (
 	"fmt"
+	"image"
 	"image/color"
 	"log"
-	"math"
 	"os"
+	"unsafe"
 
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
 )
 
-type SDL2Driver struct {
+type GGDriver struct {
 	winHeight int
 	winWidth  int
 	emuHeight int
@@ -34,24 +35,20 @@ type SDL2Driver struct {
 	dumpCode chan bool
 
 	font *ttf.Font
+
+	test *image.RGBA
 }
 
-func (S *SDL2Driver) DirectDrawPixel(x, y int, c color.Color) {
-	// S.renderer.SetDrawColor(byte(color.R), byte(color.G), byte(color.B), 255)
-	// S.renderer.DrawPoint(int32(x), int32(y))
-	S.emul.Set(x, y, c)
+func (S *GGDriver) DrawPixel(x, y int, c color.Color) {
+	S.test.Set(x, y, c)
 }
 
-func (S *SDL2Driver) DrawPixel(x, y int, c color.Color) {
-	S.emul.Set(x, y, c)
-}
-
-func (S *SDL2Driver) CloseAll() {
+func (S *GGDriver) CloseAll() {
 	S.window.Destroy()
 	sdl.Quit()
 }
 
-func (S *SDL2Driver) Init(winWidth, winHeight int, title string) {
+func (S *GGDriver) Init(winWidth, winHeight int, title string) {
 	S.emuHeight = winHeight
 	S.emuWidth = winWidth
 	S.winHeight = S.emuHeight * 2
@@ -116,17 +113,19 @@ func (S *SDL2Driver) Init(winWidth, winHeight int, title string) {
 	if err != nil {
 		panic(err)
 	}
+
+	S.test = image.NewRGBA(image.Rect(0, 0, S.emuWidth, S.emuHeight))
 }
 
-func (S *SDL2Driver) SetKeyboardLine(line *KEYPressed) {
+func (S *GGDriver) SetKeyboardLine(line *KEYPressed) {
 	S.keybLine = line
 }
 
-func (S *SDL2Driver) SetCodeList(list [][]byte) {
+func (S *GGDriver) SetCodeList(list [][]byte) {
 	S.codeList = list
 }
 
-func (S *SDL2Driver) throttleFPS(showFps bool) {
+func (S *GGDriver) throttleFPS(showFps bool) {
 	timerFPS = sdl.GetTicks() - lastFrame
 	if timerFPS < throttleFPS {
 		sdl.Delay(throttleFPS - timerFPS)
@@ -139,34 +138,35 @@ func (S *SDL2Driver) throttleFPS(showFps bool) {
 			fps = frameCount
 			frameCount = 0
 		}
-		runes := []rune(fmt.Sprintf("%d", fps))
-		for i, r := range runes {
-			S.bitmap.Blit(getGlyph(r), S.emul, &sdl.Rect{int32(S.emuWidth - 21 + i*7), 2, 7, 9})
-		}
+		// runes := []rune(fmt.Sprintf("%d", fps))
+		// for i, r := range runes {
+		// 	S.bitmap.Blit(getGlyph(r), S.emul, &sdl.Rect{int32(S.emuWidth - 21 + i*7), 2, 7, 9})
+		// }
+		fmt.Printf("%d\n",fps)
 		frameCount++
 	}
 }
 
-func (S *SDL2Driver) ShowCode(pc_done uint16, inst string) {
-	var debugHide int
+func (S *GGDriver) ShowCode(pc_done uint16, inst string) {
+	// var debugHide int
 
-	debugHide = int(math.Abs(float64(S.debugShow - 1)))
-	S.debug[debugHide].FillRect(&sdl.Rect{0, 0, Xadjust / 2, int32(S.emuHeight)}, 16)
-	S.debug[S.debugShow].Blit(&sdl.Rect{0, fontHeight, Xadjust / 2, int32(S.emuHeight - fontHeight)}, S.debug[debugHide], nil)
+	// debugHide = int(math.Abs(float64(S.debugShow - 1)))
+	// S.debug[debugHide].FillRect(&sdl.Rect{0, 0, Xadjust / 2, int32(S.emuHeight)}, 16)
+	// S.debug[S.debugShow].Blit(&sdl.Rect{0, fontHeight, Xadjust / 2, int32(S.emuHeight - fontHeight)}, S.debug[debugHide], nil)
 
-	// surf, _ := S.font.RenderUTF8Solid(fmt.Sprintf("%04X: %s", pc_done, inst), sdl.Color(color.RGBA{R: 255, G: 255, B: 255, A: 255}))
-	// surf.Blit(nil, S.debug[debugHide], &sdl.Rect{5, int32(S.winHeight - fontHeight*2), mnemonicWidth, 8})
-	// surf.Free()
-	y := int32(S.emuHeight - fontHeight*2)
-	runes := []rune(inst)
-	for i, r := range runes {
-		S.bitmap.Blit(getGlyph(r), S.debug[debugHide], &sdl.Rect{int32(5 + (i * 7)), y, 7, 9})
-	}
+	// // surf, _ := S.font.RenderUTF8Solid(fmt.Sprintf("%04X: %s", pc_done, inst), sdl.Color(color.RGBA{R: 255, G: 255, B: 255, A: 255}))
+	// // surf.Blit(nil, S.debug[debugHide], &sdl.Rect{5, int32(S.winHeight - fontHeight*2), mnemonicWidth, 8})
+	// // surf.Free()
+	// y := int32(S.emuHeight - fontHeight*2)
+	// runes := []rune(inst)
+	// for i, r := range runes {
+	// 	S.bitmap.Blit(getGlyph(r), S.debug[debugHide], &sdl.Rect{int32(5 + (i * 7)), y, 7, 9})
+	// }
 
-	S.debugShow = debugHide
+	// S.debugShow = debugHide
 }
 
-func (S *SDL2Driver) UpdateFrame() {
+func (S *GGDriver) UpdateFrame() {
 	S.throttleFPS(true)
 
 	// S.texture, _ = S.renderer.CreateTextureFromSurface(S.emul)
@@ -175,12 +175,15 @@ func (S *SDL2Driver) UpdateFrame() {
 	// S.renderer.Copy(S.texture, nil, &sdl.Rect{0, 0, int32(Xadjust), int32(S.winHeight)})
 	// S.renderer.Present()
 
-	S.emul.BlitScaled(nil, S.w_surf, &sdl.Rect{Xadjust, 0, int32(S.emuWidth) * 2, int32(S.emuHeight) * 2})
+	// S.emul.BlitScaled(nil, S.w_surf, &sdl.Rect{Xadjust, 0, int32(S.emuWidth) * 2, int32(S.emuHeight) * 2})
+	tmp, _ := sdl.CreateRGBSurfaceFrom(unsafe.Pointer(&S.test.Pix[0]), int32(S.emuWidth), int32(S.emuHeight), 32, 4*S.emuWidth, 0,0,0,0)
+	tmp.BlitScaled(nil, S.w_surf, &sdl.Rect{Xadjust, 0, int32(S.emuWidth) * 2, int32(S.emuHeight) * 2})
+
 	S.debug[S.debugShow].BlitScaled(nil, S.w_surf, &sdl.Rect{0, 0, int32(Xadjust), int32(S.emuHeight) * 2})
 	S.window.UpdateSurface()
 }
 
-func (S *SDL2Driver) Run() {
+func (S *GGDriver) Run() {
 	for {
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch t := event.(type) {
@@ -220,6 +223,6 @@ func (S *SDL2Driver) Run() {
 	}
 }
 
-func (S *SDL2Driver) IOEvents() *KEYPressed {
+func (S *GGDriver) IOEvents() *KEYPressed {
 	return S.keybLine
 }

@@ -54,7 +54,7 @@ var (
 	IOAccess mem.MEMAccess
 
 	InputLine    graphic.KEYPressed
-	outputDriver graphic.SDL2Driver
+	outputDriver graphic.GGDriver
 	CRTC         crtc.CRTC
 	cpuTurn      bool
 	run          bool
@@ -96,7 +96,7 @@ func setup() {
 
 	memLayouts()
 
-	outputDriver = graphic.SDL2Driver{}
+	outputDriver = graphic.GGDriver{}
 	initKeyboard()
 	CRTC.Init(RAM, IO, CHARGEN, &outputDriver, conf)
 	outputDriver.SetKeyboardLine(&InputLine)

@@ -20,7 +20,7 @@ func NE5555() {
 	}
 }
 
-func (C *CRTC) Init(ram []byte, io []byte, chargen []byte, video *graphic.SDL2Driver, conf *config.ConfigData) {
+func (C *CRTC) Init(ram []byte, io []byte, chargen []byte, video *graphic.GGDriver, conf *config.ConfigData) {
 	C.Reg[R0] = 63
 	C.Reg[R1] = 40
 	C.Reg[R2] = 50

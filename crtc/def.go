@@ -79,7 +79,7 @@ type CRTC struct {
 	VideoPage uint16
 	VideoSize uint16
 
-	graph *graphic.SDL2Driver
+	graph *graphic.GGDriver
 	MODE  byte
 
 	videoRam []byte

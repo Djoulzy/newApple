@@ -19,7 +19,7 @@ var (
 	conf             config.ConfigData
 	RAM, IO, CHARGEN []byte
 	CRTC             crtc.CRTC
-	outputDriver     graphic.SDL2Driver
+	outputDriver     graphic.GGDriver
 )
 
 func init() {
