@@ -5,7 +5,6 @@ import (
 	"log"
 	"newApple/config"
 	"newApple/crtc"
-	"newApple/graphic"
 	"newApple/mem"
 	"newApple/mos6510"
 	"os"
@@ -15,6 +14,7 @@ import (
 
 	"github.com/Djoulzy/Tools/clog"
 	"github.com/Djoulzy/Tools/confload"
+	"github.com/Djoulzy/emutools/render"
 	"github.com/mattn/go-tty"
 )
 
@@ -53,8 +53,8 @@ var (
 	MEM      mem.BANK
 	IOAccess mem.MEMAccess
 
-	InputLine    graphic.KEYPressed
-	outputDriver graphic.GGDriver
+	InputLine    render.KEYPressed
+	outputDriver render.SDL2Driver
 	CRTC         crtc.CRTC
 	cpuTurn      bool
 	run          bool
@@ -96,7 +96,7 @@ func setup() {
 
 	memLayouts()
 
-	outputDriver = graphic.GGDriver{}
+	outputDriver = render.SDL2Driver{}
 	initKeyboard()
 	CRTC.Init(RAM, IO, CHARGEN, &outputDriver, conf)
 	outputDriver.SetKeyboardLine(&InputLine)

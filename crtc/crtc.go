@@ -2,8 +2,9 @@ package crtc
 
 import (
 	"newApple/config"
-	"newApple/graphic"
 	"time"
+
+	"github.com/Djoulzy/emutools/render"
 )
 
 var blink bool = false
@@ -20,7 +21,7 @@ func NE5555() {
 	}
 }
 
-func (C *CRTC) Init(ram []byte, io []byte, chargen []byte, video *graphic.GGDriver, conf *config.ConfigData) {
+func (C *CRTC) Init(ram []byte, io []byte, chargen []byte, video *render.SDL2Driver, conf *config.ConfigData) {
 	C.Reg[R0] = 63
 	C.Reg[R1] = 40
 	C.Reg[R2] = 50

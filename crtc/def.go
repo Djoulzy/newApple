@@ -3,7 +3,8 @@ package crtc
 import (
 	"image/color"
 	"newApple/config"
-	"newApple/graphic"
+
+	"github.com/Djoulzy/emutools/render"
 )
 
 var (
@@ -79,7 +80,7 @@ type CRTC struct {
 	VideoPage uint16
 	VideoSize uint16
 
-	graph *graphic.GGDriver
+	graph *render.SDL2Driver
 	MODE  byte
 
 	videoRam []byte
