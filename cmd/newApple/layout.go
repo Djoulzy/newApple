@@ -1,7 +1,7 @@
 package main
 
 import (
-	"newApple/mem"
+	"github.com/Djoulzy/emutools/mem"
 )
 
 func memLayouts() {

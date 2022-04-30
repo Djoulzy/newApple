@@ -4,9 +4,9 @@ import (
 	"io/ioutil"
 	"newApple/config"
 	"newApple/crtc"
-	"newApple/mem"
 	"runtime"
 
+	"github.com/Djoulzy/emutools/mem"
 	"github.com/Djoulzy/emutools/render"
 )
 

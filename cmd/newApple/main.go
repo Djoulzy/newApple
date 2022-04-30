@@ -6,16 +6,17 @@ import (
 	"log"
 	"newApple/config"
 	"newApple/crtc"
-	"newApple/mem"
-	"newApple/mos6510"
 	"os"
 	"reflect"
 	"strconv"
 	"sync"
 	"time"
 
+	"github.com/Djoulzy/emutools/mos6510"
+
 	"github.com/Djoulzy/Tools/clog"
 	"github.com/Djoulzy/Tools/confload"
+	"github.com/Djoulzy/emutools/mem"
 	"github.com/Djoulzy/emutools/render"
 	"github.com/mattn/go-tty"
 )
@@ -104,7 +105,7 @@ func setup() {
 	outputDriver.SetKeyboardLine(&InputLine)
 
 	// CPU Setup
-	cpu.Init(&MEM, conf)
+	cpu.Init(&MEM)
 }
 
 func input() {
@@ -213,15 +214,15 @@ func RunEmulation() {
 }
 
 func packageName(v interface{}) string {
-    if v == nil {
-        return ""
-    }
+	if v == nil {
+		return ""
+	}
 
-    val := reflect.ValueOf(v)
-    if val.Kind() == reflect.Ptr {
-        return val.Elem().Type().PkgPath()
-    }
-    return val.Type().PkgPath()
+	val := reflect.ValueOf(v)
+	if val.Kind() == reflect.Ptr {
+		return val.Elem().Type().PkgPath()
+	}
+	return val.Type().PkgPath()
 }
 
 func main() {

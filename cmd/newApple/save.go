@@ -1,8 +1,9 @@
 package main
 
 import (
-	"newApple/mem"
 	"os"
+
+	"github.com/Djoulzy/emutools/mem"
 )
 
 func DumpMem(mem *mem.BANK, file string) error {

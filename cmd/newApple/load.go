@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"newApple/mem"
 	"strconv"
 	"strings"
+
+	"github.com/Djoulzy/emutools/mem"
 )
 
 func LoadHex(mem []byte, code string) (uint16, error) {
