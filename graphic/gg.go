@@ -92,8 +92,6 @@ func (S *GGDriver) Init(width, height int, title string) {
 	S.font.SetSrc(fg)
 
 	S.debugBGColor = &color.RGBA{50, 50, 50, 255}
-
-	go S.UpdateFrame()
 }
 
 func (S *GGDriver) SetKeyboardLine(line *KEYPressed) {
@@ -115,7 +113,6 @@ func (S *GGDriver) throttleFPS(showFps bool) {
 		}
 		pt := freetype.Pt((S.emuWidth - fontWidth*3), fontHeight)
 		S.font.DrawString(fmt.Sprintf("%d", fps), pt)
-		frameCount++
 	}
 }
 
@@ -144,22 +141,21 @@ func (S *GGDriver) ShowCode() {
 
 func (S *GGDriver) UpdateFrame() {
 	rect := sdl.Rect{0, 0, int32(S.emuWidth) * 2, int32(S.emuHeight) * 2}
-	for {
-		select {
-		case <-S.Update:
-			S.throttleFPS(true)
-			S.ShowCode()
 
-			// SDL2 Texture + Render
-			S.texture, _ = S.renderer.CreateTextureFromSurface(S.emul_s)
-			S.renderer.Copy(S.texture, nil, &rect)
-			S.renderer.Present()
+	S.throttleFPS(true)
+	S.ShowCode()
 
-			// SDL2 Surface
-			// S.emul_s.BlitScaled(nil, S.w_surf, &sdl.Rect{0, 0, int32(S.emuWidth) * 2, int32(S.emuHeight) * 2})
-			// S.window.UpdateSurface()
-		}
-	}
+	// SDL2 Texture + Render
+	S.texture, _ = S.renderer.CreateTextureFromSurface(S.emul_s)
+	S.renderer.Copy(S.texture, nil, &rect)
+	S.renderer.Present()
+
+	// SDL2 Surface
+	// S.emul_s.BlitScaled(nil, S.w_surf, &sdl.Rect{0, 0, int32(S.emuWidth) * 2, int32(S.emuHeight) * 2})
+	// S.window.UpdateSurface()
+
+	frameCount++
+
 }
 
 func (S *GGDriver) Run() {
@@ -199,7 +195,7 @@ func (S *GGDriver) Run() {
 				// buffer = 0
 			}
 		}
-		// sdl.Delay(100)
+		sdl.Delay(10)
 	}
 }
 

@@ -79,7 +79,7 @@ func (C *CRTC) Run(debug bool) bool {
 			C.RasterCount = 0
 			C.RasterLine = 0
 			// C.graph.UpdateFrame()
-			C.graph.Update <- true
+			C.graph.UpdateFrame()
 		} else {
 			C.RasterCount++
 			if C.RasterCount == C.Reg[R9] {
@@ -89,7 +89,7 @@ func (C *CRTC) Run(debug bool) bool {
 		}
 	}
 	if debug {
-		C.graph.Update <- true
+		C.graph.UpdateFrame()
 	}
 	return true
 }
