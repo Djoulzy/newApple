@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/Djoulzy/Tools/clog v0.0.0-20220429054701-4c221b41ecdf
 	github.com/Djoulzy/Tools/confload v0.0.0-20220429054701-4c221b41ecdf
-	github.com/Djoulzy/emutools/render v0.0.0-20220430114318-07f319da8ce8
+	github.com/Djoulzy/emutools/render v0.0.0-20220430161903-a15aee32ad1c
 	github.com/albenik/bcd v0.0.0-20170831201648-635201416bc7
 	github.com/mattn/go-tty v0.0.4
 )

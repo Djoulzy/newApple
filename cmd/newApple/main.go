@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"newApple/config"
@@ -8,6 +9,7 @@ import (
 	"newApple/mem"
 	"newApple/mos6510"
 	"os"
+	"reflect"
 	"strconv"
 	"sync"
 	"time"
@@ -210,7 +212,21 @@ func RunEmulation() {
 	}
 }
 
+func packageName(v interface{}) string {
+    if v == nil {
+        return ""
+    }
+
+    val := reflect.ValueOf(v)
+    if val.Kind() == reflect.Ptr {
+        return val.Elem().Type().PkgPath()
+    }
+    return val.Type().PkgPath()
+}
+
 func main() {
+	var b bytes.Buffer
+	fmt.Println(reflect.TypeOf(b).PkgPath())
 	// var exit chan bool
 	// exit = make(chan bool)
 

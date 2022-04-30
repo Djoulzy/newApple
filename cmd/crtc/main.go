@@ -4,9 +4,10 @@ import (
 	"io/ioutil"
 	"newApple/config"
 	"newApple/crtc"
-	"newApple/graphic"
 	"newApple/mem"
 	"runtime"
+
+	"github.com/Djoulzy/emutools/render"
 )
 
 const (
@@ -19,7 +20,7 @@ var (
 	conf             config.ConfigData
 	RAM, IO, CHARGEN []byte
 	CRTC             crtc.CRTC
-	outputDriver     graphic.SDL2Driver
+	outputDriver     render.SDL2Driver
 )
 
 func init() {
