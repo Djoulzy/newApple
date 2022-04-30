@@ -66,17 +66,20 @@ func (C *CRTC) Run(debug bool) bool {
 
 	// log.Printf("BeamX: %d - BeamY: %d - CCLK: %02d - RasterLine: %02d", C.BeamX, C.BeamY, C.CCLK, C.RasterLine)
 
-	C.drawChar(C.BeamX, C.BeamY)
+	if C.CCLK < C.Reg[R1] {
+		C.drawChar(C.BeamX, C.BeamY)
+	}
 
 	C.CCLK++
-	if C.CCLK == C.Reg[R1] {
+	if C.CCLK == C.Reg[R0] {
 		C.CCLK = 0
 		C.BeamY++
 		if C.BeamY >= C.screenHeight {
 			C.BeamY = 0
 			C.RasterCount = 0
 			C.RasterLine = 0
-			C.graph.UpdateFrame()
+			// C.graph.UpdateFrame()
+			C.graph.Update <- true
 		} else {
 			C.RasterCount++
 			if C.RasterCount == C.Reg[R9] {
@@ -85,8 +88,8 @@ func (C *CRTC) Run(debug bool) bool {
 			}
 		}
 	}
-	// if debug {
-	// 	C.graph.UpdateFrame()
-	// }
+	if debug {
+		C.graph.Update <- true
+	}
 	return true
 }

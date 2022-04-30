@@ -5,12 +5,11 @@ import (
 )
 
 const (
-	Xadjust        = 250
-	Yadjust        = 100
-	fontWidth      = 7
-	fontHeight     = 9
-	mnemonicWidth  = fontWidth * 3
-	mnemonicHeight = fontHeight
+	Xadjust     = 130
+	Yadjust     = 100
+	fontWidth   = 8
+	fontHeight  = 9
+	nbCodeLines = 20
 
 	setFPS      = 50
 	throttleFPS = 1000 / setFPS
@@ -22,7 +21,6 @@ type KEYPressed struct {
 }
 
 var fps, frameCount, lastFrame, lastTime, timerFPS uint32
-var debug *sdl.Texture
 
 func getGlyph(char rune) *sdl.Rect {
 	pos := int32(char - 32)
