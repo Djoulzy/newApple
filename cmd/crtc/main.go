@@ -48,14 +48,12 @@ func start() {
 	mem.Clear(RAM)
 	IO = make([]byte, ioSize)
 	mem.Clear(IO)
-	CHARGEN = mem.LoadROM(chargenSize, "assets/roms/characters-2.901447-10")
+	CHARGEN = mem.LoadROM(chargenSize, "assets/roms/II/3410036.bin")
 	CRTC.Init(RAM, IO, CHARGEN, &outputDriver, &conf)
 }
 
 func main() {
 	start()
-	for {
-		CRTC.Run(false)
-		// vic.Stats()
-	}
+	go CRTC.Run(false)
+	outputDriver.Run()
 }
