@@ -5,14 +5,14 @@ go 1.18
 require (
 	github.com/Djoulzy/Tools/clog v0.0.0-20220429054701-4c221b41ecdf
 	github.com/Djoulzy/Tools/confload v0.0.0-20220429054701-4c221b41ecdf
-	github.com/Djoulzy/emutools/mem v0.0.0-20220506165535-54027361e100
-	github.com/Djoulzy/emutools/mos6510 v0.0.0-20220506165535-54027361e100
-	github.com/Djoulzy/emutools/render v0.0.0-20220506165535-54027361e100
+	github.com/Djoulzy/emutools/mem v0.0.0-20220506173254-13237329b89d
+	github.com/Djoulzy/emutools/mos6510 v0.0.0-20220506173254-13237329b89d
+	github.com/Djoulzy/emutools/render v0.0.0-20220506173254-13237329b89d
 	github.com/mattn/go-tty v0.0.4
 )
 
 require (
-	github.com/Djoulzy/emutools/charset v0.0.0-20220506165535-54027361e100 // indirect
+	github.com/Djoulzy/emutools/charset v0.0.0-20220506173254-13237329b89d // indirect
 	github.com/albenik/bcd v0.0.0-20170831201648-635201416bc7 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-ini/ini v1.66.4 // indirect
@@ -26,7 +26,7 @@ require (
 )
 
 replace (
-	github.com/Djoulzy/emutools/mem v0.0.0-20220506165535-54027361e100 => ../github.com/Djoulzy/emutools/mem
-	github.com/Djoulzy/emutools/mos6510 v0.0.0-20220506165535-54027361e100 => ../github.com/Djoulzy/emutools/mos6510
-	github.com/Djoulzy/emutools/render v0.0.0-20220506165535-54027361e100 => ../github.com/Djoulzy/emutools/render
+	github.com/Djoulzy/emutools/mem v0.0.0-20220506173254-13237329b89d => ../github.com/Djoulzy/emutools/mem
+	github.com/Djoulzy/emutools/mos6510 v0.0.0-20220506173254-13237329b89d => ../github.com/Djoulzy/emutools/mos6510
+	github.com/Djoulzy/emutools/render v0.0.0-20220506173254-13237329b89d => ../github.com/Djoulzy/emutools/render
 )
