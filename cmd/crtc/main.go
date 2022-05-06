@@ -12,8 +12,10 @@ import (
 
 const (
 	ramSize     = 65536
-	chargenSize = 4096
+	chargenSize = 2048
 	ioSize      = 4096
+	screenStart = 0x0400
+	screenSize  = 1024
 )
 
 var (
@@ -50,6 +52,12 @@ func start() {
 	mem.Clear(IO)
 	CHARGEN = mem.LoadROM(chargenSize, "assets/roms/II/3410036.bin")
 	CRTC.Init(RAM, IO, CHARGEN, &outputDriver, &conf)
+
+	cpt := 0
+	for i := screenStart; i < screenStart+screenSize; i++ {
+		RAM[uint16(i)] = byte(cpt)
+		cpt++
+	}
 }
 
 func main() {
