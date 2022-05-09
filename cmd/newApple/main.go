@@ -6,6 +6,7 @@ import (
 	"log"
 	"newApple/config"
 	"newApple/crtc"
+	"newApple/disk"
 	"os"
 	"reflect"
 	"strconv"
@@ -28,6 +29,7 @@ const (
 	chargenSize  = 2048
 	keyboardSize = 2048
 	blanckSize   = 12288
+	slot_roms    = 256
 
 	nbMemLayout = 1
 
@@ -41,20 +43,21 @@ var (
 
 	cpu mos6510.CPU
 
-	RAM      []byte
-	ROM_AID  []byte
-	ROM_D0   []byte
-	ROM_D8   []byte
-	ROM_E0   []byte
-	ROM_E8   []byte
-	ROM_F0   []byte
-	ROM_F8   []byte
-	IO       []byte
-	KEYB     []byte
-	CHARGEN  []byte
-	BLANK    []byte
-	MEM      mem.BANK
-	IOAccess mem.MEMAccess
+	RAM       []byte
+	ROM_AID   []byte
+	ROM_D0    []byte
+	ROM_D8    []byte
+	ROM_E0    []byte
+	ROM_E8    []byte
+	ROM_F0    []byte
+	ROM_F8    []byte
+	IO        []byte
+	SLOT6     []byte
+	KEYB      []byte
+	CHARGEN   []byte
+	BLANK     []byte
+	MEM       mem.BANK
+	IOAccess  mem.MEMAccess
 
 	InputLine    render.KEYPressed
 	outputDriver render.SDL2Driver
@@ -85,15 +88,20 @@ func setup() {
 	ROM_AID = mem.LoadROM(romSize, "assets/roms/II/3410016.bin")
 	// KEYB = mem.LoadROM(keyboardSize, "assets/roms/Keyb.bin")
 	CHARGEN = mem.LoadROM(chargenSize, "assets/roms/II/3410036.bin")
+	SLOT6 = mem.LoadROM(slot_roms, "assets/roms/slot_disk2_cx00.bin")
 
 	mem.Clear(RAM)
 	// mem.DisplayCharRom(CHARGEN, 1, 8, 16)
+
+	DiskDrive := disk.Attach()
+	DiskDrive.LoadDiskImage("woz/Akalabeth.woz")
 
 	// RAM[0x0001] = 0x00
 	// MEM = mem.InitBanks(nbMemLayout, &RAM[0x0001])
 	var test byte = 0
 	MEM = mem.InitBanks(nbMemLayout, &test)
-	IOAccess = &accessor{}
+
+	IOAccess = &io_access{Disk: DiskDrive}
 
 	// MEM Setup
 
@@ -117,10 +125,8 @@ func input() {
 		r, _ := keyb.ReadRune()
 		switch r {
 		case 's':
-			Disassamble()
 			MEM.DumpStack(cpu.SP)
 		case 'z':
-			Disassamble()
 			MEM.Dump(0)
 		case 'x':
 			// DumpMem(&pla, "memDump.bin")
@@ -167,11 +173,6 @@ func input() {
 	}
 }
 
-func Disassamble() {
-	// fmt.Printf("\n%s %s", vic.Disassemble(), cpu.Disassemble())
-	fmt.Printf("%s\n", cpu.Trace())
-}
-
 func timeTrack(start time.Time, name string) {
 	elapsed := time.Now().Sub(start)
 	log.Printf("%s took %s", name, elapsed)
@@ -182,7 +183,7 @@ func RunEmulation() {
 	// defer timeTrack(time.Now(), "RunEmulation")
 	for {
 		CRTC.Run(!run)
-		if cpu.State == mos6510.ReadInstruction && !run {
+		if cpu.CycleCount == 1 && !run {
 			execInst.Lock()
 		}
 
@@ -197,17 +198,18 @@ func RunEmulation() {
 		}
 
 		cpu.NextCycle()
-		if cpu.State == mos6510.ReadInstruction {
-			outputDriver.DumpCode(cpu.FullInst)
-			if conf.Breakpoint == cpu.InstStart {
-				conf.Disassamble = true
-				run = false
-			}
-		}
+		// if cpu.State == mos6510.ReadInstruction {
+		// 	outputDriver.DumpCode(cpu.FullInst)
+		// 	if conf.Breakpoint == cpu.InstStart {
+		// 		conf.Disassamble = true
+		// 		run = false
+		// 	}
+		// }
 
-		if cpu.State == mos6510.ReadInstruction {
+		if cpu.CycleCount == 1 {
+			outputDriver.DumpCode(cpu.FullInst)
 			if !run || conf.Disassamble {
-				Disassamble()
+				fmt.Printf("%s\n", cpu.FullDebug)
 			}
 		}
 	}
