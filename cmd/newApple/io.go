@@ -32,12 +32,37 @@ type io_access struct {
 func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 	// clog.Test("Accessor", "MRead", "Addr: %04X", translatedAddr)
 	switch translatedAddr {
+	case SLOT6_OFFSET + DRVSM0:
+		log.Printf("Motor Switch 0 off\n")
+		return 0
+	case SLOT6_OFFSET + DRVSM0 + 1:
+		log.Printf("Motor Switch 0 on\n")
+		return 0
+	case SLOT6_OFFSET + DRVSM1:
+		log.Printf("Motor Switch 1 off\n")
+		return 0
+	case SLOT6_OFFSET + DRVSM1 + 1:
+		log.Printf("Motor Switch 1 on\n")
+		return 0
+	case SLOT6_OFFSET + DRVSM2:
+		log.Printf("Motor Switch 2 off\n")
+		return 0
+	case SLOT6_OFFSET + DRVSM2 + 1:
+		log.Printf("Motor Switch 2 on\n")
+		return 0
+	case SLOT6_OFFSET + DRVSM3:
+		log.Printf("Motor Switch 3 off\n")
+		return 0
+	case SLOT6_OFFSET + DRVSM3 + 1:
+		log.Printf("Motor Switch 3 on\n")
+		return 0
 	case SLOT6_OFFSET + DRIVE + 1:
 		log.Printf("Read - Start Motor\n")
 		C.Disk.StartMotor()
 		return mem[translatedAddr]
 	case SLOT6_OFFSET + DRIVE:
 		log.Printf("Read - Stop Motor\n")
+		C.Disk.StopMotor()
 		return mem[translatedAddr]
 	case SLOT6_OFFSET + DRVDATA:
 		// log.Printf("Read - Q6 off (read)\n")
@@ -59,6 +84,22 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 func (C *io_access) MWrite(mem []byte, translatedAddr uint16, val byte) {
 	// clog.Test("Accessor", "MWrite", "Addr: %04X -> %02X", 0xE800+translatedAddr, val)
 	switch translatedAddr {
+	case SLOT6_OFFSET + DRVSM0:
+		fallthrough
+	case SLOT6_OFFSET + DRVSM0 + 1:
+		fallthrough
+	case SLOT6_OFFSET + DRVSM1:
+		fallthrough
+	case SLOT6_OFFSET + DRVSM1 + 1:
+		fallthrough
+	case SLOT6_OFFSET + DRVSM2:
+		fallthrough
+	case SLOT6_OFFSET + DRVSM2 + 1:
+		fallthrough
+	case SLOT6_OFFSET + DRVSM3:
+		fallthrough
+	case SLOT6_OFFSET + DRVSM3 + 1:
+		log.Printf("Motor Switch\n")
 	case SLOT6_OFFSET + DRIVE + 1:
 		log.Printf("Start Motor\n")
 	case SLOT6_OFFSET + DRIVE:
