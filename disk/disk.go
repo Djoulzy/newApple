@@ -1,6 +1,7 @@
 package disk
 
 import (
+	"fmt"
 	"hash/crc32"
 	"io/ioutil"
 	"log"
@@ -8,6 +9,7 @@ import (
 )
 
 type DRIVE struct {
+	motorPhases   [4]bool
 	prevHalfTrack int
 	halftrack     int
 	trackLocation uint32
@@ -31,11 +33,12 @@ func Attach() *DRIVE {
 	drive := DRIVE{}
 
 	drive.currentPhase = 0
+	drive.motorPhases = [4]bool{false, false, false, false}
 	drive.direction = 0
 	drive.trackStart = make([]uint32, 80)
 	drive.trackNbits = make([]uint32, 80)
 	drive.prevHalfTrack = 0
-	drive.halftrack = 0
+	drive.halftrack = 70
 
 	crcTable = crc32.MakeTable(0xEDB88320)
 	return &drive
@@ -81,10 +84,12 @@ func (D *DRIVE) moveHead(offset int) {
 
 	// Adjust new track location based on arm position relative to old track loc.
 	if D.trackStart[D.halftrack] > 0 && D.prevHalfTrack != D.halftrack {
+		// oldloc := D.trackLocation
 		D.trackLocation = uint32(math.Floor(float64(D.trackLocation * (D.trackNbits[D.halftrack] / D.trackNbits[D.prevHalfTrack]))))
 		if D.trackLocation > 3 {
 			D.trackLocation -= 4
 		}
+		// log.Printf("track=%d %d %d %d %d", D.halftrack, oldloc, D.trackLocation, D.trackNbits[D.halftrack], D.trackNbits[D.prevHalfTrack])
 	}
 }
 
@@ -122,17 +127,25 @@ func (D *DRIVE) GetNextByte() byte {
 	return result
 }
 
-func (D *DRIVE) NewPhase(newPhase int) {
-	if uint(D.currentPhase-newPhase) < 3 {
-		if newPhase > D.currentPhase {
-			D.direction = 1
-		} else {
-			D.direction = -1
+func (D *DRIVE) SetPhase(phase int, state bool) {
+	var debug string
+	D.motorPhases[phase] = state
+
+	ascend := D.motorPhases[(D.currentPhase+1)%4]
+	descend := D.motorPhases[(D.currentPhase+3)%4]
+	if !D.motorPhases[D.currentPhase] {
+		if D.motorIsRunning && ascend {
+			D.moveHead(1)
+			D.currentPhase = (D.currentPhase + 1) % 4
+			debug = fmt.Sprintf(" currPhase= %d track= %0.1f", D.currentPhase, float64(D.halftrack)/2)
+
+		} else if D.motorIsRunning && descend {
+			D.moveHead(-1)
+			D.currentPhase = (D.currentPhase + 3) % 4
+			debug = fmt.Sprintf(" currPhase= %d track= %0.1f", D.currentPhase, float64(D.halftrack)/2)
 		}
+		log.Printf("***** %s", debug)
 	}
-	D.currentPhase = newPhase
-	D.moveHead(D.direction)
-	log.Printf("currPhase=%d - track=%d\n", D.currentPhase, D.halftrack / 2)
 }
 
 func (D *DRIVE) destectFormat(header []byte) bool {

@@ -43,21 +43,21 @@ var (
 
 	cpu mos6510.CPU
 
-	RAM       []byte
-	ROM_AID   []byte
-	ROM_D0    []byte
-	ROM_D8    []byte
-	ROM_E0    []byte
-	ROM_E8    []byte
-	ROM_F0    []byte
-	ROM_F8    []byte
-	IO        []byte
-	SLOT6     []byte
-	KEYB      []byte
-	CHARGEN   []byte
-	BLANK     []byte
-	MEM       mem.BANK
-	IOAccess  mem.MEMAccess
+	RAM      []byte
+	ROM_AID  []byte
+	ROM_D0   []byte
+	ROM_D8   []byte
+	ROM_E0   []byte
+	ROM_E8   []byte
+	ROM_F0   []byte
+	ROM_F8   []byte
+	IO       []byte
+	SLOT6    []byte
+	KEYB     []byte
+	CHARGEN  []byte
+	BLANK    []byte
+	MEM      mem.BANK
+	IOAccess mem.MEMAccess
 
 	InputLine    render.KEYPressed
 	outputDriver render.SDL2Driver

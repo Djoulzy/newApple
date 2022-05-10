@@ -6,6 +6,7 @@ import (
 )
 
 const (
+	KBD          = 0x00
 	SLOT0_OFFSET = 0x90
 	SLOT1_OFFSET = 0x90
 	SLOT2_OFFSET = 0xA0
@@ -32,40 +33,36 @@ type io_access struct {
 func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 	// clog.Test("Accessor", "MRead", "Addr: %04X", translatedAddr)
 	switch translatedAddr {
+	case KBD:
+		return mem[translatedAddr]
 	case SLOT6_OFFSET + DRVSM0:
-		log.Printf("Motor Switch 0 off\n")
-		C.Disk.NewPhase(0)
+		C.Disk.SetPhase(0, false)
 		return 0
 	case SLOT6_OFFSET + DRVSM0 + 1:
-		log.Printf("Motor Switch 0 on\n")
+		C.Disk.SetPhase(0, true)
 		return 0
 	case SLOT6_OFFSET + DRVSM1:
-		log.Printf("Motor Switch 1 off\n")
-		C.Disk.NewPhase(1)
+		C.Disk.SetPhase(1, false)
 		return 0
 	case SLOT6_OFFSET + DRVSM1 + 1:
-		log.Printf("Motor Switch 1 on\n")
+		C.Disk.SetPhase(1, true)
 		return 0
 	case SLOT6_OFFSET + DRVSM2:
-		log.Printf("Motor Switch 2 off\n")
-		C.Disk.NewPhase(2)
+		C.Disk.SetPhase(2, false)
 		return 0
 	case SLOT6_OFFSET + DRVSM2 + 1:
-		log.Printf("Motor Switch 2 on\n")
+		C.Disk.SetPhase(2, true)
 		return 0
 	case SLOT6_OFFSET + DRVSM3:
-		log.Printf("Motor Switch 3 off\n")
-		C.Disk.NewPhase(3)
+		C.Disk.SetPhase(3, false)
 		return 0
 	case SLOT6_OFFSET + DRVSM3 + 1:
-		log.Printf("Motor Switch 3 on\n")
+		C.Disk.SetPhase(3, true)
 		return 0
 	case SLOT6_OFFSET + DRIVE + 1:
-		log.Printf("Read - Start Motor\n")
 		C.Disk.StartMotor()
 		return mem[translatedAddr]
 	case SLOT6_OFFSET + DRIVE:
-		log.Printf("Read - Stop Motor\n")
 		C.Disk.StopMotor()
 		return mem[translatedAddr]
 	case SLOT6_OFFSET + DRVDATA:
@@ -83,6 +80,7 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 		mem[0] = 0
 		fallthrough
 	default:
+		log.Printf("Read Unknown: %02X\n", translatedAddr)
 		return mem[translatedAddr]
 	}
 }
@@ -90,9 +88,12 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 func (C *io_access) MWrite(mem []byte, translatedAddr uint16, val byte) {
 	// clog.Test("Accessor", "MWrite", "Addr: %04X -> %02X", 0xE800+translatedAddr, val)
 	switch translatedAddr {
+	case KBD:
 	case SLOT6_OFFSET + DRVSM0:
+		log.Printf("Write Motor Switch 0 off\n")
 		fallthrough
 	case SLOT6_OFFSET + DRVSM0 + 1:
+		log.Printf("Write Motor Switch 0 on\n")
 		fallthrough
 	case SLOT6_OFFSET + DRVSM1:
 		fallthrough
