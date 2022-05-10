@@ -34,24 +34,28 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 	switch translatedAddr {
 	case SLOT6_OFFSET + DRVSM0:
 		log.Printf("Motor Switch 0 off\n")
+		C.Disk.NewPhase(0)
 		return 0
 	case SLOT6_OFFSET + DRVSM0 + 1:
 		log.Printf("Motor Switch 0 on\n")
 		return 0
 	case SLOT6_OFFSET + DRVSM1:
 		log.Printf("Motor Switch 1 off\n")
+		C.Disk.NewPhase(1)
 		return 0
 	case SLOT6_OFFSET + DRVSM1 + 1:
 		log.Printf("Motor Switch 1 on\n")
 		return 0
 	case SLOT6_OFFSET + DRVSM2:
 		log.Printf("Motor Switch 2 off\n")
+		C.Disk.NewPhase(2)
 		return 0
 	case SLOT6_OFFSET + DRVSM2 + 1:
 		log.Printf("Motor Switch 2 on\n")
 		return 0
 	case SLOT6_OFFSET + DRVSM3:
 		log.Printf("Motor Switch 3 off\n")
+		C.Disk.NewPhase(3)
 		return 0
 	case SLOT6_OFFSET + DRVSM3 + 1:
 		log.Printf("Motor Switch 3 on\n")
@@ -67,7 +71,9 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 	case SLOT6_OFFSET + DRVDATA:
 		// log.Printf("Read - Q6 off (read)\n")
 		if C.Disk.IsRunning() {
-			return C.Disk.GetNextByte()
+			tmp := C.Disk.GetNextByte()
+			// log.Printf("Read: %02X\n", tmp)
+			return tmp
 		}
 		return 0x00
 	case SLOT6_OFFSET + DRVDATA + 1:

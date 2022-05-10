@@ -8,8 +8,8 @@ import (
 )
 
 type DRIVE struct {
-	prevHalfTrack byte
-	halftrack     byte
+	prevHalfTrack int
+	halftrack     int
 	trackLocation uint32
 
 	trackStart []uint32
@@ -18,6 +18,7 @@ type DRIVE struct {
 	diskData []byte
 
 	currentPhase        int
+	direction           int
 	motorIsRunning      bool
 	diskImageHasChanges bool
 	isWriteProtected    bool
@@ -29,6 +30,8 @@ var crcTable *crc32.Table
 func Attach() *DRIVE {
 	drive := DRIVE{}
 
+	drive.currentPhase = 0
+	drive.direction = 0
 	drive.trackStart = make([]uint32, 80)
 	drive.trackNbits = make([]uint32, 80)
 	drive.prevHalfTrack = 0
@@ -63,7 +66,7 @@ func (D *DRIVE) StopMotor() {
 	D.motorIsRunning = false
 }
 
-func (D *DRIVE) moveHead(offset byte) {
+func (D *DRIVE) moveHead(offset int) {
 	if D.trackStart[D.halftrack] > 0 {
 		D.prevHalfTrack = D.halftrack
 	}
@@ -117,6 +120,19 @@ func (D *DRIVE) GetNextByte() byte {
 	// log.Printf(" trackLocation= %d byte= %02X\n", D.trackLocation, result)
 
 	return result
+}
+
+func (D *DRIVE) NewPhase(newPhase int) {
+	if uint(D.currentPhase-newPhase) < 3 {
+		if newPhase > D.currentPhase {
+			D.direction = 1
+		} else {
+			D.direction = -1
+		}
+	}
+	D.currentPhase = newPhase
+	D.moveHead(D.direction)
+	log.Printf("currPhase=%d - track=%d\n", D.currentPhase, D.halftrack / 2)
 }
 
 func (D *DRIVE) destectFormat(header []byte) bool {

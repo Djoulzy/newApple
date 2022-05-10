@@ -94,7 +94,7 @@ func setup() {
 	// mem.DisplayCharRom(CHARGEN, 1, 8, 16)
 
 	DiskDrive := disk.Attach()
-	DiskDrive.LoadDiskImage("woz/Akalabeth.woz")
+	DiskDrive.LoadDiskImage("woz/DOS33.woz")
 
 	// RAM[0x0001] = 0x00
 	// MEM = mem.InitBanks(nbMemLayout, &RAM[0x0001])
