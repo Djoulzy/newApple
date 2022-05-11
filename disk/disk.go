@@ -1,7 +1,6 @@
 package disk
 
 import (
-	"fmt"
 	"hash/crc32"
 	"io/ioutil"
 	"log"
@@ -124,7 +123,7 @@ func (D *DRIVE) GetNextByte() byte {
 	for i := 6; i >= 0; i-- {
 		result |= D.getNextBit() << i
 	}
-	fmt.Printf("Cycle: %d Track: %d byte= %02X\n", JulesCpt, D.halftrack, result)
+	// fmt.Printf("Cycle: %d Track: %d byte= %02X\n", JulesCpt, D.halftrack, result)
 	// if JulesTmp != D.halftrack {
 	// 	JulesTmp = D.halftrack
 	// 	JulesCpt = 0
@@ -141,7 +140,7 @@ func (D *DRIVE) GetNextByte() byte {
 }
 
 func (D *DRIVE) SetPhase(phase int, state bool) {
-	var debug string
+	// var debug string
 	D.motorPhases[phase] = state
 
 	ascend := D.motorPhases[(D.currentPhase+1)%4]
@@ -150,14 +149,14 @@ func (D *DRIVE) SetPhase(phase int, state bool) {
 		if D.motorIsRunning && ascend {
 			D.moveHead(1)
 			D.currentPhase = (D.currentPhase + 1) % 4
-			debug = fmt.Sprintf(" currPhase= %d track= %0.1f", D.currentPhase, float64(D.halftrack)/2)
+			// debug = fmt.Sprintf(" currPhase= %d track= %0.1f", D.currentPhase, float64(D.halftrack)/2)
 
 		} else if D.motorIsRunning && descend {
 			D.moveHead(-1)
 			D.currentPhase = (D.currentPhase + 3) % 4
-			debug = fmt.Sprintf(" currPhase= %d track= %0.1f", D.currentPhase, float64(D.halftrack)/2)
+			// debug = fmt.Sprintf(" currPhase= %d track= %0.1f", D.currentPhase, float64(D.halftrack)/2)
 		}
-		log.Printf("***** %s", debug)
+		// log.Printf("***** %s", debug)
 	}
 }
 

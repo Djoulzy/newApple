@@ -31,7 +31,7 @@ const (
 	blanckSize   = 12288
 	slot_roms    = 256
 
-	nbMemLayout = 1
+	nbMemLayout = 2
 
 	Stopped = 0
 	Paused  = 1
