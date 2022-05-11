@@ -59,23 +59,37 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 	case SLOT6_OFFSET + DRVSM3 + 1:
 		C.Disk.SetPhase(3, true)
 		return 0
+
 	case SLOT6_OFFSET + DRIVE + 1:
 		C.Disk.StartMotor()
 		return mem[translatedAddr]
 	case SLOT6_OFFSET + DRIVE:
 		C.Disk.StopMotor()
 		return mem[translatedAddr]
+
+	case SLOT6_OFFSET + DRVWRITE:
+		C.Disk.ReadMode = true
+		if C.Disk.IsWriteProtected {
+			return 0xFF
+		} else {
+			return 0
+		}
+	case SLOT6_OFFSET + DRVWRITE + 1:
+		C.Disk.ReadMode = false
+		return 0
+
 	case SLOT6_OFFSET + DRVDATA:
 		// log.Printf("Read - Q6 off (read)\n")
-		if C.Disk.IsRunning() {
+		if C.Disk.IsRunning() && C.Disk.ReadMode {
 			tmp := C.Disk.GetNextByte()
-			// log.Printf("Read: %02X\n", tmp)
+			// log.Printf("track: %d Read: %02X\n", tmp, D.halftrack)
 			return tmp
 		}
 		return 0x00
 	case SLOT6_OFFSET + DRVDATA + 1:
 		log.Printf("Read - Q6 on (WP sense)\n")
 		return mem[translatedAddr]
+
 	case 0x10: // Clear keyboard strobe
 		mem[0] = 0
 		fallthrough
@@ -106,11 +120,19 @@ func (C *io_access) MWrite(mem []byte, translatedAddr uint16, val byte) {
 	case SLOT6_OFFSET + DRVSM3:
 		fallthrough
 	case SLOT6_OFFSET + DRVSM3 + 1:
-		log.Printf("Motor Switch\n")
+		log.Printf("Write Motor Switch\n")
 	case SLOT6_OFFSET + DRIVE + 1:
-		log.Printf("Start Motor\n")
+		log.Printf("Write Start Motor\n")
 	case SLOT6_OFFSET + DRIVE:
-		log.Printf("Stop Motor\n")
+		log.Printf("Write Stop Motor\n")
+	case SLOT6_OFFSET + DRVWRITE:
+		log.Printf("Write DRVWRITE\n")
+	case SLOT6_OFFSET + DRVWRITE + 1:
+		log.Printf("Write DRVWRITE+1\n")
+	case SLOT6_OFFSET + DRVDATA:
+		log.Printf("Write DRVDATA\n")
+	case SLOT6_OFFSET + DRVDATA + 1:
+		log.Printf("Write DRVDATA+1\n")
 	}
 	mem[translatedAddr] = val
 }

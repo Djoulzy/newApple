@@ -25,7 +25,7 @@ import (
 const (
 	ramSize      = 65536
 	romSize      = 2048
-	ioSize       = 2048
+	softSwitches = 256
 	chargenSize  = 2048
 	keyboardSize = 2048
 	blanckSize   = 12288
@@ -43,14 +43,18 @@ var (
 
 	cpu mos6510.CPU
 
-	RAM      []byte
-	ROM_AID  []byte
-	ROM_D0   []byte
-	ROM_D8   []byte
-	ROM_E0   []byte
-	ROM_E8   []byte
-	ROM_F0   []byte
-	ROM_F8   []byte
+	RAM     []byte
+	ROM_AID []byte
+	ROM_D0  []byte
+	ROM_D8  []byte
+	ROM_E0  []byte
+	ROM_E8  []byte
+	ROM_F0  []byte
+	ROM_F8  []byte
+
+	ROM_CD []byte
+	ROM_EF []byte
+
 	IO       []byte
 	SLOT6    []byte
 	KEYB     []byte
@@ -77,17 +81,22 @@ var (
 func setup() {
 	// ROMs & RAM Setup
 	RAM = make([]byte, ramSize)
-	IO = make([]byte, ioSize)
+	IO = make([]byte, softSwitches)
 	// BLANK = make([]byte, blanckSize)
-	ROM_D0 = mem.LoadROM(romSize, "assets/roms/II/3410011D0.bin")
-	ROM_D8 = mem.LoadROM(romSize, "assets/roms/II/3410012D8.bin")
-	ROM_E0 = mem.LoadROM(romSize, "assets/roms/II/3410013E0.bin")
-	ROM_E8 = mem.LoadROM(romSize, "assets/roms/II/3410014E8.bin")
-	ROM_F0 = mem.LoadROM(romSize, "assets/roms/II/3410015F0.bin")
-	ROM_F8 = mem.LoadROM(romSize, "assets/roms/II/3410020F8.bin")
-	ROM_AID = mem.LoadROM(romSize, "assets/roms/II/3410016.bin")
+	// ROM_D0 = mem.LoadROM(romSize, "assets/roms/II/3410011D0.bin")
+	// ROM_D8 = mem.LoadROM(romSize, "assets/roms/II/3410012D8.bin")
+	// ROM_E0 = mem.LoadROM(romSize, "assets/roms/II/3410013E0.bin")
+	// ROM_E8 = mem.LoadROM(romSize, "assets/roms/II/3410014E8.bin")
+	// ROM_F0 = mem.LoadROM(romSize, "assets/roms/II/3410015F0.bin")
+	// ROM_F8 = mem.LoadROM(romSize, "assets/roms/II/3410020F8.bin")
+	// ROM_AID = mem.LoadROM(romSize, "assets/roms/II/3410016.bin")
+
+	ROM_CD = mem.LoadROM(romSize*4, "assets/roms/IIe/CD.bin")
+	ROM_EF = mem.LoadROM(romSize*4, "assets/roms/IIe/EF.bin")
+	CHARGEN = mem.LoadROM(chargenSize*2, "assets/roms/IIe/Video_US.bin")
+
 	// KEYB = mem.LoadROM(keyboardSize, "assets/roms/Keyb.bin")
-	CHARGEN = mem.LoadROM(chargenSize, "assets/roms/II/3410036.bin")
+	// CHARGEN = mem.LoadROM(chargenSize, "assets/roms/II/3410036.bin")
 	SLOT6 = mem.LoadROM(slot_roms, "assets/roms/slot_disk2_cx00.bin")
 
 	mem.Clear(RAM)
@@ -253,8 +262,9 @@ func main() {
 
 	run = true
 	cpuTurn = true
-	// go func() {
-	// go outputDriver.ShowCode()
+	outputDriver.ShowCode = true
+	outputDriver.ShowFps = true
+
 	go RunEmulation()
 	// }()
 

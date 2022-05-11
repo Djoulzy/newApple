@@ -9,21 +9,20 @@ import (
 )
 
 type DRIVE struct {
-	motorPhases   [4]bool
-	prevHalfTrack int
-	halftrack     int
-	trackLocation uint32
+	motorPhases      [4]bool
+	IsWriteProtected bool
+	motorIsRunning   bool
+	ReadMode         bool
 
-	trackStart []uint32
-	trackNbits []uint32
-
-	diskData []byte
-
-	currentPhase        int
-	direction           int
-	motorIsRunning      bool
-	diskImageHasChanges bool
-	isWriteProtected    bool
+	prevHalfTrack  int
+	halftrack      int
+	trackLocation  uint32
+	trackStart     []uint32
+	trackNbits     []uint32
+	diskData       []byte
+	currentPhase   int
+	direction      int
+	diskHasChanges bool
 }
 
 var pickbit = []byte{128, 64, 32, 16, 8, 4, 2, 1}
@@ -38,7 +37,7 @@ func Attach() *DRIVE {
 	drive.trackStart = make([]uint32, 80)
 	drive.trackNbits = make([]uint32, 80)
 	drive.prevHalfTrack = 0
-	drive.halftrack = 70
+	drive.halftrack = 0
 
 	crcTable = crc32.MakeTable(0xEDB88320)
 	return &drive
@@ -109,6 +108,9 @@ func (D *DRIVE) getNextBit() byte {
 	return bit
 }
 
+var JulesCpt int = 0
+var JulesTmp int = 0
+
 func (D *DRIVE) GetNextByte() byte {
 	var bit, result byte
 
@@ -122,8 +124,19 @@ func (D *DRIVE) GetNextByte() byte {
 	for i := 6; i >= 0; i-- {
 		result |= D.getNextBit() << i
 	}
-	// log.Printf(" trackLocation= %d byte= %02X\n", D.trackLocation, result)
-
+	fmt.Printf("Cycle: %d Track: %d byte= %02X\n", JulesCpt, D.halftrack, result)
+	// if JulesTmp != D.halftrack {
+	// 	JulesTmp = D.halftrack
+	// 	JulesCpt = 0
+	// }
+	// cpt++
+	// if cpt > 50 {
+	// 	os.Exit(1)
+	// }
+	// JulesCpt++
+	// if JulesCpt > 12775 {
+	// 	os.Exit(1)
+	// }
 	return result
 }
 
@@ -169,9 +182,9 @@ func (D *DRIVE) decodeDiskData(fileName string) {
 	woz2 := []byte{0x57, 0x4F, 0x5A, 0x32, 0xFF, 0x0A, 0x0D, 0x0A}
 	woz1 := []byte{0x57, 0x4F, 0x5A, 0x31, 0xFF, 0x0A, 0x0D, 0x0A}
 
-	D.diskImageHasChanges = false
+	D.diskHasChanges = false
 	if D.destectFormat(woz2) {
-		D.isWriteProtected = D.diskData[22] == 1
+		D.IsWriteProtected = D.diskData[22] == 1
 		crc := D.diskData[8:12]
 		storedCRC := uint32(crc[0]) + (uint32(crc[1]) << 8) + (uint32(crc[2]) << 16) + uint32(crc[3])*uint32(math.Pow(2, 24))
 		actualCRC := get_crc32(D.diskData, 12)
@@ -196,7 +209,7 @@ func (D *DRIVE) decodeDiskData(fileName string) {
 	}
 
 	if D.destectFormat(woz1) {
-		D.isWriteProtected = D.diskData[22] == 1
+		D.IsWriteProtected = D.diskData[22] == 1
 		for htrack := 0; htrack < 80; htrack++ {
 			tmap_index := int(D.diskData[88+htrack*2])
 			if tmap_index < 255 {
