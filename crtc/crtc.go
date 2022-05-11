@@ -54,12 +54,17 @@ func (C *CRTC) Init(ram []byte, io []byte, chargen []byte, video *render.SDL2Dri
 	C.RasterCount = 0
 	C.CCLK = 0
 
-	go NE5555()
+	if conf.Model == "2" {
+		go NE5555()
+		C.videoMode = (*CRTC).StandardTextModeA2
+	} else {
+		C.videoMode = (*CRTC).StandardTextModeA2E
+	}
 }
 
 func (C *CRTC) drawChar(X int, Y int) {
 	// if C.drawArea && (C.Reg[REG_CTRL1]&DEN > 0) {
-	C.StandardTextMode(X, Y)
+	C.videoMode(C, X, Y)
 }
 
 func (C *CRTC) Run(debug bool) bool {

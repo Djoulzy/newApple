@@ -7,6 +7,7 @@ import (
 
 const (
 	KBD          = 0x00
+	KBDSTRB      = 0x10
 	SLOT0_OFFSET = 0x90
 	SLOT1_OFFSET = 0x90
 	SLOT2_OFFSET = 0xA0
@@ -34,6 +35,9 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 	// clog.Test("Accessor", "MRead", "Addr: %04X", translatedAddr)
 	switch translatedAddr {
 	case KBD:
+		return mem[translatedAddr]
+	case KBDSTRB:
+		mem[0] = 0
 		return mem[translatedAddr]
 	case SLOT6_OFFSET + DRVSM0:
 		C.Disk.SetPhase(0, false)
@@ -90,11 +94,8 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 		log.Printf("Read - Q6 on (WP sense)\n")
 		return mem[translatedAddr]
 
-	case 0x10: // Clear keyboard strobe
-		mem[0] = 0
-		fallthrough
 	default:
-		log.Printf("Read Unknown: %02X\n", translatedAddr)
+		// log.Printf("Read Unknown: %02X\n", translatedAddr)
 		return mem[translatedAddr]
 	}
 }
@@ -103,24 +104,24 @@ func (C *io_access) MWrite(mem []byte, translatedAddr uint16, val byte) {
 	// clog.Test("Accessor", "MWrite", "Addr: %04X -> %02X", 0xE800+translatedAddr, val)
 	switch translatedAddr {
 	case KBD:
+	case KBDSTRB:
+		mem[0] = 0
 	case SLOT6_OFFSET + DRVSM0:
-		log.Printf("Write Motor Switch 0 off\n")
-		fallthrough
+		C.Disk.SetPhase(0, false)
 	case SLOT6_OFFSET + DRVSM0 + 1:
-		log.Printf("Write Motor Switch 0 on\n")
-		fallthrough
+		C.Disk.SetPhase(0, true)
 	case SLOT6_OFFSET + DRVSM1:
-		fallthrough
+		C.Disk.SetPhase(1, false)
 	case SLOT6_OFFSET + DRVSM1 + 1:
-		fallthrough
+		C.Disk.SetPhase(1, true)
 	case SLOT6_OFFSET + DRVSM2:
-		fallthrough
+		C.Disk.SetPhase(2, false)
 	case SLOT6_OFFSET + DRVSM2 + 1:
-		fallthrough
+		C.Disk.SetPhase(2, true)
 	case SLOT6_OFFSET + DRVSM3:
-		fallthrough
+		C.Disk.SetPhase(3, false)
 	case SLOT6_OFFSET + DRVSM3 + 1:
-		log.Printf("Write Motor Switch\n")
+		C.Disk.SetPhase(3, true)
 	case SLOT6_OFFSET + DRIVE + 1:
 		log.Printf("Write Start Motor\n")
 	case SLOT6_OFFSET + DRIVE:

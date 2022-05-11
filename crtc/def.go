@@ -83,8 +83,9 @@ type CRTC struct {
 	graph *render.SDL2Driver
 	MODE  byte
 
-	videoRam []byte
-	charRom  []byte
+	videoRam  []byte
+	charRom   []byte
+	videoMode func(*CRTC, int, int)
 }
 
 const (

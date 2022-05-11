@@ -41,7 +41,9 @@ const (
 var (
 	conf = &config.ConfigData{}
 
-	cpu mos6510.CPU
+	cpu     mos6510.CPU
+	MODEL   int
+	BankSel byte
 
 	RAM     []byte
 	ROM_AID []byte
@@ -78,43 +80,48 @@ var (
 // 	runtime.LockOSThread()
 // }
 
-func setup() {
-	// ROMs & RAM Setup
-	RAM = make([]byte, ramSize)
-	IO = make([]byte, softSwitches)
-	// BLANK = make([]byte, blanckSize)
-	// ROM_D0 = mem.LoadROM(romSize, "assets/roms/II/3410011D0.bin")
-	// ROM_D8 = mem.LoadROM(romSize, "assets/roms/II/3410012D8.bin")
-	// ROM_E0 = mem.LoadROM(romSize, "assets/roms/II/3410013E0.bin")
-	// ROM_E8 = mem.LoadROM(romSize, "assets/roms/II/3410014E8.bin")
-	// ROM_F0 = mem.LoadROM(romSize, "assets/roms/II/3410015F0.bin")
-	// ROM_F8 = mem.LoadROM(romSize, "assets/roms/II/3410020F8.bin")
+func apple2_Roms() {
+	ROM_D0 = mem.LoadROM(romSize, "assets/roms/II/3410011D0.bin")
+	ROM_D8 = mem.LoadROM(romSize, "assets/roms/II/3410012D8.bin")
+	ROM_E0 = mem.LoadROM(romSize, "assets/roms/II/3410013E0.bin")
+	ROM_E8 = mem.LoadROM(romSize, "assets/roms/II/3410014E8.bin")
+	ROM_F0 = mem.LoadROM(romSize, "assets/roms/II/3410015F0.bin")
+	ROM_F8 = mem.LoadROM(romSize, "assets/roms/II/3410020F8.bin")
 	// ROM_AID = mem.LoadROM(romSize, "assets/roms/II/3410016.bin")
+	CHARGEN = mem.LoadROM(chargenSize, "assets/roms/II/3410036.bin")
+}
 
+func apple2e_Roms() {
 	ROM_CD = mem.LoadROM(romSize*4, "assets/roms/IIe/CD.bin")
 	ROM_EF = mem.LoadROM(romSize*4, "assets/roms/IIe/EF.bin")
 	CHARGEN = mem.LoadROM(chargenSize*2, "assets/roms/IIe/Video_US.bin")
+}
 
-	// KEYB = mem.LoadROM(keyboardSize, "assets/roms/Keyb.bin")
-	// CHARGEN = mem.LoadROM(chargenSize, "assets/roms/II/3410036.bin")
-	SLOT6 = mem.LoadROM(slot_roms, "assets/roms/slot_disk2_cx00.bin")
+func setup() {
+	BankSel = 0
+	MEM = mem.InitBanks(nbMemLayout, &BankSel)
 
+	// Common Setup
+	RAM = make([]byte, ramSize)
 	mem.Clear(RAM)
-	// mem.DisplayCharRom(CHARGEN, 1, 8, 16)
+	IO = make([]byte, softSwitches)
 
+	SLOT6 = mem.LoadROM(slot_roms, "assets/roms/slot_disk2_cx00.bin")
 	DiskDrive := disk.Attach()
 	DiskDrive.LoadDiskImage("woz/DOS33.woz")
-
-	// RAM[0x0001] = 0x00
-	// MEM = mem.InitBanks(nbMemLayout, &RAM[0x0001])
-	var test byte = 0
-	MEM = mem.InitBanks(nbMemLayout, &test)
-
 	IOAccess = &io_access{Disk: DiskDrive}
+
+	if MODEL == 1 {
+		apple2_Roms()
+	} else {
+		apple2e_Roms()
+	}
+
+	mem.DisplayCharRom(CHARGEN, 1, 8, 16)
 
 	// MEM Setup
 
-	memLayouts()
+	memLayouts(MODEL)
 
 	outputDriver = render.SDL2Driver{}
 	initKeyboard()
@@ -248,6 +255,14 @@ func main() {
 	clog.StartLogging = conf.StartLogging
 	if conf.FileLog != "" {
 		clog.EnableFileLog(conf.FileLog)
+	}
+	switch conf.Model {
+	case "2":
+		MODEL = 1
+	case "2e":
+		fallthrough
+	default:
+		MODEL = 2
 	}
 
 	// f, err := os.Create("newC64.prof")

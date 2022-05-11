@@ -11,7 +11,10 @@ var screenLine = [24]uint16{
 	0x0050, 0x00D0, 0x0150, 0x01D0, 0x0250, 0x02D0, 0x0350, 0x03D0,
 }
 
-func (C *CRTC) StandardTextMode(X int, Y int) {
+//////////////////////////////////////////////////////////////////////
+//                      Pour Apple II Original                      //
+//////////////////////////////////////////////////////////////////////
+func (C *CRTC) StandardTextModeA2(X int, Y int) {
 	screenChar = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK)]
 	pixelData = C.charRom[uint16(screenChar)<<3+uint16(C.RasterCount)]
 	switch screenChar & 0b11000000 {
@@ -25,6 +28,24 @@ func (C *CRTC) StandardTextMode(X int, Y int) {
 
 	for column := 0; column < 7; column++ {
 		bit := byte(0b01000000 >> column)
+		if pixelData&bit > 1 {
+			C.graph.DrawPixel(X+column, Y, Colors[Green])
+		} else {
+			C.graph.DrawPixel(X+column, Y, Colors[Black])
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////
+//                       Pour Apple II+ / IIe                       //
+//////////////////////////////////////////////////////////////////////
+func (C *CRTC) StandardTextModeA2E(X int, Y int) {
+	screenChar = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK)]
+	pixelData = C.charRom[uint16(screenChar)<<3+uint16(C.RasterCount)]
+	pixelData = ^pixelData
+
+	for column := 0; column < 7; column++ {
+		bit := byte(0b00000001 << column)
 		if pixelData&bit > 1 {
 			C.graph.DrawPixel(X+column, Y, Colors[Green])
 		} else {
