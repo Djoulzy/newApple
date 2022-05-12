@@ -14,6 +14,7 @@ const (
 	SETSLOTC3ROM = 0x0B
 	RDCXROM      = 0x15
 	RDC3ROM      = 0x17
+	SPKR         = 0x30
 
 	SLOT0_OFFSET = 0x90
 	SLOT1_OFFSET = 0x90
@@ -51,6 +52,20 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 	case KBDSTRB:
 		mem[0] = 0
 		return mem[translatedAddr]
+	case SETSLOTCXROM:
+		CX_INT = false
+		BankSel = 1
+		return 0x00
+	case SETINTCXROM:
+		CX_INT = true
+		BankSel = 0
+		return 0x00
+	case SETINTC3ROM:
+		C3_INT = true
+		return 0x00
+	case SETSLOTC3ROM:
+		C3_INT = false
+		return 0x00
 	case RDCXROM:
 		if CX_INT {
 			return 0x00
@@ -63,6 +78,8 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 		} else {
 			return 0xFF
 		}
+	case SPKR:
+		return 0
 	case SLOT6_OFFSET + DRVSM0:
 		C.Disk.SetPhase(0, false)
 		return 0
@@ -108,15 +125,20 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 
 	case SLOT6_OFFSET + DRVDATA:
 		if C.Disk.IsRunning() && C.Disk.ReadMode {
-			return C.Disk.GetNextByte()
+			tmp := C.Disk.GetNextByte()
+			// log.Printf("Read : %02X\n", tmp)
+			return tmp
 		}
 		return 0x00
 	case SLOT6_OFFSET + DRVDATA + 1:
 		return 0x00
-
+	case SLOT6_OFFSET + DRVSEL:
+		return 0x00
+	case SLOT6_OFFSET + DRVSEL + 1:
+		return 0x00
 	default:
 		// log.Printf("Read Unknown: %02X\n", translatedAddr)
-		return mem[translatedAddr]
+		return 0x00
 	}
 }
 
@@ -164,6 +186,8 @@ func (C *io_access) MWrite(mem []byte, translatedAddr uint16, val byte) {
 		log.Printf("Write DRVDATA\n")
 	case SLOT6_OFFSET + DRVDATA + 1:
 		log.Printf("Write DRVDATA+1\n")
+	default:
+		// log.Printf("Write Unknown: %02X\n", translatedAddr)
 	}
-	mem[translatedAddr] = val
+	// mem[translatedAddr] = val
 }

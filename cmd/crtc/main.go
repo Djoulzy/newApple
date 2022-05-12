@@ -47,9 +47,8 @@ func start() {
 	conf.Disassamble = false
 
 	RAM = make([]byte, ramSize)
-	mem.Clear(RAM)
+	mem.Clear(RAM, 0x1000, 0xFF)
 	IO = make([]byte, ioSize)
-	mem.Clear(IO)
 	CHARGEN = mem.LoadROM(chargenSize, "assets/roms/II/3410036.bin")
 	CRTC.Init(RAM, IO, CHARGEN, &outputDriver, &conf)
 

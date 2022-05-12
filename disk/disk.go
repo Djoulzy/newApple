@@ -79,15 +79,15 @@ func (D *DRIVE) moveHead(offset int) {
 			D.halftrack = 68
 		}
 	}
-
+	// log.Printf("track=%0.1f\n", float64(D.halftrack)/2)
 	// Adjust new track location based on arm position relative to old track loc.
 	if D.trackStart[D.halftrack] > 0 && D.prevHalfTrack != D.halftrack {
-		// oldloc := D.trackLocation
+		oldloc := D.trackLocation
 		D.trackLocation = uint32(math.Floor(float64(D.trackLocation * (D.trackNbits[D.halftrack] / D.trackNbits[D.prevHalfTrack]))))
 		if D.trackLocation > 3 {
 			D.trackLocation -= 4
 		}
-		// log.Printf("track=%d %d %d %d %d", D.halftrack, oldloc, D.trackLocation, D.trackNbits[D.halftrack], D.trackNbits[D.prevHalfTrack])
+		log.Printf("track=%d %d %d %d %d", D.halftrack, oldloc, D.trackLocation, D.trackNbits[D.halftrack], D.trackNbits[D.prevHalfTrack])
 	}
 }
 
@@ -123,19 +123,7 @@ func (D *DRIVE) GetNextByte() byte {
 	for i := 6; i >= 0; i-- {
 		result |= D.getNextBit() << i
 	}
-	// fmt.Printf("Cycle: %d Track: %d byte= %02X\n", JulesCpt, D.halftrack, result)
-	// if JulesTmp != D.halftrack {
-	// 	JulesTmp = D.halftrack
-	// 	JulesCpt = 0
-	// }
-	// cpt++
-	// if cpt > 50 {
-	// 	os.Exit(1)
-	// }
-	// JulesCpt++
-	// if JulesCpt > 12775 {
-	// 	os.Exit(1)
-	// }
+	// fmt.Printf("Track: %d Location: %d byte= %02X\n", D.halftrack, D.trackLocation, result)
 	return result
 }
 

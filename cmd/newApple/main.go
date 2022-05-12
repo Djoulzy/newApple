@@ -103,12 +103,13 @@ func setup() {
 
 	// Common Setup
 	RAM = make([]byte, ramSize)
-	mem.Clear(RAM)
+	mem.Clear(RAM, 0x1000, 0xFF)
 	IO = make([]byte, softSwitches)
 
 	SLOT6 = mem.LoadROM(slot_roms, "assets/roms/slot_disk2_cx00.bin")
 	DiskDrive := disk.Attach()
 	DiskDrive.LoadDiskImage("woz/DOS33.woz")
+
 	IOAccess = &io_access{Disk: DiskDrive}
 
 	if MODEL == 1 {
@@ -117,7 +118,7 @@ func setup() {
 		apple2e_Roms()
 	}
 
-	mem.DisplayCharRom(CHARGEN, 1, 8, 16)
+	// mem.DisplayCharRom(CHARGEN, 1, 8, 16)
 
 	// MEM Setup
 
@@ -181,6 +182,7 @@ func input() {
 			fmt.Printf("%c", r)
 			if len(dumpAddr) == 4 {
 				hx, _ := strconv.ParseInt(dumpAddr, 16, 64)
+				fmt.Printf("\n")
 				MEM.Dump(uint16(hx))
 				dumpAddr = ""
 			}
@@ -223,7 +225,11 @@ func RunEmulation() {
 		// }
 
 		if cpu.CycleCount == 1 {
-			outputDriver.DumpCode(cpu.FullInst)
+			// outputDriver.DumpCode(cpu.FullInst)
+			if conf.Breakpoint == cpu.InstStart {
+				conf.Disassamble = true
+				run = false
+			}
 			if !run || conf.Disassamble {
 				fmt.Printf("%s\n", cpu.FullDebug)
 			}
@@ -277,7 +283,7 @@ func main() {
 
 	run = true
 	cpuTurn = true
-	outputDriver.ShowCode = true
+	// outputDriver.ShowCode = true
 	outputDriver.ShowFps = true
 
 	go RunEmulation()
