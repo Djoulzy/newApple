@@ -15,7 +15,6 @@ func memLayouts(model int) {
 		MEM.Layouts[0].Attach("ROM_E8", 0xE800, ROM_E8, mem.READONLY)
 		MEM.Layouts[0].Attach("ROM_F0", 0xF000, ROM_F0, mem.READONLY)
 		MEM.Layouts[0].Attach("ROM_F8", 0xF800, ROM_F8, mem.READONLY)
-		MEM.Layouts[0].Attach("SLOT6", 0xC600, SLOT6, mem.READONLY)
 	} else {
 		MEM.Layouts[0].Attach("ROM_CD", 0xC000, ROM_CD, mem.READONLY)
 		MEM.Layouts[0].Attach("ROM_EF", 0xE000, ROM_EF, mem.READONLY)

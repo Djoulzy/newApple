@@ -98,13 +98,14 @@ func apple2e_Roms() {
 }
 
 func setup() {
-	BankSel = 0
+	BankSel = 1
 	MEM = mem.InitBanks(nbMemLayout, &BankSel)
 
 	// Common Setup
 	RAM = make([]byte, ramSize)
 	mem.Clear(RAM, 0x1000, 0xFF)
 	IO = make([]byte, softSwitches)
+	mem.Clear(IO, 0, 0x00)
 
 	SLOT6 = mem.LoadROM(slot_roms, "assets/roms/slot_disk2_cx00.bin")
 	DiskDrive := disk.Attach()
@@ -205,12 +206,12 @@ func RunEmulation() {
 			execInst.Lock()
 		}
 
-		if MEM.Read(0xC000) == 0 {
+		if InputLine.KeyCode != 0 {
 			key = keyMap[InputLine.KeyCode]
 			if InputLine.Mode == 1073742048 {
 				key -= 0x40
 			}
-			MEM.Write(0xC000, key)
+			MEM.Write(0xC000, key|0b10000000)
 			InputLine.KeyCode = 0
 			InputLine.Mode = 0
 		}

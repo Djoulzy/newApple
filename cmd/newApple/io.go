@@ -39,7 +39,7 @@ const (
 
 var (
 	C3_INT bool = true
-	CX_INT bool = true
+	CX_INT bool = false
 )
 
 type io_access struct {
@@ -52,15 +52,17 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 	case KBD:
 		return mem[translatedAddr]
 	case KBDSTRB:
-		mem[0] = 0
+		mem[KBD] = 0
 		return mem[translatedAddr]
 	case SETSLOTCXROM:
 		CX_INT = false
 		BankSel = 1
+		log.Printf("BankSel = 1")
 		return 0x0D
 	case SETINTCXROM:
 		CX_INT = true
 		BankSel = 0
+		log.Printf("BankSel = 0")
 		return 0x0D
 	case SETINTC3ROM:
 		C3_INT = true
@@ -148,12 +150,15 @@ func (C *io_access) MWrite(mem []byte, translatedAddr uint16, val byte) {
 	// clog.Test("Accessor", "MWrite", "Addr: %04X -> %02X", 0xE800+translatedAddr, val)
 	switch translatedAddr {
 	case KBD:
+		mem[KBD] = val
 	case KBDSTRB:
-		mem[0] = 0
+		mem[KBD] = 0
 	case SETSLOTCXROM:
+		log.Printf("BankSel = 1")
 		CX_INT = false
 		BankSel = 1
 	case SETINTCXROM:
+		log.Printf("BankSel = 0")
 		CX_INT = true
 		BankSel = 0
 	case SETINTC3ROM:
