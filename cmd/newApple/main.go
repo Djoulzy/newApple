@@ -31,7 +31,7 @@ const (
 	blanckSize   = 12288
 	slot_roms    = 256
 
-	nbMemLayout = 2
+	nbMemLayout = 4
 
 	Stopped = 0
 	Paused  = 1
@@ -58,7 +58,13 @@ var (
 	ROM_EF []byte
 
 	IO       []byte
+	SLOT1    []byte
+	SLOT2    []byte
+	SLOT3    []byte
+	SLOT4    []byte
+	SLOT5    []byte
 	SLOT6    []byte
+	SLOT7    []byte
 	KEYB     []byte
 	CHARGEN  []byte
 	BLANK    []byte
@@ -107,7 +113,13 @@ func setup() {
 	IO = make([]byte, softSwitches)
 	mem.Clear(IO, 0, 0x00)
 
+	SLOT1 = make([]byte, slot_roms)
+	SLOT2 = make([]byte, slot_roms)
+	SLOT3 = make([]byte, slot_roms)
+	SLOT4 = make([]byte, slot_roms)
+	SLOT5 = make([]byte, slot_roms)
 	SLOT6 = mem.LoadROM(slot_roms, "assets/roms/slot_disk2_cx00.bin")
+	SLOT7 = make([]byte, slot_roms)
 	DiskDrive := disk.Attach()
 	DiskDrive.LoadDiskImage("woz/DOS33.woz")
 

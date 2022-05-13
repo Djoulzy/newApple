@@ -54,29 +54,15 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 	case KBDSTRB:
 		mem[KBD] = 0
 		return mem[translatedAddr]
-	case SETSLOTCXROM:
-		CX_INT = false
-		BankSel = 1
-		log.Printf("BankSel = 1")
-		return 0x0D
-	case SETINTCXROM:
-		CX_INT = true
-		BankSel = 0
-		log.Printf("BankSel = 0")
-		return 0x0D
-	case SETINTC3ROM:
-		C3_INT = true
-		return 0x0D
-	case SETSLOTC3ROM:
-		C3_INT = false
-		return 0x0D
 	case RDCXROM:
+		log.Printf("READ RDCXROM")
 		if CX_INT {
 			return 0x8D
 		} else {
 			return 0x0D
 		}
 	case RDC3ROM:
+		log.Printf("READ RDC3ROM")
 		if C3_INT {
 			return 0x8D
 		} else {
@@ -154,16 +140,24 @@ func (C *io_access) MWrite(mem []byte, translatedAddr uint16, val byte) {
 	case KBDSTRB:
 		mem[KBD] = 0
 	case SETSLOTCXROM:
-		log.Printf("BankSel = 1")
+		log.Printf("WRITE BankSel = 1")
 		CX_INT = false
 		BankSel = 1
 	case SETINTCXROM:
-		log.Printf("BankSel = 0")
+		log.Printf("WRITE BankSel = 0")
 		CX_INT = true
 		BankSel = 0
 	case SETINTC3ROM:
+		log.Printf("WRITE SETINTC3ROM")
+		if !CX_INT {
+			BankSel = 3
+		}
 		C3_INT = true
 	case SETSLOTC3ROM:
+		log.Printf("WRITE SETSLOTC3ROM")
+		if CX_INT {
+			BankSel = 2
+		}
 		C3_INT = false
 	case SLOT6_OFFSET + DRVSM0:
 		C.Disk.SetPhase(0, false)
