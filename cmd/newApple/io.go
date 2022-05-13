@@ -35,6 +35,8 @@ const (
 	DRVWRITE = 0x0E
 )
 
+// PRINT PEEK(49173)
+
 var (
 	C3_INT bool = true
 	CX_INT bool = true
@@ -55,28 +57,28 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 	case SETSLOTCXROM:
 		CX_INT = false
 		BankSel = 1
-		return 0x00
+		return 0x0D
 	case SETINTCXROM:
 		CX_INT = true
 		BankSel = 0
-		return 0x00
+		return 0x0D
 	case SETINTC3ROM:
 		C3_INT = true
-		return 0x00
+		return 0x0D
 	case SETSLOTC3ROM:
 		C3_INT = false
-		return 0x00
+		return 0x0D
 	case RDCXROM:
 		if CX_INT {
-			return 0x00
+			return 0x8D
 		} else {
-			return 0xFF
+			return 0x0D
 		}
 	case RDC3ROM:
 		if C3_INT {
-			return 0x00
+			return 0x8D
 		} else {
-			return 0xFF
+			return 0x0D
 		}
 	case SPKR:
 		return 0
@@ -115,9 +117,9 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 	case SLOT6_OFFSET + DRVWRITE:
 		C.Disk.ReadMode = true
 		if C.Disk.IsWriteProtected {
-			return 0xFF
+			return 0x8D
 		} else {
-			return 0
+			return 0x0D
 		}
 	case SLOT6_OFFSET + DRVWRITE + 1:
 		C.Disk.ReadMode = false

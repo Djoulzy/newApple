@@ -167,7 +167,7 @@ func input() {
 		case 'w':
 			fmt.Printf("\nFill Screen")
 			cpt := 0
-			for i := 0x0400; i < 0x0450; i++ {
+			for i := 0x0400; i < 0x0800; i++ {
 				MEM.Write(uint16(i), byte(cpt))
 				cpt++
 			}

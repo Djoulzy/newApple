@@ -8,7 +8,6 @@ func memLayouts(model int) {
 
 	MEM.Layouts[0] = mem.InitConfig(ramSize)
 	MEM.Layouts[0].Attach("RAM", 0x0000, RAM, mem.READWRITE)
-
 	if model == 1 {
 		MEM.Layouts[0].Attach("ROM_D0", 0xD000, ROM_D0, mem.READONLY)
 		MEM.Layouts[0].Attach("ROM_D8", 0xD800, ROM_D8, mem.READONLY)
