@@ -114,12 +114,18 @@ func setup() {
 	mem.Clear(IO, 0, 0x00)
 
 	SLOT1 = make([]byte, slot_roms)
+	mem.Clear(SLOT1, 0, 0x71)
 	SLOT2 = make([]byte, slot_roms)
+	mem.Clear(SLOT2, 0, 0x71)
 	SLOT3 = make([]byte, slot_roms)
+	mem.Clear(SLOT3, 0, 0x71)
 	SLOT4 = make([]byte, slot_roms)
+	mem.Clear(SLOT4, 0, 0x71)
 	SLOT5 = make([]byte, slot_roms)
+	mem.Clear(SLOT5, 0, 0x71)
 	SLOT6 = mem.LoadROM(slot_roms, "assets/roms/slot_disk2_cx00.bin")
 	SLOT7 = make([]byte, slot_roms)
+	mem.Clear(SLOT7, 0, 0x71)
 	DiskDrive := disk.Attach()
 	DiskDrive.LoadDiskImage("woz/DOS33.woz")
 
@@ -156,6 +162,7 @@ func input() {
 		switch r {
 		case 's':
 			MEM.DumpStack(cpu.SP)
+			fmt.Printf("Bank: %d\n", BankSel)
 			cpu.DumpStackDebug()
 		case 'z':
 			MEM.Dump(0)
