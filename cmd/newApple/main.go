@@ -156,6 +156,7 @@ func input() {
 		switch r {
 		case 's':
 			MEM.DumpStack(cpu.SP)
+			cpu.DumpStackDebug()
 		case 'z':
 			MEM.Dump(0)
 		case 'x':
