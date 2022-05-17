@@ -59,14 +59,14 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 		if CX_INT {
 			return 0x8D
 		} else {
-			return 0x0D
+			return 0x00
 		}
 	case RDC3ROM:
 		log.Printf("READ RDC3ROM")
 		if C3_INT {
 			return 0x8D
 		} else {
-			return 0x0D
+			return 0x00
 		}
 	case SPKR:
 		return 0
@@ -107,7 +107,7 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 		if C.Disk.IsWriteProtected {
 			return 0x8D
 		} else {
-			return 0x0D
+			return 0x00
 		}
 	case SLOT6_OFFSET + DRVWRITE + 1:
 		C.Disk.ReadMode = false

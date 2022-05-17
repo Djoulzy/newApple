@@ -37,6 +37,7 @@ func Attach() *DRIVE {
 	drive.trackNbits = make([]uint32, 80)
 	drive.prevHalfTrack = 0
 	drive.halftrack = 0
+	drive.IsWriteProtected = false
 
 	crcTable = crc32.MakeTable(0xEDB88320)
 	return &drive
@@ -171,7 +172,7 @@ func (D *DRIVE) decodeDiskData(fileName string) {
 
 	D.diskHasChanges = false
 	if D.destectFormat(woz2) {
-		D.IsWriteProtected = D.diskData[22] == 1
+		// D.IsWriteProtected = D.diskData[22] == 1
 		crc := D.diskData[8:12]
 		storedCRC := uint32(crc[0]) + (uint32(crc[1]) << 8) + (uint32(crc[2]) << 16) + uint32(crc[3])*uint32(math.Pow(2, 24))
 		actualCRC := get_crc32(D.diskData, 12)
@@ -196,7 +197,7 @@ func (D *DRIVE) decodeDiskData(fileName string) {
 	}
 
 	if D.destectFormat(woz1) {
-		D.IsWriteProtected = D.diskData[22] == 1
+		// D.IsWriteProtected = D.diskData[22] == 1
 		for htrack := 0; htrack < 80; htrack++ {
 			tmap_index := int(D.diskData[88+htrack*2])
 			if tmap_index < 255 {
