@@ -9,15 +9,9 @@ func memLayouts(model int) {
 	MEM.Layouts[0] = mem.InitConfig(ramSize)
 	MEM.Layouts[0].Attach("RAM", 0x0000, RAM, mem.READWRITE)
 	if model == 1 {
-		MEM.Layouts[0].Attach("ROM_D0", 0xD000, ROM_D0, mem.READONLY)
-		MEM.Layouts[0].Attach("ROM_D8", 0xD800, ROM_D8, mem.READONLY)
-		MEM.Layouts[0].Attach("ROM_E0", 0xE000, ROM_E0, mem.READONLY)
-		MEM.Layouts[0].Attach("ROM_E8", 0xE800, ROM_E8, mem.READONLY)
-		MEM.Layouts[0].Attach("ROM_F0", 0xF000, ROM_F0, mem.READONLY)
-		MEM.Layouts[0].Attach("ROM_F8", 0xF800, ROM_F8, mem.READONLY)
+		MEM.Layouts[0].Attach("ROM", 0xD000, ROM_2, mem.READONLY)
 	} else {
-		MEM.Layouts[0].Attach("ROM_CD", 0xC000, ROM_CD, mem.READONLY)
-		MEM.Layouts[0].Attach("ROM_EF", 0xE000, ROM_EF, mem.READONLY)
+		MEM.Layouts[0].Attach("ROM", 0xC000, ROM_2e, mem.READONLY)
 	}
 	MEM.Layouts[0].Attach("IO", 0xC000, IO, mem.READWRITE)
 	MEM.Layouts[0].Accessor("IO", IOAccess)
@@ -28,15 +22,9 @@ func memLayouts(model int) {
 	MEM.Layouts[1] = mem.InitConfig(ramSize)
 	MEM.Layouts[1].Attach("RAM", 0x0000, RAM, mem.READWRITE)
 	if model == 1 {
-		MEM.Layouts[1].Attach("ROM_D0", 0xD000, ROM_D0, mem.READONLY)
-		MEM.Layouts[1].Attach("ROM_D8", 0xD800, ROM_D8, mem.READONLY)
-		MEM.Layouts[1].Attach("ROM_E0", 0xE000, ROM_E0, mem.READONLY)
-		MEM.Layouts[1].Attach("ROM_E8", 0xE800, ROM_E8, mem.READONLY)
-		MEM.Layouts[1].Attach("ROM_F0", 0xF000, ROM_F0, mem.READONLY)
-		MEM.Layouts[1].Attach("ROM_F8", 0xF800, ROM_F8, mem.READONLY)
+		MEM.Layouts[1].Attach("ROM", 0xD000, ROM_2, mem.READONLY)
 	} else {
-		MEM.Layouts[1].Attach("ROM_CD", 0xC000, ROM_CD, mem.READONLY)
-		MEM.Layouts[1].Attach("ROM_EF", 0xE000, ROM_EF, mem.READONLY)
+		MEM.Layouts[1].Attach("ROM", 0xC000, ROM_2e, mem.READONLY)
 	}
 	MEM.Layouts[1].Attach("IO", 0xC000, IO, mem.READWRITE)
 	MEM.Layouts[1].Attach("SLOT1", 0xC100, SLOT1, mem.READONLY)
@@ -54,15 +42,9 @@ func memLayouts(model int) {
 	MEM.Layouts[2] = mem.InitConfig(ramSize)
 	MEM.Layouts[2].Attach("RAM", 0x0000, RAM, mem.READWRITE)
 	if model == 1 {
-		MEM.Layouts[2].Attach("ROM_D0", 0xD000, ROM_D0, mem.READONLY)
-		MEM.Layouts[2].Attach("ROM_D8", 0xD800, ROM_D8, mem.READONLY)
-		MEM.Layouts[2].Attach("ROM_E0", 0xE000, ROM_E0, mem.READONLY)
-		MEM.Layouts[2].Attach("ROM_E8", 0xE800, ROM_E8, mem.READONLY)
-		MEM.Layouts[2].Attach("ROM_F0", 0xF000, ROM_F0, mem.READONLY)
-		MEM.Layouts[2].Attach("ROM_F8", 0xF800, ROM_F8, mem.READONLY)
+		MEM.Layouts[2].Attach("ROM", 0xD000, ROM_2, mem.READONLY)
 	} else {
-		MEM.Layouts[2].Attach("ROM_CD", 0xC000, ROM_CD, mem.READONLY)
-		MEM.Layouts[2].Attach("ROM_EF", 0xE000, ROM_EF, mem.READONLY)
+		MEM.Layouts[2].Attach("ROM", 0xC000, ROM_2e, mem.READONLY)
 		MEM.Layouts[2].Attach("SLOT3", 0xC300, SLOT3, mem.READONLY)
 	}
 	MEM.Layouts[2].Attach("IO", 0xC000, IO, mem.READWRITE)
@@ -74,15 +56,9 @@ func memLayouts(model int) {
 	MEM.Layouts[3] = mem.InitConfig(ramSize)
 	MEM.Layouts[3].Attach("RAM", 0x0000, RAM, mem.READWRITE)
 	if model == 1 {
-		MEM.Layouts[3].Attach("ROM_D0", 0xD000, ROM_D0, mem.READONLY)
-		MEM.Layouts[3].Attach("ROM_D8", 0xD800, ROM_D8, mem.READONLY)
-		MEM.Layouts[3].Attach("ROM_E0", 0xE000, ROM_E0, mem.READONLY)
-		MEM.Layouts[3].Attach("ROM_E8", 0xE800, ROM_E8, mem.READONLY)
-		MEM.Layouts[3].Attach("ROM_F0", 0xF000, ROM_F0, mem.READONLY)
-		MEM.Layouts[3].Attach("ROM_F8", 0xF800, ROM_F8, mem.READONLY)
+		MEM.Layouts[3].Attach("ROM", 0xD000, ROM_2, mem.READONLY)
 	} else {
-		MEM.Layouts[3].Attach("ROM_CD", 0xC000, ROM_CD, mem.READONLY)
-		MEM.Layouts[3].Attach("ROM_EF", 0xE000, ROM_EF, mem.READONLY)
+		MEM.Layouts[3].Attach("ROM", 0xC000, ROM_2e, mem.READONLY)
 	}
 	MEM.Layouts[3].Attach("IO", 0xC000, IO, mem.READWRITE)
 	MEM.Layouts[3].Attach("SLOT1", 0xC100, SLOT1, mem.READONLY)

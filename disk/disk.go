@@ -5,6 +5,9 @@ import (
 	"io/ioutil"
 	"log"
 	"math"
+	"os"
+
+	"github.com/Djoulzy/emutools/mos6510"
 )
 
 type DRIVE struct {
@@ -22,13 +25,16 @@ type DRIVE struct {
 	currentPhase   int
 	direction      int
 	diskHasChanges bool
+
+	cpu *mos6510.CPU
 }
 
 var pickbit = []byte{128, 64, 32, 16, 8, 4, 2, 1}
 var crcTable *crc32.Table
 
-func Attach() *DRIVE {
+func Attach(cpu *mos6510.CPU) *DRIVE {
 	drive := DRIVE{}
+	drive.cpu = cpu
 
 	drive.currentPhase = 0
 	drive.motorPhases = [4]bool{false, false, false, false}
@@ -44,13 +50,20 @@ func Attach() *DRIVE {
 }
 
 func (D *DRIVE) LoadDiskImage(fileName string) {
-	D.diskData = make([]byte, 0x2A518)
+	var i int64
+	fi, err := os.Stat(fileName)
+	if err != nil {
+		panic(err)
+	}
+	size := fi.Size()
+
+	D.diskData = make([]byte, size)
 
 	data, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		panic(err)
 	}
-	for i := 0; i < 0x2A518; i++ {
+	for i = 0; i < size; i++ {
 		D.diskData[i] = byte(data[i])
 	}
 	D.decodeDiskData(fileName)
@@ -83,12 +96,12 @@ func (D *DRIVE) moveHead(offset int) {
 	// log.Printf("track=%0.1f\n", float64(D.halftrack)/2)
 	// Adjust new track location based on arm position relative to old track loc.
 	if D.trackStart[D.halftrack] > 0 && D.prevHalfTrack != D.halftrack {
-		oldloc := D.trackLocation
+		// oldloc := D.trackLocation
 		D.trackLocation = uint32(math.Floor(float64(D.trackLocation * (D.trackNbits[D.halftrack] / D.trackNbits[D.prevHalfTrack]))))
 		if D.trackLocation > 3 {
 			D.trackLocation -= 4
 		}
-		log.Printf("track=%d %d %d %d %d", D.halftrack, oldloc, D.trackLocation, D.trackNbits[D.halftrack], D.trackNbits[D.prevHalfTrack])
+		// log.Printf("track=%d %d %d %d %d", D.halftrack, oldloc, D.trackLocation, D.trackNbits[D.halftrack], D.trackNbits[D.prevHalfTrack])
 	}
 }
 
@@ -124,7 +137,9 @@ func (D *DRIVE) GetNextByte() byte {
 	for i := 6; i >= 0; i-- {
 		result |= D.getNextBit() << i
 	}
-	// fmt.Printf("Track: %d Location: %d byte= %02X\n", D.halftrack, D.trackLocation, result)
+	// fmt.Printf("Track: %d Location: %d byte=%02X\n", D.halftrack, D.trackLocation, result)
+	// fmt.Printf("***** PC=%04X trackLocation=%d byte=%02X\n", D.cpu.InstStart, D.trackLocation, result)
+
 	return result
 }
 
@@ -172,7 +187,7 @@ func (D *DRIVE) decodeDiskData(fileName string) {
 
 	D.diskHasChanges = false
 	if D.destectFormat(woz2) {
-		// D.IsWriteProtected = D.diskData[22] == 1
+		D.IsWriteProtected = D.diskData[22] == 1
 		crc := D.diskData[8:12]
 		storedCRC := uint32(crc[0]) + (uint32(crc[1]) << 8) + (uint32(crc[2]) << 16) + uint32(crc[3])*uint32(math.Pow(2, 24))
 		actualCRC := get_crc32(D.diskData, 12)
@@ -184,7 +199,7 @@ func (D *DRIVE) decodeDiskData(fileName string) {
 			if tmap_index < 255 {
 				tmap_offset := 256 + 8*tmap_index
 				trk := D.diskData[tmap_offset : tmap_offset+8]
-				D.trackStart[htrack] = 512*uint32(trk[0]) + (uint32(trk[1]) << 8)
+				D.trackStart[htrack] = 512 * (uint32(trk[0]) + (uint32(trk[1]) << 8))
 				// const nBlocks = trk[2] + (trk[3] << 8)
 				D.trackNbits[htrack] = uint32(trk[4]) + uint32(trk[5])<<8 + uint32(trk[6])<<16 + uint32(trk[7])*uint32(math.Pow(2, 24))
 			} else {
@@ -197,7 +212,7 @@ func (D *DRIVE) decodeDiskData(fileName string) {
 	}
 
 	if D.destectFormat(woz1) {
-		// D.IsWriteProtected = D.diskData[22] == 1
+		D.IsWriteProtected = D.diskData[22] == 1
 		for htrack := 0; htrack < 80; htrack++ {
 			tmap_index := int(D.diskData[88+htrack*2])
 			if tmap_index < 255 {

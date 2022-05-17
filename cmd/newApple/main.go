@@ -45,17 +45,9 @@ var (
 	MODEL   int
 	BankSel byte
 
-	RAM     []byte
-	ROM_AID []byte
-	ROM_D0  []byte
-	ROM_D8  []byte
-	ROM_E0  []byte
-	ROM_E8  []byte
-	ROM_F0  []byte
-	ROM_F8  []byte
-
-	ROM_CD []byte
-	ROM_EF []byte
+	RAM    []byte
+	ROM_2  []byte
+	ROM_2e []byte
 
 	IO       []byte
 	SLOT1    []byte
@@ -87,19 +79,13 @@ var (
 // }
 
 func apple2_Roms() {
-	ROM_D0 = mem.LoadROM(romSize, "assets/roms/II/3410011D0.bin")
-	ROM_D8 = mem.LoadROM(romSize, "assets/roms/II/3410012D8.bin")
-	ROM_E0 = mem.LoadROM(romSize, "assets/roms/II/3410013E0.bin")
-	ROM_E8 = mem.LoadROM(romSize, "assets/roms/II/3410014E8.bin")
-	ROM_F0 = mem.LoadROM(romSize, "assets/roms/II/3410015F0.bin")
-	ROM_F8 = mem.LoadROM(romSize, "assets/roms/II/3410020F8.bin")
+	ROM_2 = mem.LoadROM(romSize*6, "assets/roms/II/Apple2.rom")
 	// ROM_AID = mem.LoadROM(romSize, "assets/roms/II/3410016.bin")
 	CHARGEN = mem.LoadROM(chargenSize, "assets/roms/II/3410036.bin")
 }
 
 func apple2e_Roms() {
-	ROM_CD = mem.LoadROM(romSize*4, "assets/roms/IIe/CD.bin")
-	ROM_EF = mem.LoadROM(romSize*4, "assets/roms/IIe/EF.bin")
+	ROM_2e = mem.LoadROM(romSize*8, "assets/roms/IIe/Apple2e.rom")
 	CHARGEN = mem.LoadROM(chargenSize*2, "assets/roms/IIe/Video_US.bin")
 }
 
@@ -126,7 +112,7 @@ func setup() {
 	SLOT6 = mem.LoadROM(slot_roms, "assets/roms/slot_disk2_cx00.bin")
 	SLOT7 = make([]byte, slot_roms)
 	mem.Clear(SLOT7, 0, 0x71)
-	DiskDrive := disk.Attach()
+	DiskDrive := disk.Attach(&cpu)
 	DiskDrive.LoadDiskImage("woz/DOS33.woz")
 
 	IOAccess = &io_access{Disk: DiskDrive}
