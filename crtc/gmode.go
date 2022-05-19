@@ -17,15 +17,15 @@ var screenLine = [24]uint16{
 func (C *CRTC) StandardTextModeA2(X int, Y int) {
 	screenChar = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK)]
 	pixelData = C.charRom[uint16(screenChar)<<3+uint16(C.RasterCount)]
-	switch screenChar & 0b11000000 {
-	case 0:
-		pixelData = ^pixelData
-	case 0b01000000:
-		if blink {
-			pixelData = ^pixelData
-		}
-	}
-
+	// switch screenChar & 0b11000000 {
+	// case 0:
+	// 	pixelData = ^pixelData
+	// case 0b01000000:
+	// 	if blink {
+	// 		pixelData = ^pixelData
+	// 	}
+	// }
+	pixelData = ^pixelData
 	for column := 0; column < 7; column++ {
 		bit := byte(0b01000000 >> column)
 		if pixelData&bit > 1 {

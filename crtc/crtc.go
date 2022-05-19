@@ -93,8 +93,5 @@ func (C *CRTC) Run(debug bool) bool {
 			}
 		}
 	}
-	if debug {
-		C.graph.UpdateFrame()
-	}
 	return true
 }

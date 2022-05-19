@@ -62,5 +62,5 @@ func start() {
 func main() {
 	start()
 	go CRTC.Run(false)
-	outputDriver.Run()
+	outputDriver.Run(true)
 }

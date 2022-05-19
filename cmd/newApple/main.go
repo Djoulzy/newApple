@@ -114,6 +114,7 @@ func setup() {
 	mem.Clear(SLOT7, 0, 0x71)
 	DiskDrive := disk.Attach(&cpu)
 	DiskDrive.LoadDiskImage("woz/DOS33.woz")
+	// DiskDrive.LoadDiskImage("woz/Akalabeth.woz")
 
 	IOAccess = &io_access{Disk: DiskDrive}
 
@@ -123,7 +124,7 @@ func setup() {
 		apple2e_Roms()
 	}
 
-	// mem.DisplayCharRom(CHARGEN, 1, 8, 16)
+	mem.DisplayCharRom(CHARGEN, 1, 8, 16)
 
 	// MEM Setup
 
@@ -205,6 +206,8 @@ func timeTrack(start time.Time, name string) {
 
 func RunEmulation() {
 	var key byte
+	var speed float64
+
 	// defer timeTrack(time.Now(), "RunEmulation")
 	for {
 		CRTC.Run(!run)
@@ -222,7 +225,8 @@ func RunEmulation() {
 			InputLine.Mode = 0
 		}
 
-		cpu.NextCycle()
+		speed = cpu.NextCycle()
+
 		// if cpu.State == mos6510.ReadInstruction {
 		// 	outputDriver.DumpCode(cpu.FullInst)
 		// 	if conf.Breakpoint == cpu.InstStart {
@@ -232,7 +236,8 @@ func RunEmulation() {
 		// }
 
 		if cpu.CycleCount == 1 {
-			// outputDriver.DumpCode(cpu.FullInst)
+			outputDriver.DumpCode(cpu.FullInst)
+			outputDriver.SetSpeed(speed)
 			if conf.Breakpoint == cpu.InstStart {
 				conf.Disassamble = true
 				run = false
@@ -290,13 +295,13 @@ func main() {
 
 	run = true
 	cpuTurn = true
-	// outputDriver.ShowCode = true
+	outputDriver.ShowCode = true
 	outputDriver.ShowFps = true
 
 	go RunEmulation()
 	// }()
 
-	outputDriver.Run()
+	outputDriver.Run(true)
 
 	// cpu.DumpStats()
 	// <-exit
