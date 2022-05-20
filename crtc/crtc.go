@@ -35,7 +35,6 @@ func (C *CRTC) Init(ram []byte, io []byte, chargen []byte, video *render.SDL2Dri
 	C.Reg[R13] = 0
 
 	C.RAM = ram
-	C.VideoPage = 0x0400
 	C.VideoSize = 1024
 
 	C.screenWidth = int(C.Reg[R1]) * 7
@@ -45,7 +44,6 @@ func (C *CRTC) Init(ram []byte, io []byte, chargen []byte, video *render.SDL2Dri
 	C.graph.Init(C.screenWidth, C.screenHeight, "Go Apple II", true)
 	C.conf = conf
 
-	C.videoRam = ram[C.VideoPage : C.VideoPage+C.VideoSize]
 	C.charRom = chargen
 
 	C.BeamX = 0
@@ -54,12 +52,26 @@ func (C *CRTC) Init(ram []byte, io []byte, chargen []byte, video *render.SDL2Dri
 	C.RasterCount = 0
 	C.CCLK = 0
 
-	if conf.Model == "2" {
-		go NE5555()
-		C.videoMode = (*CRTC).StandardTextModeA2
+	C.UpdateVideoRam(TEXTPAGE1)
+	C.UpdateGraphMode()
+}
+
+func (C *CRTC) UpdateGraphMode() {
+	if Is_TEXTMODE {
+		if C.conf.Model == "2" {
+			go NE5555()
+			C.videoMode = (*CRTC).StandardTextModeA2
+		} else {
+			C.videoMode = (*CRTC).StandardTextModeA2E
+		}
 	} else {
-		C.videoMode = (*CRTC).StandardTextModeA2E
+		C.videoMode = (*CRTC).LoResMode
 	}
+}
+
+func (C *CRTC) UpdateVideoRam(page uint16) {
+	C.VideoPage = page
+	C.videoRam = C.RAM[C.VideoPage : C.VideoPage+C.VideoSize]
 }
 
 func (C *CRTC) drawChar(X int, Y int) {

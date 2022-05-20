@@ -9,6 +9,7 @@ import (
 	"newApple/disk"
 	"os"
 	"reflect"
+	"runtime"
 	"strconv"
 	"sync"
 	"time"
@@ -46,6 +47,7 @@ var (
 	BankSel byte
 
 	RAM    []byte
+	RAM_2  []byte
 	ROM_2  []byte
 	ROM_2e []byte
 
@@ -72,11 +74,11 @@ var (
 	lastPC       uint16
 )
 
-// func init() {
-// 	// This is needed to arrange that main() runs on main thread.
-// 	// See documentation for functions that are only allowed to be called from the main thread.
-// 	runtime.LockOSThread()
-// }
+func init() {
+	// This is needed to arrange that main() runs on main thread.
+	// See documentation for functions that are only allowed to be called from the main thread.
+	runtime.LockOSThread()
+}
 
 func apple2_Roms() {
 	ROM_2 = mem.LoadROM(romSize*6, "assets/roms/II/Apple2.rom")
@@ -85,6 +87,8 @@ func apple2_Roms() {
 }
 
 func apple2e_Roms() {
+	RAM_2 = make([]byte, ramSize)
+	mem.Clear(RAM_2, 0x1000, 0xFF)
 	ROM_2e = mem.LoadROM(romSize*8, "assets/roms/IIe/Apple2e.rom")
 	CHARGEN = mem.LoadROM(chargenSize*2, "assets/roms/IIe/Video_US.bin")
 }
@@ -113,10 +117,10 @@ func setup() {
 	SLOT7 = make([]byte, slot_roms)
 	mem.Clear(SLOT7, 0, 0x71)
 	DiskDrive := disk.Attach(&cpu)
-	DiskDrive.LoadDiskImage("woz/DOS33.woz")
+	// DiskDrive.LoadDiskImage("woz/DOS33.woz")
 	// DiskDrive.LoadDiskImage("woz/Akalabeth.woz")
 
-	IOAccess = &io_access{Disk: DiskDrive}
+	IOAccess = &io_access{Disk: DiskDrive, Video: &CRTC}
 
 	if MODEL == 1 {
 		apple2_Roms()
@@ -124,7 +128,7 @@ func setup() {
 		apple2e_Roms()
 	}
 
-	mem.DisplayCharRom(CHARGEN, 1, 8, 16)
+	// mem.DisplayCharRom(CHARGEN, 1, 8, 16)
 
 	// MEM Setup
 

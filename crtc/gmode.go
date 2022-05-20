@@ -29,7 +29,7 @@ func (C *CRTC) StandardTextModeA2(X int, Y int) {
 	for column := 0; column < 7; column++ {
 		bit := byte(0b01000000 >> column)
 		if pixelData&bit == bit {
-			C.graph.DrawPixel(X+column, Y, Colors[Green])
+			C.graph.DrawPixel(X+column, Y, Colors[LightGreen])
 		} else {
 			C.graph.DrawPixel(X+column, Y, Colors[Black])
 		}
@@ -47,9 +47,37 @@ func (C *CRTC) StandardTextModeA2E(X int, Y int) {
 	for column := 0; column < 7; column++ {
 		bit := byte(0b00000001 << column)
 		if pixelData&bit == bit {
-			C.graph.DrawPixel(X+column, Y, Colors[Green])
+			C.graph.DrawPixel(X+column, Y, Colors[LightGreen])
 		} else {
 			C.graph.DrawPixel(X+column, Y, Colors[Black])
 		}
 	}
 }
+
+func (C *CRTC) LoResMode(X int, Y int) {
+	screenChar = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK)]
+	pixelData = C.charRom[uint16(screenChar)<<3+uint16(C.RasterCount)]
+	pixelData = ^pixelData
+
+	for column := 0; column < 7; column++ {
+		bit := byte(0b00000001 << column)
+		if pixelData&bit == bit {
+			C.graph.DrawPixel(X+column, Y, Colors[White])
+		} else {
+			C.graph.DrawPixel(X+column, Y, Colors[Black])
+		}
+	}
+}
+
+// 10 hgr
+// 20 for y=0 to 63:for x=0 to 7
+// 30 hcolor=int(y/8)
+// 31 hplot x*32,y*2 to x*32+30,y*2
+// 32 hcolor=x
+// 33 hplot x*32,y*2+1 to x*32+30,y*2+1
+// 40 next:next
+// 50 ? "0=black1  4=black2"
+// 60 ? "1=l.green 5=orange"
+// 70 ? "2=purple  6=med.blue"
+// 80 ? "3=white1  7=white2  8x8 hgr color chart";
+// 90 get a$:end

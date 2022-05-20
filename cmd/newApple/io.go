@@ -2,20 +2,47 @@ package main
 
 import (
 	"log"
+	"newApple/crtc"
 	"newApple/disk"
 )
 
 const (
-	KBD          = 0x00
-	KBDSTRB      = 0x10
-	SETSLOTCXROM = 0x06
-	SETINTCXROM  = 0x07
-	SETINTC3ROM  = 0x0A
-	SETSLOTC3ROM = 0x0B
-	RDCXROM      = 0x15
-	RDC3ROM      = 0x17
-	SPKR         = 0x30
+	// MEMORY MANAGEMENT SOFT SWITCHES (W)
+	_80STOREOFF  = 0x00
+	INTCXROMOFF  = 0x06
+	INTCXROMON   = 0x07
+	SLOTC3ROMOFF = 0x0A
+	SLOTC3ROMON  = 0x0B
 
+	// VIDEO SOFT SWITCHES (W/R)
+	_80COLOFF     = 0x0C
+	_80COLON      = 0x0D
+	ALTCHARSETOFF = 0x0E
+	ALTCHARSETON  = 0x0F
+	TEXTOFF       = 0x50
+	TEXTON        = 0x51
+	MIXEDOFF      = 0x52
+	MIXEDON       = 0x53
+	PAGE2OFF      = 0x54
+	PAGE2ON       = 0x55
+	HIRESOFF      = 0x56
+	HIRESON       = 0x57
+
+	// SOFT SWITCH STATUS FLAGS (R bit 7)
+	AKD        = 0x10
+	INTCXROM   = 0x15
+	SLOTC3ROM  = 0x17
+	TEXT       = 0x1A
+	MIXED      = 0x1B
+	PAGE2      = 0x1C
+	HIRES      = 0x1D
+	ALTCHARSET = 0x1E
+	_80COL     = 0x1F
+
+	// OTHER
+	SPKR = 0x30
+
+	// SLOTS
 	SLOT0_OFFSET = 0x90
 	SLOT1_OFFSET = 0x90
 	SLOT2_OFFSET = 0xA0
@@ -38,36 +65,88 @@ const (
 // PRINT PEEK(49173)
 
 var (
-	C3_INT bool = true
-	CX_INT bool = false
+	is_C3_INT bool = true
+	is_CX_INT bool = false
 )
 
 type io_access struct {
-	Disk *disk.DRIVE
+	Disk  *disk.DRIVE
+	Video *crtc.CRTC
 }
 
 func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 	// clog.Test("Accessor", "MRead", "Addr: %04X", translatedAddr)
 	switch translatedAddr {
-	case KBD:
+	case _80STOREOFF:
 		return mem[translatedAddr]
-	case KBDSTRB:
-		mem[KBD] = 0
+	case AKD:
+		mem[_80STOREOFF] = 0
 		return mem[translatedAddr]
-	case RDCXROM:
-		log.Printf("READ RDCXROM")
-		if CX_INT {
+	case INTCXROM:
+		if is_CX_INT {
 			return 0x8D
 		} else {
 			return 0x00
 		}
-	case RDC3ROM:
-		log.Printf("READ RDC3ROM")
-		if C3_INT {
+	case SLOTC3ROM:
+		if is_C3_INT {
 			return 0x8D
 		} else {
 			return 0x00
 		}
+	case TEXTOFF:
+		crtc.Is_TEXTMODE = false
+		C.Video.UpdateGraphMode()
+		return 0
+	case TEXTON:
+		crtc.Is_TEXTMODE = true
+		C.Video.UpdateGraphMode()
+		return 0
+	case MIXEDOFF:
+		crtc.Is_MIXEDMODE = false
+		C.Video.UpdateGraphMode()
+		return 0
+	case MIXEDON:
+		crtc.Is_MIXEDMODE = true
+		C.Video.UpdateGraphMode()
+		return 0
+	case HIRESOFF:
+		crtc.Is_HIRESMODE = false
+		C.Video.UpdateGraphMode()
+		return 0
+	case HIRESON:
+		crtc.Is_HIRESMODE = true
+		C.Video.UpdateGraphMode()
+		return 0
+	case PAGE2OFF:
+		crtc.Is_PAGE2 = false
+		C.Video.UpdateVideoRam(crtc.TEXTPAGE1)
+		return 0
+	case PAGE2ON:
+		crtc.Is_PAGE2 = true
+		C.Video.UpdateVideoRam(crtc.TEXTPAGE2)
+		return 0
+
+	case TEXT:
+		if crtc.Is_TEXTMODE {
+			return 0x80
+		}
+		return 0x00
+	case MIXED:
+		if crtc.Is_MIXEDMODE {
+			return 0x80
+		}
+		return 0x00
+	case PAGE2:
+		if crtc.Is_PAGE2 {
+			return 0x80
+		}
+		return 0x00
+	case HIRES:
+		if crtc.Is_HIRESMODE {
+			return 0x80
+		}
+		return 0x00
 	case SPKR:
 		return 0
 	case SLOT6_OFFSET + DRVSM0:
@@ -135,30 +214,52 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 func (C *io_access) MWrite(mem []byte, translatedAddr uint16, val byte) {
 	// clog.Test("Accessor", "MWrite", "Addr: %04X -> %02X", 0xE800+translatedAddr, val)
 	switch translatedAddr {
-	case KBD:
-		mem[KBD] = val
-	case KBDSTRB:
-		mem[KBD] = 0
-	case SETSLOTCXROM:
-		log.Printf("WRITE BankSel = 1")
-		CX_INT = false
+	case _80STOREOFF:
+		mem[_80STOREOFF] = val
+	case AKD:
+		mem[_80STOREOFF] = 0
+	case INTCXROMOFF:
+		log.Printf("WRITE MemConf = 1")
+		is_CX_INT = false
 		BankSel = 1
-	case SETINTCXROM:
-		log.Printf("WRITE BankSel = 0")
-		CX_INT = true
+	case INTCXROMON:
+		log.Printf("WRITE MemConf = 0")
+		is_CX_INT = true
 		BankSel = 0
-	case SETINTC3ROM:
-		log.Printf("WRITE SETINTC3ROM")
-		if !CX_INT {
+	case SLOTC3ROMON:
+		if !is_CX_INT {
 			BankSel = 3
 		}
-		C3_INT = true
-	case SETSLOTC3ROM:
-		log.Printf("WRITE SETSLOTC3ROM")
-		if CX_INT {
+		is_C3_INT = true
+	case SLOTC3ROMOFF:
+		if is_CX_INT {
 			BankSel = 2
 		}
-		C3_INT = false
+		is_C3_INT = false
+	case TEXTOFF:
+		crtc.Is_TEXTMODE = false
+		C.Video.UpdateGraphMode()
+	case TEXTON:
+		crtc.Is_TEXTMODE = true
+		C.Video.UpdateGraphMode()
+	case MIXEDOFF:
+		crtc.Is_MIXEDMODE = false
+		C.Video.UpdateGraphMode()
+	case MIXEDON:
+		crtc.Is_MIXEDMODE = true
+		C.Video.UpdateGraphMode()
+	case HIRESOFF:
+		crtc.Is_HIRESMODE = false
+		C.Video.UpdateGraphMode()
+	case HIRESON:
+		crtc.Is_HIRESMODE = true
+		C.Video.UpdateGraphMode()
+	case PAGE2OFF:
+		crtc.Is_PAGE2 = false
+		C.Video.UpdateVideoRam(crtc.TEXTPAGE1)
+	case PAGE2ON:
+		crtc.Is_PAGE2 = true
+		C.Video.UpdateVideoRam(crtc.TEXTPAGE2)
 	case SLOT6_OFFSET + DRVSM0:
 		C.Disk.SetPhase(0, false)
 	case SLOT6_OFFSET + DRVSM0 + 1:
