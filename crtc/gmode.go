@@ -68,16 +68,3 @@ func (C *CRTC) LoResMode(X int, Y int) {
 		}
 	}
 }
-
-// 10 hgr
-// 20 for y=0 to 63:for x=0 to 7
-// 30 hcolor=int(y/8)
-// 31 hplot x*32,y*2 to x*32+30,y*2
-// 32 hcolor=x
-// 33 hplot x*32,y*2+1 to x*32+30,y*2+1
-// 40 next:next
-// 50 ? "0=black1  4=black2"
-// 60 ? "1=l.green 5=orange"
-// 70 ? "2=purple  6=med.blue"
-// 80 ? "3=white1  7=white2  8x8 hgr color chart";
-// 90 get a$:end

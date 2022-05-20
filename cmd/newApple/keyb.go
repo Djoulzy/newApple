@@ -60,20 +60,35 @@ var keyMap map[uint]byte //{
 func initKeyboard() {
 	var i uint
 	keyMap = make(map[uint]byte)
-	cpt := 0xB0
-	for i = 48; i < 58; i++ {
-		keyMap[i] = byte(cpt)
-		cpt++
+
+	for i = 0; i < 256; i++ {
+		keyMap[i] = byte(i)
 	}
 
-	cpt = 0xC1
-	for i = 97; i < 123; i++ {
-		keyMap[i] = byte(cpt)
-		cpt++
-	}
+	keyMap[10] = 0x8D // Return
 
-	keyMap[13] = 0x8D // Return
-	keyMap[32] = 0xA0 // Space
-	keyMap[45] = 0xAD // Minus
-	keyMap[59] = 0xAE // Semicolon
+	// cpt := 0xB0
+	// for i = 48; i < 58; i++ {
+	// 	keyMap[i] = byte(cpt)
+	// 	keyMap[i+1000] = byte(cpt)
+	// 	cpt++
+	// }
+
+	// cpt = 0xC1
+	// for i = 97; i < 123; i++ {
+	// 	keyMap[i] = byte(cpt)
+	// 	cpt++
+	// }
+
+	// keyMap[13] = 0x8D // Return
+	// keyMap[10] = 0x8D // Return
+	// keyMap[32] = 0xA0 // Space
+	// keyMap[45] = 0xAD // Minus
+	// keyMap[59] = 0xAE // Semicolon
+	// keyMap[61] = 0x3D // Equal
+	// keyMap[51] = 0x22 // Quote
+
+	// // Shifted
+	// keyMap[44+1000] = 0x3F // Question mark
+	// keyMap[63] = 0x3F      // Question mark
 }

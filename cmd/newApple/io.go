@@ -65,8 +65,9 @@ const (
 // PRINT PEEK(49173)
 
 var (
-	is_C3_INT bool = true
-	is_CX_INT bool = false
+	is_C3_INT     bool = true
+	is_CX_INT     bool = false
+	is_Keypressed bool = false
 )
 
 type io_access struct {
@@ -78,10 +79,12 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 	// clog.Test("Accessor", "MRead", "Addr: %04X", translatedAddr)
 	switch translatedAddr {
 	case _80STOREOFF:
-		return mem[translatedAddr]
+		return mem[_80STOREOFF]
 	case AKD:
-		mem[_80STOREOFF] = 0
-		return mem[translatedAddr]
+		if is_Keypressed {
+			return 0x8D
+		}
+		return 0x00
 	case INTCXROM:
 		if is_CX_INT {
 			return 0x8D
@@ -215,8 +218,9 @@ func (C *io_access) MWrite(mem []byte, translatedAddr uint16, val byte) {
 	// clog.Test("Accessor", "MWrite", "Addr: %04X -> %02X", 0xE800+translatedAddr, val)
 	switch translatedAddr {
 	case _80STOREOFF:
-		mem[_80STOREOFF] = val
+		// mem[_80STOREOFF] = val
 	case AKD:
+		is_Keypressed = false
 		mem[_80STOREOFF] = 0
 	case INTCXROMOFF:
 		log.Printf("WRITE MemConf = 1")
