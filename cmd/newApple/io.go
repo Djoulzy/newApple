@@ -82,8 +82,12 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 		return mem[_80STOREOFF]
 	case AKD:
 		if is_Keypressed {
+			is_Keypressed = false
+			mem[_80STOREOFF] = 0
 			return 0x8D
 		}
+		is_Keypressed = false
+		mem[_80STOREOFF] = 0
 		return 0x00
 	case INTCXROM:
 		if is_CX_INT {

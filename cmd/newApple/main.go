@@ -224,8 +224,6 @@ func RunEmulation() {
 			if InputLine.Mode == 1073742048 {
 				key -= 0x60
 			}
-			log.Printf("AppleKey: %d", key)
-			// MEM.Write(0xC000, key|0b10000000)
 			IO[0] = key | 0b10000000
 			is_Keypressed = true
 			InputLine.KeyCode = 0

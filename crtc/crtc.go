@@ -65,7 +65,11 @@ func (C *CRTC) UpdateGraphMode() {
 			C.videoMode = (*CRTC).StandardTextModeA2E
 		}
 	} else {
-		C.videoMode = (*CRTC).LoResMode
+		if Is_HIRESMODE {
+
+		} else {
+			C.videoMode = (*CRTC).LoResMode
+		}
 	}
 }
 

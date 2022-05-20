@@ -55,16 +55,24 @@ func (C *CRTC) StandardTextModeA2E(X int, Y int) {
 }
 
 func (C *CRTC) LoResMode(X int, Y int) {
-	screenChar = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK)]
-	pixelData = C.charRom[uint16(screenChar)<<3+uint16(C.RasterCount)]
-	pixelData = ^pixelData
+	var color byte
 
-	for column := 0; column < 7; column++ {
-		bit := byte(0b00000001 << column)
-		if pixelData&bit == bit {
-			C.graph.DrawPixel(X+column, Y, Colors[White])
+	if Is_MIXEDMODE && C.RasterLine >= 20 {
+		if C.conf.Model == "2" {
+			C.StandardTextModeA2(X, Y)
 		} else {
-			C.graph.DrawPixel(X+column, Y, Colors[Black])
+			C.StandardTextModeA2E(X, Y)
+		}
+	} else {
+		screenChar = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK)]
+		if C.RasterCount < 5 {
+			// color = screenChar & 0b00001111
+			color = screenChar >> 4
+		} else {
+			color = screenChar & 0b00001111
+		}
+		for column := 0; column < 7; column++ {
+			C.graph.DrawPixel(X+column, Y, Colors[color])
 		}
 	}
 }
