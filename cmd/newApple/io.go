@@ -127,11 +127,11 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 		return 0
 	case PAGE2OFF:
 		crtc.Is_PAGE2 = false
-		C.Video.UpdateVideoRam(crtc.TEXTPAGE1)
+		C.Video.UpdateVideoRam()
 		return 0
 	case PAGE2ON:
 		crtc.Is_PAGE2 = true
-		C.Video.UpdateVideoRam(crtc.TEXTPAGE2)
+		C.Video.UpdateVideoRam()
 		return 0
 
 	case TEXT:
@@ -264,10 +264,10 @@ func (C *io_access) MWrite(mem []byte, translatedAddr uint16, val byte) {
 		C.Video.UpdateGraphMode()
 	case PAGE2OFF:
 		crtc.Is_PAGE2 = false
-		C.Video.UpdateVideoRam(crtc.TEXTPAGE1)
+		C.Video.UpdateVideoRam()
 	case PAGE2ON:
 		crtc.Is_PAGE2 = true
-		C.Video.UpdateVideoRam(crtc.TEXTPAGE2)
+		C.Video.UpdateVideoRam()
 	case SLOT6_OFFSET + DRVSM0:
 		C.Disk.SetPhase(0, false)
 	case SLOT6_OFFSET + DRVSM0 + 1:

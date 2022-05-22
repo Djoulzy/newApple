@@ -76,3 +76,26 @@ func (C *CRTC) LoResMode(X int, Y int) {
 		}
 	}
 }
+
+func (C *CRTC) HiResMode(X int, Y int) {
+	// var color byte
+	// var pixelBlock uint16
+
+	if Is_MIXEDMODE && C.RasterLine >= 20 {
+		if C.conf.Model == "2" {
+			C.StandardTextModeA2(X, Y)
+		} else {
+			C.StandardTextModeA2E(X, Y)
+		}
+	} else {
+		pixelData = C.videoRam[screenLine[C.RasterLine]+(uint16(C.CCLK)*8)+uint16(C.RasterCount-1)]
+		for column := 0; column < 7; column++ {
+			bit := byte(0b01000000 >> column)
+			if pixelData&bit == bit {
+				C.graph.DrawPixel(X+column, Y, Colors[LightGreen])
+			} else {
+				C.graph.DrawPixel(X+column, Y, Colors[Black])
+			}
+		}
+	}
+}

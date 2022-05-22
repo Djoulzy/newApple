@@ -77,8 +77,7 @@ type CRTC struct {
 	RasterCount byte
 	CCLK        byte
 
-	VideoPage uint16
-	VideoSize uint16
+	VideoPages [3][2]uint16
 
 	graph *render.SDL2Driver
 
