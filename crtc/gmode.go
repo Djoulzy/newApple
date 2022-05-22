@@ -1,5 +1,7 @@
 package crtc
 
+import "log"
+
 var (
 	screenChar byte = 0
 	pixelData  byte = 0
@@ -10,6 +12,8 @@ var screenLine = [24]uint16{
 	0x0028, 0x00A8, 0x0128, 0x01A8, 0x0228, 0x02A8, 0x0328, 0x03A8,
 	0x0050, 0x00D0, 0x0150, 0x01D0, 0x0250, 0x02D0, 0x0350, 0x03D0,
 }
+
+var boxLine = [8]uint16{0x0000, 0x0400, 0x0800, 0x0C00, 0x1000, 0x1400, 0x1800, 0x1C00}
 
 //////////////////////////////////////////////////////////////////////
 //                      Pour Apple II Original                      //
@@ -88,7 +92,10 @@ func (C *CRTC) HiResMode(X int, Y int) {
 			C.StandardTextModeA2E(X, Y)
 		}
 	} else {
-		pixelData = C.videoRam[screenLine[C.RasterLine]+(uint16(C.CCLK)*8)+uint16(C.RasterCount-1)]
+		// line := boxLine[Y-C.RasterLine*8]
+		// ram := screenLine[C.RasterLine] + uint16(C.RasterCount) + line
+		log.Printf("base: %04X Box: %d line: %04X", screenLine[C.RasterLine], C.CCLK, line)
+		pixelData = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK)+line]
 		for column := 0; column < 7; column++ {
 			bit := byte(0b01000000 >> column)
 			if pixelData&bit == bit {
