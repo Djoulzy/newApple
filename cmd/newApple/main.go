@@ -119,6 +119,8 @@ func setup() {
 	DiskDrive := disk.Attach(&cpu)
 	// DiskDrive.LoadDiskImage("woz/DOS33.woz")
 	// DiskDrive.LoadDiskImage("woz/Akalabeth.woz")
+	DiskDrive.LoadDiskImage("woz/Choplifter.woz")
+	// DiskDrive.LoadDiskImage("woz/LodeRunner.woz")
 
 	IOAccess = &io_access{Disk: DiskDrive, Video: &CRTC}
 

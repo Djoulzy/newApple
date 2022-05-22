@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"math"
+	"math/rand"
 	"os"
 
 	"github.com/Djoulzy/emutools/mos6510"
@@ -115,7 +116,8 @@ func (D *DRIVE) getNextBit() byte {
 		bit = (byteRead & pickbit[b]) >> (7 - b)
 	} else {
 		// TODO: Freak out like a MC3470 and return random bits
-		bit = 1
+		bit = byte(rand.Intn(2))
+		log.Printf("Fake bit: %02X", bit)
 	}
 	D.trackLocation++
 	return bit

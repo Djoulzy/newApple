@@ -34,7 +34,7 @@ func memLayouts(model int) {
 	MEM.Layouts[1].Attach("SLOT3", 0xC300, SLOT3, mem.READONLY)
 	MEM.Layouts[1].Attach("SLOT4", 0xC400, SLOT4, mem.READONLY)
 	MEM.Layouts[1].Attach("SLOT5", 0xC500, SLOT5, mem.READONLY)
-	// MEM.Layouts[1].Attach("SLOT6", 0xC600, SLOT6, mem.READONLY)
+	MEM.Layouts[1].Attach("SLOT6", 0xC600, SLOT6, mem.READONLY)
 	MEM.Layouts[1].Attach("SLOT7", 0xC700, SLOT7, mem.READONLY)
 	MEM.Layouts[1].Accessor("IO", IOAccess)
 	// MEM.Layouts[1].Show()

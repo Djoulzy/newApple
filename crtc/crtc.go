@@ -53,7 +53,6 @@ func (C *CRTC) Init(ram []byte, io []byte, chargen []byte, video *render.SDL2Dri
 	C.RasterCount = 0
 	C.CCLK = 0
 
-	C.UpdateVideoRam()
 	C.UpdateGraphMode()
 
 	if C.conf.Model == "2" {
