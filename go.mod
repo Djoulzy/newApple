@@ -26,7 +26,7 @@ require (
 )
 
 replace (
-	github.com/Djoulzy/emutools/mem v0.0.0-20220520122741-bed08c9ee26e => ../github.com/Djoulzy/emutools/mem
-	github.com/Djoulzy/emutools/mos6510 v0.0.0-20220520122741-bed08c9ee26e => ../github.com/Djoulzy/emutools/mos6510
-	github.com/Djoulzy/emutools/render v0.0.0-20220520122741-bed08c9ee26e => ../github.com/Djoulzy/emutools/render
+	github.com/Djoulzy/emutools/mem v0.0.0-20220520223615-b662baea9148 => ../github.com/Djoulzy/emutools/mem
+	github.com/Djoulzy/emutools/mos6510 v0.0.0-20220520223615-b662baea9148 => ../github.com/Djoulzy/emutools/mos6510
+	github.com/Djoulzy/emutools/render v0.0.0-20220520223615-b662baea9148 => ../github.com/Djoulzy/emutools/render
 )
