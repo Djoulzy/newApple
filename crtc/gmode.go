@@ -3,9 +3,9 @@ package crtc
 import "image/color"
 
 var (
-	screenChar  byte    = 0
-	pixelData   byte    = 0
-	hiresPixels [7]byte = [7]byte{0, 0, 0, 0, 0, 0, 0}
+	screenChar  byte     = 0
+	pixelData   byte     = 0
+	hiresPixels [14]byte = [14]byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 )
 
 var screenLine = [24]uint16{
@@ -88,6 +88,7 @@ var hiresColor [2][4]color.Color = [2][4]color.Color{
 }
 
 func (C *CRTC) HiResMode(X int, Y int) {
+
 	if Is_MIXEDMODE && C.RasterLine >= 20 {
 		Is_HIRESMODE = false
 		C.UpdateVideoRam()
@@ -103,22 +104,44 @@ func (C *CRTC) HiResMode(X int, Y int) {
 			if C.CCLK%2 == 0 {
 				line := boxLine[Y%8]
 				pixelData = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK)+line]
-				colMode := (pixelData & 0b10000000) >> 7
 
+				colMode := (pixelData & 0b10000000) >> 7
 				hiresPixels[0] = (pixelData & 0b00000011)
-				hiresPixels[1] = (pixelData & 0b00001100) >> 2
-				hiresPixels[2] = (pixelData & 0b00110000) >> 4
-				hiresPixels[3] = (pixelData & 0b01000000) >> 6
+				hiresPixels[1] = (pixelData & 0b00000110) >> 1
+				hiresPixels[2] = (pixelData & 0b00001100) >> 2
+				hiresPixels[3] = (pixelData & 0b00011000) >> 3
+				hiresPixels[4] = (pixelData & 0b00110000) >> 4
+				hiresPixels[5] = (pixelData & 0b01100000) >> 5
+				hiresPixels[6] = (pixelData & 0b01000000) >> 6
+				for i := 0; i < 3; i++ {
+					C.graph.DrawPixel(X+i*2, Y, hiresColor[colMode][hiresPixels[i*2]])
+					// C.graph.DrawPixel(X+i*2+1, Y, hiresColor[colMode][hiresPixels[i*2+1]])
+					if (hiresPixels[i*2+1] != 0x00) && (hiresPixels[i*2+1] != 0b00000011) {
+						C.graph.DrawPixel(X+(i*2)+1, Y, hiresColor[colMode][hiresPixels[i*2]])
+					} else {
+						C.graph.DrawPixel(X+(i*2)+1, Y, hiresColor[colMode][hiresPixels[i*2+1]])
+					}
+				}
 
 				pixelData = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK+1)+line]
-				hiresPixels[3] += (pixelData & 0b00000001) << 1
-				hiresPixels[4] = (pixelData & 0b00000110) >> 1
-				hiresPixels[5] = (pixelData & 0b00011000) >> 3
-				hiresPixels[6] = (pixelData & 0b01100000) >> 5
+				colMode = (pixelData & 0b10000000) >> 7
+				hiresPixels[6] += (pixelData & 0b00000001) << 1
+				hiresPixels[7] = (pixelData & 0b00000011)
+				hiresPixels[8] = (pixelData & 0b00000110) >> 1
+				hiresPixels[9] = (pixelData & 0b00001100) >> 2
+				hiresPixels[10] = (pixelData & 0b00011000) >> 3
+				hiresPixels[11] = (pixelData & 0b00110000) >> 4
+				hiresPixels[12] = (pixelData & 0b01100000) >> 5
+				hiresPixels[13] = (pixelData & 0b01100000) >> 5
 
-				for i := 0; i < 7; i++ {
-					C.graph.DrawPixel(X+i*2, Y, hiresColor[colMode][hiresPixels[i]])
-					C.graph.DrawPixel(X+(i*2)+1, Y, hiresColor[colMode][hiresPixels[i]])
+				for i := 3; i < 7; i++ {
+					C.graph.DrawPixel(X+i*2, Y, hiresColor[colMode][hiresPixels[i*2]])
+					// C.graph.DrawPixel(X+i*2+1, Y, hiresColor[colMode][hiresPixels[i*2+1]])
+					if (hiresPixels[i*2+1] != 0x00) && (hiresPixels[i*2+1] != 0b00000011) {
+						C.graph.DrawPixel(X+(i*2)+1, Y, hiresColor[colMode][hiresPixels[i*2]])
+					} else {
+						C.graph.DrawPixel(X+(i*2)+1, Y, hiresColor[colMode][hiresPixels[i*2+1]])
+					}
 				}
 			}
 		} else {

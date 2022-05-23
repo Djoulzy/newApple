@@ -66,6 +66,15 @@ func (C *CRTC) Init(ram []byte, io []byte, chargen []byte, video *render.SDL2Dri
 	}
 }
 
+func (C *CRTC) ToggleMonitorColor() {
+	C.conf.ColorDisplay = !C.conf.ColorDisplay
+	if C.conf.ColorDisplay {
+		C.TextColor = Colors[White]
+	} else {
+		C.TextColor = Colors[LightGreen]
+	}
+}
+
 func (C *CRTC) UpdateGraphMode() {
 	C.UpdateVideoRam()
 	if Is_TEXTMODE {

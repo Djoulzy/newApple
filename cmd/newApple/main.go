@@ -118,9 +118,9 @@ func setup() {
 	mem.Clear(SLOT7, 0, 0x71)
 	DiskDrive := disk.Attach(&cpu)
 	// DiskDrive.LoadDiskImage("woz/DOS33.woz")
-	// DiskDrive.LoadDiskImage("woz/Akalabeth.woz")
-	// DiskDrive.LoadDiskImage("woz/POP_A.woz")
 	// DiskDrive.LoadDiskImage("woz/Choplifter.woz")
+	// DiskDrive.LoadDiskImage("woz/POP_A.woz")
+	DiskDrive.LoadDiskImage("woz/Karateka.woz")
 
 	IOAccess = &io_access{Disk: DiskDrive, Video: &CRTC}
 
@@ -185,9 +185,11 @@ func input() {
 				MEM.Write(uint16(i), byte(cpt))
 				cpt++
 			}
-			// for i := 0x0800; i < 0x0C00; i++ {
-			// 	IO[uint16(i)] = 0
-			// }
+		// for i := 0x0800; i < 0x0C00; i++ {
+		// 	IO[uint16(i)] = 0
+		// }
+		case 'k':
+			CRTC.ToggleMonitorColor()
 		case 'q':
 			cpu.DumpStats()
 			os.Exit(0)
