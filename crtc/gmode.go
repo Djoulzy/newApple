@@ -34,7 +34,7 @@ func (C *CRTC) StandardTextModeA2(X int, Y int) {
 	for column := 0; column < 7; column++ {
 		bit := byte(0b01000000 >> column)
 		if pixelData&bit == bit {
-			C.graph.DrawPixel(X+column, Y, Colors[LightGreen])
+			C.graph.DrawPixel(X+column, Y, C.TextColor)
 		} else {
 			C.graph.DrawPixel(X+column, Y, Colors[Black])
 		}
@@ -52,7 +52,7 @@ func (C *CRTC) StandardTextModeA2E(X int, Y int) {
 	for column := 0; column < 7; column++ {
 		bit := byte(0b00000001 << column)
 		if pixelData&bit == bit {
-			C.graph.DrawPixel(X+column, Y, Colors[LightGreen])
+			C.graph.DrawPixel(X+column, Y, C.TextColor)
 		} else {
 			C.graph.DrawPixel(X+column, Y, Colors[Black])
 		}
@@ -99,52 +99,39 @@ func (C *CRTC) HiResMode(X int, Y int) {
 		Is_HIRESMODE = true
 		C.UpdateVideoRam()
 	} else {
-		// line := boxLine[Y%8]
-		// pixelData = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK)+line]
-		// for column := 0; column < 7; column++ {
-		// 	bit := byte(0b00000001 << column)
-		// 	if pixelData&bit == bit {
-		// 		C.graph.DrawPixel(X+column, Y, Colors[LightGreen])
-		// 	} else {
-		// 		C.graph.DrawPixel(X+column, Y, Colors[Black])
-		// 	}
-		// }
-		if C.CCLK%2 == 0 {
+		if C.conf.ColorDisplay {
+			if C.CCLK%2 == 0 {
+				line := boxLine[Y%8]
+				pixelData = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK)+line]
+				colMode := (pixelData & 0b10000000) >> 7
+
+				hiresPixels[0] = (pixelData & 0b00000011)
+				hiresPixels[1] = (pixelData & 0b00001100) >> 2
+				hiresPixels[2] = (pixelData & 0b00110000) >> 4
+				hiresPixels[3] = (pixelData & 0b01000000) >> 6
+
+				pixelData = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK+1)+line]
+				hiresPixels[3] += (pixelData & 0b00000001) << 1
+				hiresPixels[4] = (pixelData & 0b00000110) >> 1
+				hiresPixels[5] = (pixelData & 0b00011000) >> 3
+				hiresPixels[6] = (pixelData & 0b01100000) >> 5
+
+				for i := 0; i < 7; i++ {
+					C.graph.DrawPixel(X+i*2, Y, hiresColor[colMode][hiresPixels[i]])
+					C.graph.DrawPixel(X+(i*2)+1, Y, hiresColor[colMode][hiresPixels[i]])
+				}
+			}
+		} else {
 			line := boxLine[Y%8]
 			pixelData = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK)+line]
-			colMode := (pixelData & 0b10000000) >> 7
-
-			hiresPixels[0] = (pixelData & 0b00000011)
-			hiresPixels[1] = (pixelData & 0b00001100) >> 2
-			hiresPixels[2] = (pixelData & 0b00110000) >> 4
-			hiresPixels[3] = (pixelData & 0b01000000) >> 6
-
-			pixelData = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK+1)+line]
-			hiresPixels[3] += (pixelData & 0b00000001) << 1
-			hiresPixels[4] = (pixelData & 0b00000110) >> 1
-			hiresPixels[5] = (pixelData & 0b00011000) >> 3
-			hiresPixels[6] = (pixelData & 0b01100000) >> 5
-
-			for i := 0; i < 7; i++ {
-				C.graph.DrawPixel(X+i*2, Y, hiresColor[colMode][hiresPixels[i]])
-				C.graph.DrawPixel(X+(i*2)+1, Y, hiresColor[colMode][hiresPixels[i]])
+			for column := 0; column < 7; column++ {
+				bit := byte(0b00000001 << column)
+				if pixelData&bit == bit {
+					C.graph.DrawPixel(X+column, Y, C.TextColor)
+				} else {
+					C.graph.DrawPixel(X+column, Y, Colors[Black])
+				}
 			}
-
-			// colMode := (pixelData & 0b10000000) >> 7
-			// for column = 0; column < 3; column += 2 {
-			// 	mask := byte(0b00000011 << column)
-			// 	bit := (pixelData & mask) >> byte(column)
-			// 	C.graph.DrawPixel(X+column, Y, hiresColor[colMode][bit])
-			// 	C.graph.DrawPixel(X+column+1, Y, hiresColor[colMode][bit])
-			// }
-			// X += column
-
-			// for column = 0; column < 3; column += 2 {
-			// 	mask := byte(0b00000110 << column)
-			// 	bit := (pixelData & mask) >> byte(column)+1
-			// 	C.graph.DrawPixel(X+column, Y, hiresColor[colMode][bit])
-			// 	C.graph.DrawPixel(X+column+1, Y, hiresColor[colMode][bit])
-			// }
 		}
 	}
 }

@@ -10,6 +10,7 @@ type Globals struct {
 	Display      bool
 	LoadPRG      string
 	Model        string
+	ColorDisplay bool
 	Mhz          int
 }
 

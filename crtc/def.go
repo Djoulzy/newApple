@@ -76,6 +76,7 @@ type CRTC struct {
 	RasterLine  byte
 	RasterCount byte
 	CCLK        byte
+	TextColor   color.Color
 
 	VideoPages [3][2]uint16
 

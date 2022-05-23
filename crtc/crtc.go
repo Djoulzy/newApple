@@ -53,6 +53,12 @@ func (C *CRTC) Init(ram []byte, io []byte, chargen []byte, video *render.SDL2Dri
 	C.RasterCount = 0
 	C.CCLK = 0
 
+	if conf.ColorDisplay {
+		C.TextColor = Colors[White]
+	} else {
+		C.TextColor = Colors[LightGreen]
+	}
+
 	C.UpdateGraphMode()
 
 	if C.conf.Model == "2" {
