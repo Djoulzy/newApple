@@ -118,9 +118,9 @@ func setup() {
 	mem.Clear(SLOT7, 0, 0x71)
 	DiskDrive := disk.Attach(&cpu)
 	// DiskDrive.LoadDiskImage("woz/DOS33.woz")
-	// DiskDrive.LoadDiskImage("woz/Choplifter.woz")
+	DiskDrive.LoadDiskImage("woz/Choplifter.woz")
 	// DiskDrive.LoadDiskImage("woz/POP_A.woz")
-	DiskDrive.LoadDiskImage("woz/Karateka.woz")
+	// DiskDrive.LoadDiskImage("woz/Karateka.woz")
 
 	IOAccess = &io_access{Disk: DiskDrive, Video: &CRTC}
 

@@ -39,6 +39,25 @@ const (
 	ALTCHARSET = 0x1E
 	_80COL     = 0x1F
 
+	// BANK SWITCHING
+	RDRAM_B2  = 0x80
+	RDROM_WB2 = 0x81
+	RDROM_1   = 0x82
+	RWRAM_B2  = 0x83
+	RDRAM_B1  = 0x88
+	RDROM_WB1 = 0x89
+	RDROM_2   = 0x8A
+	RWRAM_B1  = 0x8B
+
+	SATURN_CTRL1 = 0x84
+	SATURN_CTRL2 = 0x85
+	SATURN_CTRL3 = 0x86
+	SATURN_CTRL4 = 0x87
+	SATURN1      = 0x8C
+	SATURN2      = 0x8D
+	SATURN3      = 0x8E
+	SATURN4      = 0x8F
+
 	// OTHER
 	SPKR = 0x30
 
@@ -154,6 +173,48 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 			return 0x80
 		}
 		return 0x00
+
+	case RDROM_1:
+		fallthrough
+	case RDROM_2:
+		log.Println("READ ROM not implemented")
+		return 0
+	case RDRAM_B2:
+		log.Println("READ RAM B2 not implemented")
+		return 0
+	case RDROM_WB2:
+		log.Println("WRITE RAM B2 not implemented")
+		return 0
+	case RWRAM_B2:
+		log.Println("R/W RAM B2 not implemented")
+		return 0
+	case RDRAM_B1:
+		log.Println("READ RAM B1 not implemented")
+		return 0
+	case RDROM_WB1:
+		log.Println("WRITE RAM B1 not implemented")
+		return 0
+	case RWRAM_B1:
+		log.Println("Bank switch not implemented")
+		return 0
+
+	case SATURN_CTRL1:
+		fallthrough
+	case SATURN_CTRL2:
+		fallthrough
+	case SATURN_CTRL3:
+		fallthrough
+	case SATURN_CTRL4:
+		fallthrough
+	case SATURN1:
+		fallthrough
+	case SATURN2:
+		fallthrough
+	case SATURN3:
+		fallthrough
+	case SATURN4:
+		log.Println("Saturn Card not implemented")
+		return 0
 	case SPKR:
 		return 0
 	case SLOT6_OFFSET + DRVSM0:
