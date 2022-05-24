@@ -8,6 +8,8 @@ func memLayouts(model int) {
 
 	MEM.Layouts[0] = mem.InitConfig(ramSize)
 	MEM.Layouts[0].Attach("RAM", 0x0000, RAM, mem.READWRITE, false)
+	MEM.Layouts[0].Attach("BANK2", 0xD000, BANK2, mem.READWRITE, false)
+	MEM.Layouts[0].Attach("BANK1", 0xD000, BANK1, mem.READWRITE, false)
 	if model == 2 {
 		MEM.Layouts[0].Attach("ROM_C", 0xC000, ROM_C, mem.READONLY, false)
 	}
@@ -23,5 +25,5 @@ func memLayouts(model int) {
 	MEM.Layouts[0].Attach("SLOT6", 0xC600, SLOT6, mem.READONLY, false)
 	MEM.Layouts[0].Attach("SLOT7", 0xC700, SLOT7, mem.READONLY, false)
 	MEM.Layouts[0].Accessor("IO", IOAccess)
-	// MEM.Layouts[0].Show()
+	MEM.Layouts[0].Show()
 }

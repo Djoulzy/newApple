@@ -47,6 +47,8 @@ var (
 	BankSel byte
 
 	RAM    []byte
+	BANK1  []byte
+	BANK2  []byte
 	ROM_C  []byte
 	ROM_D  []byte
 	ROM_EF []byte
@@ -100,6 +102,10 @@ func setup() {
 	// Common Setup
 	RAM = make([]byte, ramSize)
 	mem.Clear(RAM, 0x1000, 0xFF)
+	BANK1 = make([]byte, romSize)
+	mem.Clear(BANK1, 0x1000, 0xFF)
+	BANK2 = make([]byte, romSize*3)
+	mem.Clear(BANK2, 0x1000, 0xFF)
 	IO = make([]byte, softSwitches)
 	mem.Clear(IO, 0, 0x00)
 
@@ -113,14 +119,15 @@ func setup() {
 	mem.Clear(SLOT4, 0, 0x71)
 	SLOT5 = make([]byte, slot_roms)
 	mem.Clear(SLOT5, 0, 0x71)
-	SLOT6 = mem.LoadROM(slot_roms, "assets/roms/slot_disk2_cx00.bin")
+	SLOT6 = mem.LoadROM(slot_roms, "assets/roms/16SectorP5.bin")
 	SLOT7 = make([]byte, slot_roms)
 	mem.Clear(SLOT7, 0, 0x71)
 	DiskDrive := disk.Attach(&cpu)
 	// DiskDrive.LoadDiskImage("woz/DOS33.woz")
-	DiskDrive.LoadDiskImage("woz/Choplifter.woz")
+	// DiskDrive.LoadDiskImage("woz/Choplifter.woz")
 	// DiskDrive.LoadDiskImage("woz/POP_A.woz")
 	// DiskDrive.LoadDiskImage("woz/Karateka.woz")
+	DiskDrive.LoadDiskImage("woz/anti-m.woz")
 
 	IOAccess = &io_access{Disk: DiskDrive, Video: &CRTC}
 
@@ -142,7 +149,7 @@ func setup() {
 	outputDriver.SetKeyboardLine(&InputLine)
 
 	// CPU Setup
-	cpu.Init(conf.Mhz, &MEM)
+	cpu.Init(conf.Mhz, &MEM, conf.Disassamble)
 }
 
 func input() {

@@ -47,11 +47,11 @@ const (
 	// BANK SWITCHING
 	RDRAM_B2  = 0x80
 	RDROM_WB2 = 0x81
-	RDROM_1   = 0x82
+	RDROM_2   = 0x82
 	RWRAM_B2  = 0x83
 	RDRAM_B1  = 0x88
 	RDROM_WB1 = 0x89
-	RDROM_2   = 0x8A
+	RDROM_1   = 0x8A
 	RWRAM_B1  = 0x8B
 
 	SATURN_CTRL1 = 0x84
@@ -188,23 +188,32 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 		}
 		return 0x00
 
-	case RDROM_2:
-		MEM.Enable("ROM_D")
-		MEM.Enable("ROM_EF")
-		log.Println("BIZARRE -- READ RDROM_2")
-		return 0x80
 	case RDRAM_B2:
 		MEM.Disable("ROM_D")
 		MEM.Disable("ROM_EF")
-		log.Println("BIZARRE -- READ RDRAM_B2")
+		MEM.Disable("BANK1")
+		MEM.Enable("BANK2")
+		MEM.ReadOnly("BANK2")
 		return 0x80
 	case RDROM_WB2:
 		MEM.Enable("ROM_D")
 		MEM.Enable("ROM_EF")
+		MEM.Disable("BANK1")
+		MEM.Enable("BANK2")
+		MEM.ReadWrite("BANK2")
+		return 0x80
+	case RDROM_2:
+		MEM.Enable("ROM_D")
+		MEM.Enable("ROM_EF")
+		MEM.Disable("BANK1")
+		MEM.Disable("BANK2")
 		return 0x80
 	case RWRAM_B2:
 		MEM.Disable("ROM_D")
 		MEM.Disable("ROM_EF")
+		MEM.Disable("BANK1")
+		MEM.Enable("BANK2")
+		MEM.ReadWrite("BANK2")
 		return 0x80
 
 	case RDROM_1:
@@ -267,11 +276,10 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 
 	case SLOT6_OFFSET + DRIVE + 1:
 		C.Disk.StartMotor()
-		return mem[translatedAddr]
+		return 0x80
 	case SLOT6_OFFSET + DRIVE:
 		C.Disk.StopMotor()
-		return mem[translatedAddr]
-
+		return 0x80
 	case SLOT6_OFFSET + DRVWRITE:
 		C.Disk.ReadMode = true
 		if C.Disk.IsWriteProtected {
@@ -291,6 +299,9 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 		}
 		return 0x00
 	case SLOT6_OFFSET + DRVDATA + 1:
+		if C.Disk.IsWriteProtected {
+			return 0x80
+		}
 		return 0x00
 	case SLOT6_OFFSET + DRVSEL:
 		return 0x00
@@ -315,23 +326,31 @@ func (C *io_access) MWrite(mem []byte, translatedAddr uint16, val byte) {
 	case ALZTPON:
 		log.Println("ALZTPON not implemented")
 	case INTCXROMOFF:
-		log.Printf("WRITE MemConf = 1")
+		log.Printf("Slots enabled")
 		is_CX_INT = false
-		BankSel = 1
+		MEM.Enable("SLOT1")
+		MEM.Enable("SLOT2")
+		MEM.Enable("SLOT3")
+		MEM.Enable("SLOT4")
+		MEM.Enable("SLOT5")
+		MEM.Enable("SLOT6")
+		MEM.Enable("SLOT7")
 	case INTCXROMON:
-		log.Printf("WRITE MemConf = 0")
+		log.Printf("Slots disabled")
 		is_CX_INT = true
-		BankSel = 0
+		MEM.Disable("SLOT1")
+		MEM.Disable("SLOT2")
+		MEM.Disable("SLOT3")
+		MEM.Disable("SLOT4")
+		MEM.Disable("SLOT5")
+		MEM.Disable("SLOT6")
+		MEM.Disable("SLOT7")
 	case SLOTC3ROMON:
-		if !is_CX_INT {
-			BankSel = 3
-		}
-		is_C3_INT = true
-	case SLOTC3ROMOFF:
-		if is_CX_INT {
-			BankSel = 2
-		}
+		MEM.Enable("SLOT3")
 		is_C3_INT = false
+	case SLOTC3ROMOFF:
+		MEM.Disable("SLOT3")
+		is_C3_INT = true
 	case TEXTOFF:
 		crtc.Is_TEXTMODE = false
 		C.Video.UpdateGraphMode()
@@ -375,6 +394,7 @@ func (C *io_access) MWrite(mem []byte, translatedAddr uint16, val byte) {
 	case SLOT6_OFFSET + DRIVE + 1:
 		log.Printf("Write Start Motor\n")
 	case SLOT6_OFFSET + DRIVE:
+		C.Disk.StopMotor()
 		log.Printf("Write Stop Motor\n")
 	case SLOT6_OFFSET + DRVWRITE:
 		log.Printf("Write DRVWRITE\n")

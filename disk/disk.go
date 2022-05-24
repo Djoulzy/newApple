@@ -189,6 +189,7 @@ func (D *DRIVE) decodeDiskData(fileName string) {
 
 	D.diskHasChanges = false
 	if D.destectFormat(woz2) {
+		log.Println("WOZ-2 Disk detected")
 		D.IsWriteProtected = D.diskData[22] == 1
 		crc := D.diskData[8:12]
 		storedCRC := uint32(crc[0]) + (uint32(crc[1]) << 8) + (uint32(crc[2]) << 16) + uint32(crc[3])*uint32(math.Pow(2, 24))
@@ -214,6 +215,7 @@ func (D *DRIVE) decodeDiskData(fileName string) {
 	}
 
 	if D.destectFormat(woz1) {
+		log.Println("WOZ-1 Disk detected")
 		D.IsWriteProtected = D.diskData[22] == 1
 		for htrack := 0; htrack < 80; htrack++ {
 			tmap_index := int(D.diskData[88+htrack*2])
@@ -224,7 +226,7 @@ func (D *DRIVE) decodeDiskData(fileName string) {
 			} else {
 				D.trackStart[htrack] = 0
 				D.trackNbits[htrack] = 51200
-				log.Printf("empty woz2 track %d\n", htrack/2)
+				log.Printf("empty woz1 track %d\n", htrack/2)
 			}
 		}
 		return
