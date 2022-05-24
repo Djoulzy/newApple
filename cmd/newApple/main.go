@@ -25,14 +25,14 @@ import (
 
 const (
 	ramSize      = 65536
-	romSize      = 2048
+	romSize      = 4096
 	softSwitches = 256
 	chargenSize  = 2048
 	keyboardSize = 2048
 	blanckSize   = 12288
 	slot_roms    = 256
 
-	nbMemLayout = 4
+	nbMemLayout = 1
 
 	Stopped = 0
 	Paused  = 1
@@ -47,21 +47,21 @@ var (
 	BankSel byte
 
 	RAM    []byte
-	RAM_2  []byte
-	ROM_2  []byte
-	ROM_2e []byte
+	ROM_C  []byte
+	ROM_D  []byte
+	ROM_EF []byte
 
-	IO       []byte
-	SLOT1    []byte
-	SLOT2    []byte
-	SLOT3    []byte
-	SLOT4    []byte
-	SLOT5    []byte
-	SLOT6    []byte
-	SLOT7    []byte
-	KEYB     []byte
-	CHARGEN  []byte
-	BLANK    []byte
+	IO      []byte
+	SLOT1   []byte
+	SLOT2   []byte
+	SLOT3   []byte
+	SLOT4   []byte
+	SLOT5   []byte
+	SLOT6   []byte
+	SLOT7   []byte
+	KEYB    []byte
+	CHARGEN []byte
+
 	MEM      mem.BANK
 	IOAccess mem.MEMAccess
 
@@ -81,20 +81,20 @@ func init() {
 }
 
 func apple2_Roms() {
-	ROM_2 = mem.LoadROM(romSize*6, "assets/roms/II/Apple2.rom")
-	// ROM_AID = mem.LoadROM(romSize, "assets/roms/II/3410016.bin")
+	ROM_D = mem.LoadROM(romSize, "assets/roms/II/D.bin")
+	ROM_EF = mem.LoadROM(romSize*2, "assets/roms/II/EF.bin")
 	CHARGEN = mem.LoadROM(chargenSize, "assets/roms/II/3410036.bin")
 }
 
 func apple2e_Roms() {
-	RAM_2 = make([]byte, ramSize)
-	mem.Clear(RAM_2, 0x1000, 0xFF)
-	ROM_2e = mem.LoadROM(romSize*8, "assets/roms/IIe/Apple2e.rom")
+	ROM_C = mem.LoadROM(romSize, "assets/roms/IIe/C.bin")
+	ROM_D = mem.LoadROM(romSize, "assets/roms/IIe/D.bin")
+	ROM_EF = mem.LoadROM(romSize*2, "assets/roms/IIe/EF.bin")
 	CHARGEN = mem.LoadROM(chargenSize*2, "assets/roms/IIe/Video_US.bin")
 }
 
 func setup() {
-	BankSel = 1
+	BankSel = 0
 	MEM = mem.InitBanks(nbMemLayout, &BankSel)
 
 	// Common Setup
@@ -304,7 +304,7 @@ func main() {
 
 	run = true
 	cpuTurn = true
-	outputDriver.ShowCode = true
+	outputDriver.ShowCode = false
 	outputDriver.ShowFps = true
 
 	go RunEmulation()

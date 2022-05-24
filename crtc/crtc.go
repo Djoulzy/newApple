@@ -39,7 +39,7 @@ func (C *CRTC) Init(ram []byte, io []byte, chargen []byte, video *render.SDL2Dri
 	C.screenHeight = int(C.Reg[R6]) * 8
 
 	C.graph = video
-	C.graph.Init(C.screenWidth, C.screenHeight, "Go Apple II", true)
+	C.graph.Init(C.screenWidth, C.screenHeight, "Go Apple II", false)
 	C.conf = conf
 	C.VideoPages[0] = [2]uint16{0x0400, 0x2000}
 	C.VideoPages[1] = [2]uint16{0x0400, 0x2000}

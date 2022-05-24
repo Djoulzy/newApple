@@ -11,8 +11,12 @@ const (
 	_80STOREOFF  = 0x00
 	INTCXROMOFF  = 0x06
 	INTCXROMON   = 0x07
+	ALZTPOFF     = 0x08
+	ALZTPON      = 0x09
 	SLOTC3ROMOFF = 0x0A
 	SLOTC3ROMON  = 0x0B
+	BSRBANK2     = 0x11
+	BSRREADRAM   = 0x12
 
 	// VIDEO SOFT SWITCHES (W/R)
 	_80COLOFF     = 0x0C
@@ -32,6 +36,7 @@ const (
 	AKD        = 0x10
 	INTCXROM   = 0x15
 	SLOTC3ROM  = 0x17
+	ALTZP      = 0x16
 	TEXT       = 0x1A
 	MIXED      = 0x1B
 	PAGE2      = 0x1C
@@ -108,6 +113,15 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 		is_Keypressed = false
 		mem[_80STOREOFF] = 0
 		return 0x00
+	case BSRBANK2:
+		log.Println("BSRBANK2 not implemented")
+		return 0x00
+	case BSRREADRAM:
+		log.Println("BSRREADRAM not implemented")
+		return 0x00
+	case ALTZP:
+		log.Println("ALTZP not implemented")
+		return 0x00
 	case INTCXROM:
 		if is_CX_INT {
 			return 0x8D
@@ -174,20 +188,29 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 		}
 		return 0x00
 
-	case RDROM_1:
-		fallthrough
 	case RDROM_2:
-		log.Println("READ ROM not implemented")
-		return 0
+		MEM.Enable("ROM_D")
+		MEM.Enable("ROM_EF")
+		log.Println("BIZARRE -- READ RDROM_2")
+		return 0x80
 	case RDRAM_B2:
-		log.Println("READ RAM B2 not implemented")
-		return 0
+		MEM.Disable("ROM_D")
+		MEM.Disable("ROM_EF")
+		log.Println("BIZARRE -- READ RDRAM_B2")
+		return 0x80
 	case RDROM_WB2:
-		log.Println("WRITE RAM B2 not implemented")
-		return 0
+		MEM.Enable("ROM_D")
+		MEM.Enable("ROM_EF")
+		return 0x80
 	case RWRAM_B2:
-		log.Println("R/W RAM B2 not implemented")
-		return 0
+		MEM.Disable("ROM_D")
+		MEM.Disable("ROM_EF")
+		return 0x80
+
+	case RDROM_1:
+		MEM.Enable("ROM_D")
+		MEM.Enable("ROM_EF")
+		return 0x80
 	case RDRAM_B1:
 		log.Println("READ RAM B1 not implemented")
 		return 0
@@ -287,6 +310,10 @@ func (C *io_access) MWrite(mem []byte, translatedAddr uint16, val byte) {
 	case AKD:
 		is_Keypressed = false
 		mem[_80STOREOFF] = 0
+	case ALZTPOFF:
+		log.Println("ALZTPOFF not implemented")
+	case ALZTPON:
+		log.Println("ALZTPON not implemented")
 	case INTCXROMOFF:
 		log.Printf("WRITE MemConf = 1")
 		is_CX_INT = false
