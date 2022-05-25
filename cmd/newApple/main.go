@@ -130,7 +130,7 @@ func setup() {
 	// DiskDrive.LoadDiskImage("woz/POP_A.woz")
 	// DiskDrive.LoadDiskImage("woz/Karateka.woz")
 	Disk1.LoadDiskImage("woz/anti-m.woz")
-	Disk2.LoadDiskImage("woz/Choplifter.woz")
+	Disk2.LoadDiskImage("woz/Bug.woz")
 
 	IOAccess = &io_access{Disks: [2]*disk.DRIVE{Disk1, Disk2}, Video: &CRTC}
 
