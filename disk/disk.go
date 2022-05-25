@@ -14,7 +14,7 @@ import (
 type DRIVE struct {
 	motorPhases      [4]bool
 	IsWriteProtected bool
-	motorIsRunning   bool
+	IsRunning        bool
 	ReadMode         bool
 
 	prevHalfTrack  int
@@ -45,6 +45,7 @@ func Attach(cpu *mos6510.CPU) *DRIVE {
 	drive.prevHalfTrack = 0
 	drive.halftrack = 0
 	drive.IsWriteProtected = false
+	drive.ReadMode = true
 
 	crcTable = crc32.MakeTable(0xEDB88320)
 	return &drive
@@ -71,15 +72,11 @@ func (D *DRIVE) LoadDiskImage(fileName string) {
 }
 
 func (D *DRIVE) StartMotor() {
-	D.motorIsRunning = true
-}
-
-func (D *DRIVE) IsRunning() bool {
-	return D.motorIsRunning
+	D.IsRunning = true
 }
 
 func (D *DRIVE) StopMotor() {
-	D.motorIsRunning = false
+	D.IsRunning = false
 }
 
 func (D *DRIVE) moveHead(offset int) {
@@ -152,12 +149,12 @@ func (D *DRIVE) SetPhase(phase int, state bool) {
 	ascend := D.motorPhases[(D.currentPhase+1)%4]
 	descend := D.motorPhases[(D.currentPhase+3)%4]
 	if !D.motorPhases[D.currentPhase] {
-		if D.motorIsRunning && ascend {
+		if D.IsRunning && ascend {
 			D.moveHead(1)
 			D.currentPhase = (D.currentPhase + 1) % 4
 			// debug = fmt.Sprintf(" currPhase= %d track= %0.1f", D.currentPhase, float64(D.halftrack)/2)
 
-		} else if D.motorIsRunning && descend {
+		} else if D.IsRunning && descend {
 			D.moveHead(-1)
 			D.currentPhase = (D.currentPhase + 3) % 4
 			// debug = fmt.Sprintf(" currPhase= %d track= %0.1f", D.currentPhase, float64(D.halftrack)/2)
@@ -208,7 +205,7 @@ func (D *DRIVE) decodeDiskData(fileName string) {
 			} else {
 				D.trackStart[htrack] = 0
 				D.trackNbits[htrack] = 51200
-				log.Printf("empty woz2 track %d\n", htrack/2)
+				// log.Printf("empty woz2 track %d\n", htrack/2)
 			}
 		}
 		return
@@ -226,7 +223,7 @@ func (D *DRIVE) decodeDiskData(fileName string) {
 			} else {
 				D.trackStart[htrack] = 0
 				D.trackNbits[htrack] = 51200
-				log.Printf("empty woz1 track %d\n", htrack/2)
+				// log.Printf("empty woz1 track %d\n", htrack/2)
 			}
 		}
 		return

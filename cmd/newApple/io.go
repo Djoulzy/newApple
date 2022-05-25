@@ -92,8 +92,6 @@ var (
 	is_C3_INT     bool = true
 	is_CX_INT     bool = false
 	is_Keypressed bool = false
-	SelectedDrive int  = 0
-	MotorOn       bool = false
 )
 
 type io_access struct {
@@ -277,29 +275,14 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 		return 0
 
 	case SLOT6_OFFSET + DRIVE:
-		MotorOn = false
-		C.Disks[0].StopMotor()
-		C.Disks[1].StopMotor()
-		return 0
+		return C.diskMotorsOFF()
 	case SLOT6_OFFSET + DRIVE + 1:
-		MotorOn = true
-		C.Disks[SelectedDrive].StartMotor()
-		return 0
+		return C.diskMotorsON()
 
 	case SLOT6_OFFSET + DRVSEL:
-		SelectedDrive = 0
-		if MotorOn {
-			C.Disks[1].StopMotor()
-			C.Disks[SelectedDrive].StartMotor()
-		}
-		return 0
+		return C.driveSelect(0)
 	case SLOT6_OFFSET + DRVSEL + 1:
-		SelectedDrive = 1
-		if MotorOn {
-			C.Disks[0].StopMotor()
-			C.Disks[SelectedDrive].StartMotor()
-		}
-		return 0x00
+		return C.driveSelect(1)
 
 	case SLOT6_OFFSET + DRVWRITE:
 		C.Disks[SelectedDrive].ReadMode = true
@@ -309,7 +292,7 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 		return 0
 
 	case SLOT6_OFFSET + DRVDATA:
-		if C.Disks[SelectedDrive].IsRunning() && C.Disks[SelectedDrive].ReadMode {
+		if C.Disks[SelectedDrive].IsRunning && C.Disks[SelectedDrive].ReadMode {
 			tmp := C.Disks[SelectedDrive].GetNextByte()
 			// log.Printf("Read : %02X\n", tmp)
 			return tmp
@@ -406,30 +389,19 @@ func (C *io_access) MWrite(mem []byte, translatedAddr uint16, val byte) {
 		C.Disks[SelectedDrive].SetPhase(3, true)
 
 	case SLOT6_OFFSET + DRIVE:
-		MotorOn = false
-		C.Disks[0].StopMotor()
-		C.Disks[1].StopMotor()
+		C.diskMotorsOFF()
 	case SLOT6_OFFSET + DRIVE + 1:
-		MotorOn = true
-		C.Disks[SelectedDrive].StartMotor()
+		C.diskMotorsON()
 
 	case SLOT6_OFFSET + DRVSEL:
-		SelectedDrive = 0
-		if MotorOn {
-			C.Disks[1].StopMotor()
-			C.Disks[SelectedDrive].StartMotor()
-		}
+		C.driveSelect(0)
 	case SLOT6_OFFSET + DRVSEL + 1:
-		SelectedDrive = 1
-		if MotorOn {
-			C.Disks[0].StopMotor()
-			C.Disks[SelectedDrive].StartMotor()
-		}
+		C.driveSelect(1)
 
 	case SLOT6_OFFSET + DRVWRITE:
-		log.Printf("Write DRVWRITE\n")
+		C.Disks[SelectedDrive].ReadMode = true
 	case SLOT6_OFFSET + DRVWRITE + 1:
-		log.Printf("Write DRVWRITE+1\n")
+		C.Disks[SelectedDrive].ReadMode = false
 
 	case SLOT6_OFFSET + DRVDATA:
 		log.Printf("Write DRVDATA\n")
