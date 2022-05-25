@@ -76,14 +76,14 @@ const (
 	SLOT6_OFFSET = 0xE0
 	SLOT7_OFFSET = 0xF0
 
-	DRVSM0   = 0x00
-	DRVSM1   = 0x02
-	DRVSM2   = 0x04
-	DRVSM3   = 0x06
-	DRIVE    = 0x08
-	DRVSEL   = 0x0A
-	DRVDATA  = 0x0C
-	DRVWRITE = 0x0E
+	DRVSM0   = 0x00 // Q0
+	DRVSM1   = 0x02 // Q1
+	DRVSM2   = 0x04 // Q2
+	DRVSM3   = 0x06 // Q3
+	DRIVE    = 0x08 // Q4
+	DRVSEL   = 0x0A // Q5
+	DRVDATA  = 0x0C // Q6
+	DRVWRITE = 0x0E // Q7
 )
 
 // PRINT PEEK(49173)
@@ -92,10 +92,12 @@ var (
 	is_C3_INT     bool = true
 	is_CX_INT     bool = false
 	is_Keypressed bool = false
+	SelectedDrive int  = 0
+	MotorOn       bool = false
 )
 
 type io_access struct {
-	Disk  *disk.DRIVE
+	Disks [2]*disk.DRIVE
 	Video *crtc.CRTC
 }
 
@@ -250,63 +252,75 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 	case SPKR:
 		return 0
 	case SLOT6_OFFSET + DRVSM0:
-		C.Disk.SetPhase(0, false)
+		C.Disks[SelectedDrive].SetPhase(0, false)
 		return 0
 	case SLOT6_OFFSET + DRVSM0 + 1:
-		C.Disk.SetPhase(0, true)
+		C.Disks[SelectedDrive].SetPhase(0, true)
 		return 0
 	case SLOT6_OFFSET + DRVSM1:
-		C.Disk.SetPhase(1, false)
+		C.Disks[SelectedDrive].SetPhase(1, false)
 		return 0
 	case SLOT6_OFFSET + DRVSM1 + 1:
-		C.Disk.SetPhase(1, true)
+		C.Disks[SelectedDrive].SetPhase(1, true)
 		return 0
 	case SLOT6_OFFSET + DRVSM2:
-		C.Disk.SetPhase(2, false)
+		C.Disks[SelectedDrive].SetPhase(2, false)
 		return 0
 	case SLOT6_OFFSET + DRVSM2 + 1:
-		C.Disk.SetPhase(2, true)
+		C.Disks[SelectedDrive].SetPhase(2, true)
 		return 0
 	case SLOT6_OFFSET + DRVSM3:
-		C.Disk.SetPhase(3, false)
+		C.Disks[SelectedDrive].SetPhase(3, false)
 		return 0
 	case SLOT6_OFFSET + DRVSM3 + 1:
-		C.Disk.SetPhase(3, true)
+		C.Disks[SelectedDrive].SetPhase(3, true)
 		return 0
 
-	case SLOT6_OFFSET + DRIVE + 1:
-		C.Disk.StartMotor()
-		return 0x80
 	case SLOT6_OFFSET + DRIVE:
-		C.Disk.StopMotor()
-		return 0x80
-	case SLOT6_OFFSET + DRVWRITE:
-		C.Disk.ReadMode = true
-		if C.Disk.IsWriteProtected {
-			return 0x8D
-		} else {
-			return 0x00
+		MotorOn = false
+		C.Disks[0].StopMotor()
+		C.Disks[1].StopMotor()
+		return 0
+	case SLOT6_OFFSET + DRIVE + 1:
+		MotorOn = true
+		C.Disks[SelectedDrive].StartMotor()
+		return 0
+
+	case SLOT6_OFFSET + DRVSEL:
+		SelectedDrive = 0
+		if MotorOn {
+			C.Disks[1].StopMotor()
+			C.Disks[SelectedDrive].StartMotor()
 		}
+		return 0
+	case SLOT6_OFFSET + DRVSEL + 1:
+		SelectedDrive = 1
+		if MotorOn {
+			C.Disks[0].StopMotor()
+			C.Disks[SelectedDrive].StartMotor()
+		}
+		return 0x00
+
+	case SLOT6_OFFSET + DRVWRITE:
+		C.Disks[SelectedDrive].ReadMode = true
+		return 0
 	case SLOT6_OFFSET + DRVWRITE + 1:
-		C.Disk.ReadMode = false
+		C.Disks[SelectedDrive].ReadMode = false
 		return 0
 
 	case SLOT6_OFFSET + DRVDATA:
-		if C.Disk.IsRunning() && C.Disk.ReadMode {
-			tmp := C.Disk.GetNextByte()
+		if C.Disks[SelectedDrive].IsRunning() && C.Disks[SelectedDrive].ReadMode {
+			tmp := C.Disks[SelectedDrive].GetNextByte()
 			// log.Printf("Read : %02X\n", tmp)
 			return tmp
 		}
 		return 0x00
 	case SLOT6_OFFSET + DRVDATA + 1:
-		if C.Disk.IsWriteProtected {
+		if C.Disks[SelectedDrive].IsWriteProtected {
 			return 0x80
 		}
 		return 0x00
-	case SLOT6_OFFSET + DRVSEL:
-		return 0x00
-	case SLOT6_OFFSET + DRVSEL + 1:
-		return 0x00
+
 	default:
 		// log.Printf("Read Unknown: %02X\n", translatedAddr)
 		return 0x00
@@ -326,7 +340,6 @@ func (C *io_access) MWrite(mem []byte, translatedAddr uint16, val byte) {
 	case ALZTPON:
 		log.Println("ALZTPON not implemented")
 	case INTCXROMOFF:
-		log.Printf("Slots enabled")
 		is_CX_INT = false
 		MEM.Enable("SLOT1")
 		MEM.Enable("SLOT2")
@@ -336,7 +349,6 @@ func (C *io_access) MWrite(mem []byte, translatedAddr uint16, val byte) {
 		MEM.Enable("SLOT6")
 		MEM.Enable("SLOT7")
 	case INTCXROMON:
-		log.Printf("Slots disabled")
 		is_CX_INT = true
 		MEM.Disable("SLOT1")
 		MEM.Disable("SLOT2")
@@ -375,31 +387,50 @@ func (C *io_access) MWrite(mem []byte, translatedAddr uint16, val byte) {
 	case PAGE2ON:
 		crtc.Is_PAGE2 = true
 		C.Video.UpdateVideoRam()
+
 	case SLOT6_OFFSET + DRVSM0:
-		C.Disk.SetPhase(0, false)
+		C.Disks[SelectedDrive].SetPhase(0, false)
 	case SLOT6_OFFSET + DRVSM0 + 1:
-		C.Disk.SetPhase(0, true)
+		C.Disks[SelectedDrive].SetPhase(0, true)
 	case SLOT6_OFFSET + DRVSM1:
-		C.Disk.SetPhase(1, false)
+		C.Disks[SelectedDrive].SetPhase(1, false)
 	case SLOT6_OFFSET + DRVSM1 + 1:
-		C.Disk.SetPhase(1, true)
+		C.Disks[SelectedDrive].SetPhase(1, true)
 	case SLOT6_OFFSET + DRVSM2:
-		C.Disk.SetPhase(2, false)
+		C.Disks[SelectedDrive].SetPhase(2, false)
 	case SLOT6_OFFSET + DRVSM2 + 1:
-		C.Disk.SetPhase(2, true)
+		C.Disks[SelectedDrive].SetPhase(2, true)
 	case SLOT6_OFFSET + DRVSM3:
-		C.Disk.SetPhase(3, false)
+		C.Disks[SelectedDrive].SetPhase(3, false)
 	case SLOT6_OFFSET + DRVSM3 + 1:
-		C.Disk.SetPhase(3, true)
-	case SLOT6_OFFSET + DRIVE + 1:
-		log.Printf("Write Start Motor\n")
+		C.Disks[SelectedDrive].SetPhase(3, true)
+
 	case SLOT6_OFFSET + DRIVE:
-		C.Disk.StopMotor()
-		log.Printf("Write Stop Motor\n")
+		MotorOn = false
+		C.Disks[0].StopMotor()
+		C.Disks[1].StopMotor()
+	case SLOT6_OFFSET + DRIVE + 1:
+		MotorOn = true
+		C.Disks[SelectedDrive].StartMotor()
+
+	case SLOT6_OFFSET + DRVSEL:
+		SelectedDrive = 0
+		if MotorOn {
+			C.Disks[1].StopMotor()
+			C.Disks[SelectedDrive].StartMotor()
+		}
+	case SLOT6_OFFSET + DRVSEL + 1:
+		SelectedDrive = 1
+		if MotorOn {
+			C.Disks[0].StopMotor()
+			C.Disks[SelectedDrive].StartMotor()
+		}
+
 	case SLOT6_OFFSET + DRVWRITE:
 		log.Printf("Write DRVWRITE\n")
 	case SLOT6_OFFSET + DRVWRITE + 1:
 		log.Printf("Write DRVWRITE+1\n")
+
 	case SLOT6_OFFSET + DRVDATA:
 		log.Printf("Write DRVDATA\n")
 	case SLOT6_OFFSET + DRVDATA + 1:

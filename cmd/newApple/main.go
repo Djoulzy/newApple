@@ -122,14 +122,17 @@ func setup() {
 	SLOT6 = mem.LoadROM(slot_roms, "assets/roms/16SectorP5.bin")
 	SLOT7 = make([]byte, slot_roms)
 	mem.Clear(SLOT7, 0, 0x71)
-	DiskDrive := disk.Attach(&cpu)
+
+	Disk1 := disk.Attach(&cpu)
+	Disk2 := disk.Attach(&cpu)
 	// DiskDrive.LoadDiskImage("woz/DOS33.woz")
 	// DiskDrive.LoadDiskImage("woz/Choplifter.woz")
 	// DiskDrive.LoadDiskImage("woz/POP_A.woz")
 	// DiskDrive.LoadDiskImage("woz/Karateka.woz")
-	DiskDrive.LoadDiskImage("woz/anti-m.woz")
+	Disk1.LoadDiskImage("woz/anti-m.woz")
+	Disk2.LoadDiskImage("woz/Choplifter.woz")
 
-	IOAccess = &io_access{Disk: DiskDrive, Video: &CRTC}
+	IOAccess = &io_access{Disks: [2]*disk.DRIVE{Disk1, Disk2}, Video: &CRTC}
 
 	if MODEL == 1 {
 		apple2_Roms()
