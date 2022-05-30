@@ -130,7 +130,7 @@ func setup() {
 	// DiskDrive.LoadDiskImage("woz/POP_A.woz")
 	// DiskDrive.LoadDiskImage("woz/Karateka.woz")
 	Disk1.LoadDiskImage("woz/anti-m.woz")
-	Disk2.LoadDiskImage("woz/Bug.woz")
+	Disk2.LoadDiskImage("woz/BUG.woz")
 
 	IOAccess = &io_access{Disks: [2]*disk.DRIVE{Disk1, Disk2}, Video: &CRTC}
 
@@ -152,7 +152,7 @@ func setup() {
 	outputDriver.SetKeyboardLine(&InputLine)
 
 	// CPU Setup
-	cpu.Init(conf.Mhz, &MEM, conf.Disassamble)
+	cpu.Init(conf.Mhz, &MEM, conf.Debug || conf.Disassamble)
 }
 
 func input() {
