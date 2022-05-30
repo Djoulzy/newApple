@@ -15,7 +15,7 @@ require (
 	github.com/Djoulzy/emutools/charset v0.0.0-20220524172638-14b0ece81488 // indirect
 	github.com/albenik/bcd v0.0.0-20170831201648-635201416bc7 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/go-ini/ini v1.66.4 // indirect
+	github.com/go-ini/ini v1.66.5 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
