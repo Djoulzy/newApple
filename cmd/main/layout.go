@@ -19,7 +19,7 @@ func memLayouts(model int) {
 	MEM.Layouts[0].Attach("IO", 0xC000, IO, mem.READWRITE, false)
 	MEM.Layouts[0].Attach("SLOT1", 0xC100, SLOT1, mem.READONLY, false)
 	MEM.Layouts[0].Attach("SLOT2", 0xC200, SLOT2, mem.READONLY, false)
-	MEM.Layouts[0].Attach("SLOT3", 0xC300, SLOT3, mem.READONLY, true)
+	MEM.Layouts[0].Attach("SLOT3", 0xC300, SLOT3, mem.READONLY, false)
 	MEM.Layouts[0].Attach("SLOT4", 0xC400, SLOT4, mem.READONLY, false)
 	MEM.Layouts[0].Attach("SLOT5", 0xC500, SLOT5, mem.READONLY, false)
 	MEM.Layouts[0].Attach("SLOT6", 0xC600, SLOT6, mem.READONLY, false)

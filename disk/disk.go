@@ -163,7 +163,7 @@ func (D *DRIVE) SetPhase(phase int, state bool) {
 	}
 }
 
-func (D *DRIVE) destectFormat(header []byte) bool {
+func (D *DRIVE) detectFormat(header []byte) bool {
 	for i := 0; i < len(header); i++ {
 		if D.diskData[i] != header[i] {
 			return false
@@ -185,7 +185,7 @@ func (D *DRIVE) decodeDiskData(fileName string) {
 	woz1 := []byte{0x57, 0x4F, 0x5A, 0x31, 0xFF, 0x0A, 0x0D, 0x0A}
 
 	D.diskHasChanges = false
-	if D.destectFormat(woz2) {
+	if D.detectFormat(woz2) {
 		log.Println("WOZ-2 Disk detected")
 		D.IsWriteProtected = D.diskData[22] == 1
 		crc := D.diskData[8:12]
@@ -211,7 +211,7 @@ func (D *DRIVE) decodeDiskData(fileName string) {
 		return
 	}
 
-	if D.destectFormat(woz1) {
+	if D.detectFormat(woz1) {
 		log.Println("WOZ-1 Disk detected")
 		D.IsWriteProtected = D.diskData[22] == 1
 		for htrack := 0; htrack < 80; htrack++ {
