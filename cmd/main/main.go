@@ -125,6 +125,7 @@ func setup() {
 
 	Disk1 := disk.Attach(&cpu)
 	Disk2 := disk.Attach(&cpu)
+
 	// DiskDrive.LoadDiskImage("woz/DOS33.woz")
 	// DiskDrive.LoadDiskImage("woz/Choplifter.woz")
 	// DiskDrive.LoadDiskImage("woz/POP_A.woz")
@@ -133,7 +134,7 @@ func setup() {
 	// Disk1.LoadDiskImage("woz/anti-m.woz")
 	// Disk2.LoadDiskImage("woz/Choplifter.woz")
 
-	Disk1.LoadDiskImage("woz/Conan_A.woz")
+	Disk1.LoadDiskImage("woz/Wizardry_boot.woz")
 	// Disk1.LoadDiskImage("woz/CompInsp.woz")
 
 	IOAccess = &io_access{Disks: [2]*disk.DRIVE{Disk1, Disk2}, Video: &CRTC}
@@ -213,6 +214,7 @@ func input() {
 				log.Println("PAGE 2")
 			}
 			CRTC.UpdateVideoRam()
+			CRTC.DumpMode()
 		case 'q':
 			cpu.DumpStats()
 			os.Exit(0)

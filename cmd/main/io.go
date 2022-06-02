@@ -151,10 +151,12 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 		C.Video.UpdateGraphMode()
 		return 0
 	case HIRESOFF:
+		log.Printf("HIRES OFF %04X", cpu.PC)
 		crtc.Is_HIRESMODE = false
 		C.Video.UpdateGraphMode()
 		return 0
 	case HIRESON:
+		log.Printf("HIRES ON %04X", cpu.PC)
 		crtc.Is_HIRESMODE = true
 		C.Video.UpdateGraphMode()
 		return 0
@@ -373,9 +375,11 @@ func (C *io_access) MWrite(mem []byte, translatedAddr uint16, val byte) {
 		crtc.Is_MIXEDMODE = true
 		C.Video.UpdateGraphMode()
 	case HIRESOFF:
+		log.Printf("HIRES OFF")
 		crtc.Is_HIRESMODE = false
 		C.Video.UpdateGraphMode()
 	case HIRESON:
+		log.Printf("HIRES ON")
 		crtc.Is_HIRESMODE = true
 		C.Video.UpdateGraphMode()
 	case PAGE2OFF:

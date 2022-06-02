@@ -1,6 +1,7 @@
 package crtc
 
 import (
+	"fmt"
 	"newApple/config"
 	"time"
 
@@ -99,11 +100,26 @@ func (C *CRTC) UpdateVideoRam() {
 	} else {
 		page = 1
 	}
-	if Is_HIRESMODE {
-		C.videoRam = C.RAM[C.VideoPages[page][1] : C.VideoPages[page][1]+C.VideoPages[0][1]]
+	if Is_TEXTMODE {
+		C.videoBase = C.VideoPages[page][0]
+		C.pageSize = C.VideoPages[0][0]
+		C.videoRam = C.RAM[C.videoBase : C.videoBase+C.pageSize]
 	} else {
-		C.videoRam = C.RAM[C.VideoPages[page][0] : C.VideoPages[page][0]+C.VideoPages[0][0]]
+		C.videoBase = C.VideoPages[page][1]
+		C.pageSize = C.VideoPages[0][1]
+		C.videoRam = C.RAM[C.videoBase : C.videoBase+C.pageSize]
 	}
+}
+
+func (C *CRTC) DumpMode() {
+	if Is_TEXTMODE {
+		fmt.Printf("TEXT ")
+	} else if Is_HIRESMODE {
+		fmt.Printf("HIRES ")
+	} else {
+		fmt.Printf("LORES ")
+	}
+	fmt.Printf("VideoRam: %04X Size: %04X\n", C.videoBase, C.pageSize)
 }
 
 func (C *CRTC) drawChar(X int, Y int) {

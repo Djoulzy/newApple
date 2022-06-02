@@ -79,6 +79,8 @@ type CRTC struct {
 	TextColor   color.Color
 
 	VideoPages [3][2]uint16
+	videoBase  uint16
+	pageSize   uint16
 
 	graph *render.SDL2Driver
 
