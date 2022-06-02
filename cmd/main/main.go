@@ -7,6 +7,7 @@ import (
 	"newApple/config"
 	"newApple/crtc"
 	"newApple/disk"
+	woz "newApple/goWoz"
 	"os"
 	"reflect"
 	"runtime"
@@ -123,19 +124,21 @@ func setup() {
 	SLOT7 = make([]byte, slot_roms)
 	mem.Clear(SLOT7, 0, 0x71)
 
+	woz.SetupLib()
+
 	Disk1 := disk.Attach(&cpu)
 	Disk2 := disk.Attach(&cpu)
 
-	// DiskDrive.LoadDiskImage("woz/DOS33.woz")
-	// DiskDrive.LoadDiskImage("woz/Choplifter.woz")
-	// DiskDrive.LoadDiskImage("woz/POP_A.woz")
-	// DiskDrive.LoadDiskImage("woz/Karateka.woz")
+	Disk1.LoadDiskImage("imgTest/DOS33.woz")
+	// DiskDrive.LoadDiskImage("imgTest/Choplifter.woz")
+	// DiskDrive.LoadDiskImage("imgTest/POP_A.woz")
+	// DiskDrive.LoadDiskImage("imgTest/Karateka.woz")
 
-	// Disk1.LoadDiskImage("woz/anti-m.woz")
-	// Disk2.LoadDiskImage("woz/Choplifter.woz")
+	// Disk1.LoadDiskImage("imgTest/anti-m.woz")
+	// Disk2.LoadDiskImage("imgTest/Choplifter.woz")
 
-	Disk1.LoadDiskImage("woz/Wizardry_boot.woz")
-	// Disk1.LoadDiskImage("woz/CompInsp.woz")
+	// Disk1.LoadDiskImage("imgTest/Wizardry_boot.woz")
+	// Disk1.LoadDiskImage("imgTest/CompInsp.woz")
 
 	IOAccess = &io_access{Disks: [2]*disk.DRIVE{Disk1, Disk2}, Video: &CRTC}
 

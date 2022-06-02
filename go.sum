@@ -6,8 +6,12 @@ github.com/Djoulzy/Tools/confload v0.0.0-20220429054701-4c221b41ecdf h1:Xt/lt/tA
 github.com/Djoulzy/Tools/confload v0.0.0-20220429054701-4c221b41ecdf/go.mod h1:V1tjgiskN5pmqi06uqzCKXj6NoH9J+rLb6gccUOPh7A=
 github.com/Djoulzy/emutools/charset v0.0.0-20220531055632-afceffc74c83 h1:enVLrkuDgiN+6ynJ/hkaPrpLf7WWKayLUhDQmC24vZU=
 github.com/Djoulzy/emutools/charset v0.0.0-20220531055632-afceffc74c83/go.mod h1:nHh/Oz8MYyMM1G6/QcjV+m/5fmzwHNLDom7PrgBqsQo=
-github.com/Djoulzy/goWoz v0.0.0-20220602062023-6f0b78c8e34c h1:rnK2vH6mCTTM85NWJivHtD6r4is2a465T7M6WiFwqIo=
-github.com/Djoulzy/goWoz v0.0.0-20220602062023-6f0b78c8e34c/go.mod h1:iUtHvAoldHGsN3J7X/DSVlPaQ+kCkMywY1GEvYXpEbo=
+github.com/Djoulzy/emutools/mem v0.0.0-20220531055632-afceffc74c83 h1:6AsyHMXFHvY6ysHv1H9vs17DpP/r/P7Pjf03fWgkpf0=
+github.com/Djoulzy/emutools/mem v0.0.0-20220531055632-afceffc74c83/go.mod h1:h17UF5zv6hIKKszeU5NVgyg20aKaWv2ctoupf8Ukhoc=
+github.com/Djoulzy/emutools/mos6510 v0.0.0-20220531055632-afceffc74c83 h1:T+AYZVi7v0q5V3DzAi+lSOz9ojXVjBpFbEIfMm73jKw=
+github.com/Djoulzy/emutools/mos6510 v0.0.0-20220531055632-afceffc74c83/go.mod h1:41pUczDGbF12w5eQx67ErI4j1a50AFfatp2LkeRF1BQ=
+github.com/Djoulzy/emutools/render v0.0.0-20220531055632-afceffc74c83 h1:3HF/Hf0Nfx3i5/FBl2c7HWZNlYiHLFdVMbg6bK/ooKE=
+github.com/Djoulzy/emutools/render v0.0.0-20220531055632-afceffc74c83/go.mod h1:6tsdFxguvAbiA3SJ56ajqBMPCXgEy7quBtcPpkV66i8=
 github.com/albenik/bcd v0.0.0-20170831201648-635201416bc7 h1:m3Ayfs5OcAlIMEdLIQKubBsVLGee4YMUr14+d1256WE=
 github.com/albenik/bcd v0.0.0-20170831201648-635201416bc7/go.mod h1:QIAMbrwsnQZ2ES3G26RubSrDB5SPyzsp9Hts5NJdTrI=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
@@ -40,5 +44,5 @@ golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a/go.mod h1:oPkhp1MJrh7nUepCBc
 golang.org/x/text v0.3.7/go.mod h1:u+2+/6zg+i71rQMx5EYifcz6MCKuco9NR6JIITiCfzQ=
 golang.org/x/tools v0.0.0-20180917221912-90fa682c2a6e/go.mod h1:n7NCudcB/nEzxVGmLbDWY5pfWTLqBcC2KZ6jyYvM4mQ=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
-gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b h1:h8qDotaEPuJATrMmW04NCwg7v22aHH28wwpauUhK9Oo=
-gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
+gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
+gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=

@@ -2,9 +2,9 @@ package disk
 
 import (
 	"math"
+	woz "newApple/goWoz"
 
 	"github.com/Djoulzy/emutools/mos6510"
-	woz "github.com/Djoulzy/goWoz"
 )
 
 type DRIVE struct {
@@ -12,6 +12,8 @@ type DRIVE struct {
 	IsWriteProtected bool
 	IsRunning        bool
 	ReadMode         bool
+	wozImage         *woz.Disk
+	wozTrack         *woz.Track
 
 	prevHalfTrack  int
 	halftrack      int
@@ -39,12 +41,13 @@ func Attach(cpu *mos6510.CPU) *DRIVE {
 	drive.halftrack = 0
 	drive.IsWriteProtected = false
 	drive.ReadMode = true
+	drive.wozTrack = nil
 
 	return &drive
 }
 
 func (D *DRIVE) LoadDiskImage(fileName string) {
-	woz.SetupLib()
+	D.wozImage = woz.NewWozDisk(fileName)
 }
 
 func (D *DRIVE) StartMotor() {
@@ -77,10 +80,14 @@ func (D *DRIVE) moveHead(offset int) {
 		}
 		// log.Printf("track=%d %d %d %d %d", D.halftrack, oldloc, D.trackLocation, D.trackNbits[D.halftrack], D.trackNbits[D.prevHalfTrack])
 	}
+	// if D.wozTrack != nil {
+	// 	D.wozImage.Close()
+	// }
+	D.wozTrack = D.wozImage.Seek(float64(D.halftrack) / 2)
 }
 
 func (D *DRIVE) GetNextByte() byte {
-	return 0
+	return byte(D.wozTrack.Nibble())
 }
 
 func (D *DRIVE) SetPhase(phase int, state bool) {
