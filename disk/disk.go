@@ -87,7 +87,11 @@ func (D *DRIVE) moveHead(offset int) {
 }
 
 func (D *DRIVE) GetNextByte() byte {
-	return byte(D.wozTrack.Nibble())
+	if D.wozTrack != nil {
+		return byte(D.wozTrack.Nibble())
+	} else {
+		return 0
+	}
 }
 
 func (D *DRIVE) SetPhase(phase int, state bool) {
