@@ -129,7 +129,7 @@ func setup() {
 	Disk1 := disk.Attach(&cpu)
 	Disk2 := disk.Attach(&cpu)
 
-	// Disk1.LoadDiskImage("imgTest/DOS33.woz")
+	Disk1.LoadDiskImage("imgTest/DOS33.woz")
 	// Disk1.LoadDiskImage("imgTest/demo.woz")
 	// Disk1.LoadDiskImage("imgTest/Locksmith.woz")
 	// Disk1.LoadDiskImage("imgTest/Wolf.woz")
@@ -143,7 +143,7 @@ func setup() {
 	// Disk2.LoadDiskImage("imgTest/Choplifter.woz")
 
 	// Disk1.LoadDiskImage("imgTest/Wizardry_boot.woz")
-	Disk1.LoadDiskImage("imgTest/CompInsp.woz")
+	// Disk1.LoadDiskImage("imgTest/CompInsp.woz")
 
 	IOAccess = &io_access{Disks: [2]*disk.DRIVE{Disk1, Disk2}, Video: &CRTC}
 
