@@ -1,11 +1,11 @@
 package disk
 
 import (
+	"fmt"
 	"hash/crc32"
 	"io/ioutil"
 	"log"
 	"math"
-	"math/rand"
 	"os"
 
 	"github.com/Djoulzy/emutools/mos6510"
@@ -101,6 +101,7 @@ func (D *DRIVE) moveHead(offset int) {
 		}
 		// log.Printf("track=%d %d %d %d %d", D.halftrack, oldloc, D.trackLocation, D.trackNbits[D.halftrack], D.trackNbits[D.prevHalfTrack])
 	}
+	log.Printf("HalfTrack: %0.1f", float64(D.halftrack)/2)
 }
 
 func (D *DRIVE) getNextBit() byte {
@@ -113,8 +114,9 @@ func (D *DRIVE) getNextBit() byte {
 		bit = (byteRead & pickbit[b]) >> (7 - b)
 	} else {
 		// TODO: Freak out like a MC3470 and return random bits
-		bit = byte(rand.Intn(2))
-		log.Printf("Fake bit: %02X", bit)
+		// bit = byte(rand.Intn(2))
+		// log.Printf("Fake bit: %02X", bit)
+		bit = 1
 	}
 	D.trackLocation++
 	return bit
@@ -138,7 +140,7 @@ func (D *DRIVE) GetNextByte() byte {
 	}
 	// fmt.Printf("Track: %d Location: %d byte=%02X\n", D.halftrack, D.trackLocation, result)
 	// fmt.Printf("***** PC=%04X trackLocation=%d byte=%02X\n", D.cpu.InstStart, D.trackLocation, result)
-
+	fmt.Printf("%02X ", result)
 	return result
 }
 

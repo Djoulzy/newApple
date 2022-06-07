@@ -1,6 +1,7 @@
 package disk
 
 import (
+	"log"
 	woz "newApple/goWoz"
 
 	"github.com/Djoulzy/emutools/mos6510"
@@ -96,6 +97,7 @@ func (D *DRIVE) moveHead(offset int) {
 			D.halftrack = 40
 		}
 	}
+	log.Printf("HalfTrack: %0.1f", D.halftrack)
 	D.wozTrack = D.wozImage.Seek(D.halftrack)
 }
 
@@ -129,6 +131,16 @@ func (D *DRIVE) SetPhase(phase int, state bool) {
 		}
 	*/
 	if state == false {
+		return
+	}
+	if phase == 3 && D.currentPhase == 0 {
+		D.moveHead(-1)
+		D.currentPhase = phase
+		return
+	}
+	if phase == 0 && D.currentPhase == 3 {
+		D.moveHead(1)
+		D.currentPhase = phase
 		return
 	}
 	if phase > D.currentPhase {

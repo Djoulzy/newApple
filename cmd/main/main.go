@@ -129,13 +129,13 @@ func setup() {
 	Disk1 := disk.Attach(&cpu)
 	Disk2 := disk.Attach(&cpu)
 
-	Disk1.LoadDiskImage("imgTest/DOS33.woz")
+	// Disk1.LoadDiskImage("imgTest/DOS33.woz")
 	// Disk1.LoadDiskImage("imgTest/demo.woz")
 	// Disk1.LoadDiskImage("imgTest/Locksmith.woz")
 	// Disk1.LoadDiskImage("imgTest/Wolf.woz")
 	// Disk1.LoadDiskImage("imgTest/HERO.woz")
 
-	// Disk1.LoadDiskImage("imgTest/Choplifter.woz")
+	Disk1.LoadDiskImage("imgTest/Choplifter.woz")
 	// DiskDrive.LoadDiskImage("imgTest/POP_A.woz")
 	// DiskDrive.LoadDiskImage("imgTest/Karateka.woz")
 

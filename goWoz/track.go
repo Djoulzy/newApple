@@ -1,6 +1,7 @@
 package woz
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/DataDog/go-python3"
@@ -8,12 +9,14 @@ import (
 
 type Track struct {
 	pyRef *python3.PyObject
+	iter  *python3.PyObject
 }
 
 func NewWozTrack(trk *python3.PyObject) *Track {
 	track := Track{}
 	track.pyRef = trk
-	track.Find("D5 AA 96")
+	// track.Find("D5 AA 96")
+	// track.iter = track.pyRef.CallMethodArgs("nibble")
 	return &track
 }
 
@@ -29,7 +32,9 @@ func (T *Track) Find(pattern string) bool {
 func (T *Track) Nibble() int {
 	iter := T.pyRef.CallMethodArgs("nibble")
 	num := iter.CallMethodArgs("__next__")
-	return python3.PyLong_AsLong(num)
+	bytes := python3.PyLong_AsLong(num)
+	fmt.Printf("%02X ", bytes)
+	return bytes
 }
 
 func (T *Track) Close() {

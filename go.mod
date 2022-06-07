@@ -25,3 +25,9 @@ require (
 	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace (
+	github.com/Djoulzy/emutools/mem v0.0.0-20220531055632-afceffc74c83 => ../github.com/Djoulzy/emutools/mem
+	github.com/Djoulzy/emutools/mos6510 v0.0.0-20220531055632-afceffc74c83 => ../github.com/Djoulzy/emutools/mos6510
+	github.com/Djoulzy/emutools/render v0.0.0-20220531055632-afceffc74c83 => ../github.com/Djoulzy/emutools/render
+)
