@@ -127,15 +127,15 @@ func setup() {
 	woz.SetupLib()
 
 	Disk1 := disk.Attach(&cpu)
-	Disk2 := disk.Attach(&cpu)
+	// Disk2 := disk.Attach(&cpu)
 
-	// Disk1.LoadDiskImage("imgTest/DOS33.woz")
+	Disk1.LoadDiskImage("imgTest/DOS33.woz")
 	// Disk1.LoadDiskImage("imgTest/demo.woz")
 	// Disk1.LoadDiskImage("imgTest/Locksmith.woz")
 	// Disk1.LoadDiskImage("imgTest/Wolf.woz")
 	// Disk1.LoadDiskImage("imgTest/HERO.woz")
 
-	Disk1.LoadDiskImage("imgTest/Choplifter.woz")
+	// Disk1.LoadDiskImage("imgTest/Choplifter.woz")
 	// DiskDrive.LoadDiskImage("imgTest/POP_A.woz")
 	// DiskDrive.LoadDiskImage("imgTest/Karateka.woz")
 
@@ -145,7 +145,7 @@ func setup() {
 	// Disk1.LoadDiskImage("imgTest/Wizardry_boot.woz")
 	// Disk1.LoadDiskImage("imgTest/CompInsp.woz")
 
-	IOAccess = &io_access{Disks: [2]*disk.DRIVE{Disk1, Disk2}, Video: &CRTC}
+	IOAccess = &io_access{Disks: [2]*disk.DRIVE{Disk1, nil}, Video: &CRTC}
 
 	if MODEL == 1 {
 		apple2_Roms()
@@ -268,16 +268,12 @@ func RunEmulation() {
 		}
 
 		speed = cpu.NextCycle()
-
-		// if cpu.State == mos6510.ReadInstruction {
-		// 	outputDriver.DumpCode(cpu.FullInst)
-		// 	if conf.Breakpoint == cpu.InstStart {
-		// 		conf.Disassamble = true
-		// 		run = false
-		// 	}
-		// }
+		// cpu.NextCycle()
 
 		if cpu.CycleCount == 1 {
+			// if cpu.PC > 0x3D00 && cpu.PC < 0x3E00 {
+			// 	clog.File("cpu", "log", "%s", cpu.FullDebug)
+			// }
 			outputDriver.DumpCode(cpu.FullInst)
 			outputDriver.SetSpeed(speed)
 			if conf.Breakpoint == cpu.InstStart {

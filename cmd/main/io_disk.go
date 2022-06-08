@@ -17,9 +17,9 @@ func (C *io_access) diskMotorsON() byte {
 }
 
 func (C *io_access) diskMotorsOFF() byte {
-	MotorOn = false
-	C.Disks[0].StopMotor()
-	C.Disks[1].StopMotor()
+	// MotorOn = false
+	// C.Disks[0].StopMotor()
+	// C.Disks[1].StopMotor()
 	// C.drivesStatus()
 	return 0
 }
