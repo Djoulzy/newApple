@@ -302,6 +302,9 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 
 	case SLOT6_OFFSET + DRVWRITE:
 		C.Disks[SelectedDrive].ReadMode = true
+		if C.Disks[SelectedDrive].IsWriteProtected {
+			return 0xFF
+		}
 		return 0
 	case SLOT6_OFFSET + DRVWRITE + 1:
 		C.Disks[SelectedDrive].ReadMode = false
@@ -310,7 +313,7 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 	case SLOT6_OFFSET + DRVDATA:
 		if C.Disks[SelectedDrive].IsRunning && C.Disks[SelectedDrive].ReadMode {
 			tmp := C.Disks[SelectedDrive].GetNextByte()
-			// log.Printf("Read : %02X\n", tmp)
+			// clog.Debug("IO", "disk", "Read : %02X\n", tmp)
 			return tmp
 		}
 		return 0x00
