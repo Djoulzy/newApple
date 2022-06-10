@@ -3,6 +3,7 @@ package disk
 import (
 	woz "newApple/goWoz"
 
+	"github.com/Djoulzy/Tools/clog"
 	"github.com/Djoulzy/emutools/mos6510"
 )
 
@@ -59,7 +60,7 @@ func (D *DRIVE) moveHead(offset int) {
 			D.halftrack = 40
 		}
 	}
-	// clog.Test("Drive", "moveHead", "HalfTrack: %0.1f", D.halftrack)
+	clog.FileRaw("HalfTrack: %0.1f\n", D.halftrack)
 	D.wozTrack = D.wozImage.Seek(D.halftrack)
 }
 

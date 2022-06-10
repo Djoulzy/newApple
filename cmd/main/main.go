@@ -271,9 +271,9 @@ func RunEmulation() {
 		// cpu.NextCycle()
 
 		if cpu.CycleCount == 1 {
-			// if cpu.PC > 0x3D00 && cpu.PC < 0x3E00 {
-			// 	clog.File("cpu", "log", "%s", cpu.FullDebug)
-			// }
+			if cpu.PC >= 0x3900 && cpu.PC < 0x4000 {
+				clog.FileRaw("%s\n", cpu.FullDebug)
+			}
 			outputDriver.DumpCode(cpu.FullInst)
 			outputDriver.SetSpeed(speed)
 			if conf.Breakpoint == cpu.InstStart {

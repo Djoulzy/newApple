@@ -30,4 +30,5 @@ replace (
 	github.com/Djoulzy/emutools/mem v0.0.0-20220531055632-afceffc74c83 => ../github.com/Djoulzy/emutools/mem
 	github.com/Djoulzy/emutools/mos6510 v0.0.0-20220531055632-afceffc74c83 => ../github.com/Djoulzy/emutools/mos6510
 	github.com/Djoulzy/emutools/render v0.0.0-20220531055632-afceffc74c83 => ../github.com/Djoulzy/emutools/render
+	github.com/Djoulzy/Tools/clog v0.0.0-20220429054701-4c221b41ecdf => ../github.com/Djoulzy/Tools/clog
 )
