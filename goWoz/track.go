@@ -1,6 +1,7 @@
 package woz
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/DataDog/go-python3"
@@ -33,8 +34,8 @@ func (T *Track) Nibble() int {
 	iter := T.pyRef.CallMethodArgs("nibble")
 	num := iter.CallMethodArgs("__next__")
 	bytes := python3.PyLong_AsLong(num)
-	clog.FileRaw("%02X ", bytes)
-	// fmt.Printf("%02X ", bytes)
+	clog.FileRaw(" %02X", bytes)
+	fmt.Printf("%02X ", bytes)
 	return bytes
 }
 

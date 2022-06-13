@@ -224,7 +224,7 @@ func input() {
 			CRTC.UpdateVideoRam()
 			CRTC.DumpMode()
 		case 'q':
-			cpu.DumpStats()
+			fmt.Printf("%s\n", cpu.FullDebug)
 			os.Exit(0)
 		default:
 			dumpAddr += string(r)
@@ -272,7 +272,7 @@ func RunEmulation() {
 
 		if cpu.CycleCount == 1 {
 			if cpu.PC >= 0x3900 && cpu.PC < 0x4000 {
-				clog.FileRaw("%s\n", cpu.FullDebug)
+				clog.FileRaw("\n%s", cpu.FullDebug)
 			}
 			outputDriver.DumpCode(cpu.FullInst)
 			outputDriver.SetSpeed(speed)

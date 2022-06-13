@@ -60,7 +60,7 @@ func (D *DRIVE) moveHead(offset int) {
 			D.halftrack = 40
 		}
 	}
-	clog.FileRaw("HalfTrack: %0.1f\n", D.halftrack)
+	clog.FileRaw("\nHalfTrack: %0.1f", D.halftrack)
 	D.wozTrack = D.wozImage.Seek(D.halftrack)
 }
 
