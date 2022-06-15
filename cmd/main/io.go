@@ -4,6 +4,9 @@ import (
 	"log"
 	"newApple/crtc"
 	"newApple/disk"
+	"time"
+
+	"github.com/Djoulzy/Tools/clog"
 )
 
 const (
@@ -151,12 +154,12 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 		C.Video.UpdateGraphMode()
 		return 0
 	case HIRESOFF:
-		log.Printf("HIRES OFF %04X", cpu.PC)
+		// log.Printf("HIRES OFF %04X", cpu.PC)
 		crtc.Is_HIRESMODE = false
 		C.Video.UpdateGraphMode()
 		return 0
 	case HIRESON:
-		log.Printf("HIRES ON %04X", cpu.PC)
+		// log.Printf("HIRES ON %04X", cpu.PC)
 		crtc.Is_HIRESMODE = true
 		C.Video.UpdateGraphMode()
 		return 0
@@ -291,8 +294,10 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 		return 0
 
 	case SLOT6_OFFSET + DRIVE:
+		clog.FileRaw("\n%s : Stop Motor: %04X", time.Now().Format("15:04:05"), cpu.InstStart)
 		return C.diskMotorsOFF()
 	case SLOT6_OFFSET + DRIVE + 1:
+		clog.FileRaw("\n%s : Start Motor: %04X", time.Now().Format("15:04:05"), cpu.InstStart)
 		return C.diskMotorsON()
 
 	case SLOT6_OFFSET + DRVSEL:
@@ -302,18 +307,22 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 
 	case SLOT6_OFFSET + DRVWRITE:
 		C.Disks[SelectedDrive].ReadMode = true
+		clog.FileRaw("\nRead Mode")
 		if C.Disks[SelectedDrive].IsWriteProtected {
 			return 0xFF
 		}
 		return 0
 	case SLOT6_OFFSET + DRVWRITE + 1:
 		C.Disks[SelectedDrive].ReadMode = false
+		clog.FileRaw("\nWrite Mode")
 		return 0
 
 	case SLOT6_OFFSET + DRVDATA:
 		if C.Disks[SelectedDrive].IsRunning && C.Disks[SelectedDrive].ReadMode {
 			tmp := C.Disks[SelectedDrive].GetNextByte()
 			// clog.Debug("IO", "disk", "Read : %02X\n", tmp)
+			// log.Printf("%02X ", tmp)
+			clog.FileRaw("\n%s : => READ DATA => %02X [%04X]", time.Now().Format("15:04:05"), tmp, cpu.InstStart)
 			return tmp
 		}
 		return 0x00
@@ -459,8 +468,10 @@ func (C *io_access) MWrite(mem []byte, translatedAddr uint16, val byte) {
 
 	case SLOT6_OFFSET + DRIVE:
 		C.diskMotorsOFF()
+		log.Printf("Write DRIVE\n")
 	case SLOT6_OFFSET + DRIVE + 1:
 		C.diskMotorsON()
+		log.Printf("Write DRIVE\n")
 
 	case SLOT6_OFFSET + DRVSEL:
 		C.driveSelect(0)

@@ -2,30 +2,31 @@ package main
 
 import (
 	"fmt"
+	"newApple/disk"
 )
 
 var (
-	MotorOn       bool = false
-	SelectedDrive int  = 0
+	SelectedDrive int = 0
 )
 
 func (C *io_access) diskMotorsON() byte {
-	MotorOn = true
+	disk.MotorIsOn = true
 	C.Disks[SelectedDrive].StartMotor()
 	// C.drivesStatus()
 	return 0
 }
 
 func (C *io_access) diskMotorsOFF() byte {
-	// MotorOn = false
-	// C.Disks[0].StopMotor()
-	// C.Disks[1].StopMotor()
+	disk.MotorIsOn = false
+	C.Disks[0].StopMotor()
+	C.Disks[1].StopMotor()
+	// C.Disks[SelectedDrive].StopMotor()
 	// C.drivesStatus()
 	return 0
 }
 
 func (C *io_access) driveSelect(driveNum int) byte {
-	if MotorOn {
+	if disk.MotorIsOn {
 		C.Disks[SelectedDrive].StopMotor()
 		C.Disks[driveNum].StartMotor()
 	}

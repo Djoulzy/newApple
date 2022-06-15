@@ -10,10 +10,8 @@ import (
 	woz "newApple/goWoz"
 	"os"
 	"reflect"
-	"runtime"
 	"strconv"
 	"sync"
-	"time"
 
 	"github.com/Djoulzy/emutools/mos6510"
 
@@ -77,11 +75,11 @@ var (
 	lastPC       uint16
 )
 
-func init() {
-	// This is needed to arrange that main() runs on main thread.
-	// See documentation for functions that are only allowed to be called from the main thread.
-	runtime.LockOSThread()
-}
+// func init() {
+// 	// This is needed to arrange that main() runs on main thread.
+// 	// See documentation for functions that are only allowed to be called from the main thread.
+// 	runtime.LockOSThread()
+// }
 
 func apple2_Roms() {
 	ROM_D = mem.LoadROM(romSize, "assets/roms/II/D.bin")
@@ -127,25 +125,29 @@ func setup() {
 	woz.SetupLib()
 
 	Disk1 := disk.Attach(&cpu)
-	// Disk2 := disk.Attach(&cpu)
+	Disk2 := disk.Attach(&cpu)
 
-	Disk1.LoadDiskImage("imgTest/DOS33.woz")
+	// Disk1.LoadDiskImage("imgTest/LodeRunner.woz")
+	// Disk1.LoadDiskImage("imgTest/DOS33.woz")
 	// Disk1.LoadDiskImage("imgTest/demo.woz")
 	// Disk1.LoadDiskImage("imgTest/Locksmith.woz")
 	// Disk1.LoadDiskImage("imgTest/Wolf.woz")
-	// Disk1.LoadDiskImage("imgTest/HERO.woz")
+	Disk1.LoadDiskImage("imgTest/DK.woz")
+	// Disk1.LoadDiskImage("imgTest/Intrigue_A.woz")
 
 	// Disk1.LoadDiskImage("imgTest/Choplifter.woz")
-	// DiskDrive.LoadDiskImage("imgTest/POP_A.woz")
-	// DiskDrive.LoadDiskImage("imgTest/Karateka.woz")
+	// Disk1.LoadDiskImage("imgTest/POP_A.woz")
+	// Disk1.LoadDiskImage("imgTest/Karateka.woz")
 
 	// Disk1.LoadDiskImage("imgTest/anti-m.woz")
 	// Disk2.LoadDiskImage("imgTest/Choplifter.woz")
 
 	// Disk1.LoadDiskImage("imgTest/Wizardry_boot.woz")
 	// Disk1.LoadDiskImage("imgTest/CompInsp.woz")
+	// Disk1.LoadDiskImage("imgTest/Conan_A.woz")
+	// Disk1.LoadDiskImage("imgTest/CapGood_A.woz")
 
-	IOAccess = &io_access{Disks: [2]*disk.DRIVE{Disk1, nil}, Video: &CRTC}
+	IOAccess = &io_access{Disks: [2]*disk.DRIVE{Disk1, Disk2}, Video: &CRTC}
 
 	if MODEL == 1 {
 		apple2_Roms()
@@ -240,14 +242,15 @@ func input() {
 	}
 }
 
-func timeTrack(start time.Time, name string) {
-	elapsed := time.Now().Sub(start)
-	log.Printf("%s took %s", name, elapsed)
-}
+// func timeTrack(start time.Time, name string) {
+// 	elapsed := time.Now().Sub(start)
+// 	log.Printf("%s took %s", name, elapsed)
+// }
 
 func RunEmulation() {
 	var key byte
 	var speed float64
+	var trace bool = false
 
 	// defer timeTrack(time.Now(), "RunEmulation")
 	for {
@@ -271,7 +274,13 @@ func RunEmulation() {
 		// cpu.NextCycle()
 
 		if cpu.CycleCount == 1 {
-			if cpu.PC >= 0x3900 && cpu.PC < 0x4000 {
+			if cpu.InstStart == 0x3D46 {
+				trace = true
+			}
+			if cpu.InstStart == 0x394F {
+				trace = false
+			}
+			if trace && (cpu.InstStart >= 0x3900 && cpu.InstStart < 0x4000) {
 				clog.FileRaw("\n%s", cpu.FullDebug)
 			}
 			outputDriver.DumpCode(cpu.FullInst)
@@ -287,17 +296,17 @@ func RunEmulation() {
 	}
 }
 
-func packageName(v interface{}) string {
-	if v == nil {
-		return ""
-	}
+// func packageName(v interface{}) string {
+// 	if v == nil {
+// 		return ""
+// 	}
 
-	val := reflect.ValueOf(v)
-	if val.Kind() == reflect.Ptr {
-		return val.Elem().Type().PkgPath()
-	}
-	return val.Type().PkgPath()
-}
+// 	val := reflect.ValueOf(v)
+// 	if val.Kind() == reflect.Ptr {
+// 		return val.Elem().Type().PkgPath()
+// 	}
+// 	return val.Type().PkgPath()
+// }
 
 func main() {
 	var b bytes.Buffer

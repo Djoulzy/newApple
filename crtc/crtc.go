@@ -3,24 +3,23 @@ package crtc
 import (
 	"fmt"
 	"newApple/config"
-	"time"
 
 	"github.com/Djoulzy/emutools/render"
 )
 
 var blink bool = false
 
-func NE5555() {
-	ticker := time.NewTicker(time.Millisecond * 200)
-	defer func() {
-		ticker.Stop()
-	}()
+// func NE5555() {
+// 	ticker := time.NewTicker(time.Millisecond * 200)
+// 	defer func() {
+// 		ticker.Stop()
+// 	}()
 
-	for {
-		<-ticker.C
-		blink = !blink
-	}
-}
+// 	for {
+// 		<-ticker.C
+// 		blink = !blink
+// 	}
+// }
 
 func (C *CRTC) Init(ram []byte, io []byte, chargen []byte, video *render.SDL2Driver, conf *config.ConfigData) {
 	C.Reg[R0] = 63
@@ -62,9 +61,9 @@ func (C *CRTC) Init(ram []byte, io []byte, chargen []byte, video *render.SDL2Dri
 
 	C.UpdateGraphMode()
 
-	if C.conf.Model == "2" {
-		go NE5555()
-	}
+	// if C.conf.Model == "2" {
+	// 	go NE5555()
+	// }
 }
 
 func (C *CRTC) ToggleMonitorColor() {

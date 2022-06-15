@@ -40,7 +40,7 @@ func (W *Disk) Seek(num float64) *Track {
 	}
 	ret := W.pyRef.CallMethodArgs("seek", python3.PyFloat_FromDouble(num))
 	if ret == python3.Py_None {
-		log.Printf("None detected")
+		// log.Printf("None detected")
 		W.Tracks[num] = nil
 		return nil
 	}
