@@ -132,15 +132,15 @@ func setup() {
 	// Disk1.LoadDiskImage("imgTest/demo.woz")
 	// Disk1.LoadDiskImage("imgTest/Locksmith.woz")
 	// Disk1.LoadDiskImage("imgTest/Wolf.woz")
-	Disk1.LoadDiskImage("imgTest/DK.woz")
+	// Disk1.LoadDiskImage("imgTest/DK.woz")
 	// Disk1.LoadDiskImage("imgTest/Intrigue_A.woz")
 
 	// Disk1.LoadDiskImage("imgTest/Choplifter.woz")
 	// Disk1.LoadDiskImage("imgTest/POP_A.woz")
 	// Disk1.LoadDiskImage("imgTest/Karateka.woz")
 
-	// Disk1.LoadDiskImage("imgTest/anti-m.woz")
-	// Disk2.LoadDiskImage("imgTest/Choplifter.woz")
+	Disk1.LoadDiskImage("imgTest/anti-m.woz")
+	Disk2.LoadDiskImage("imgTest/Choplifter.woz")
 
 	// Disk1.LoadDiskImage("imgTest/Wizardry_boot.woz")
 	// Disk1.LoadDiskImage("imgTest/CompInsp.woz")

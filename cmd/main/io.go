@@ -322,7 +322,8 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 			tmp := C.Disks[SelectedDrive].GetNextByte()
 			// clog.Debug("IO", "disk", "Read : %02X\n", tmp)
 			// log.Printf("%02X ", tmp)
-			clog.FileRaw("\n%s : => READ DATA => %02X [%04X]", time.Now().Format("15:04:05"), tmp, cpu.InstStart)
+			// clog.FileRaw("\n%s : => READ DATA => %02X [%04X]", time.Now().Format("15:04:05"), tmp, cpu.InstStart)
+			clog.FileRaw("\n%s", cpu.FullDebug)
 			return tmp
 		}
 		return 0x00
@@ -468,19 +469,23 @@ func (C *io_access) MWrite(mem []byte, translatedAddr uint16, val byte) {
 
 	case SLOT6_OFFSET + DRIVE:
 		C.diskMotorsOFF()
-		log.Printf("Write DRIVE\n")
+		log.Printf("Write DRIVE OFF\n")
 	case SLOT6_OFFSET + DRIVE + 1:
 		C.diskMotorsON()
-		log.Printf("Write DRIVE\n")
+		log.Printf("Write DRIVE ON\n")
 
 	case SLOT6_OFFSET + DRVSEL:
 		C.driveSelect(0)
+		log.Printf("Write DRIVE SEL 1\n")
 	case SLOT6_OFFSET + DRVSEL + 1:
 		C.driveSelect(1)
+		log.Printf("Write DRIVE SEL 2\n")
 
 	case SLOT6_OFFSET + DRVWRITE:
+		log.Printf("Write ReadMode\n")
 		C.Disks[SelectedDrive].ReadMode = true
 	case SLOT6_OFFSET + DRVWRITE + 1:
+		log.Printf("Write WriteMode\n")
 		C.Disks[SelectedDrive].ReadMode = false
 
 	case SLOT6_OFFSET + DRVDATA:

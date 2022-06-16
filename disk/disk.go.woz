@@ -1,6 +1,7 @@
 package disk
 
 import (
+	"log"
 	woz "newApple/goWoz"
 	"time"
 
@@ -51,7 +52,8 @@ func (D *DRIVE) motorStopDelay() {
 	time.Sleep(time.Millisecond * 1000)
 	if !MotorIsOn {
 		D.IsRunning = false
-		clog.FileRaw("\nMOTO IS OFF")
+		clog.FileRaw("\nMOTOR IS OFF")
+		log.Printf("\nMOTOR IS OFF")
 	}
 }
 
