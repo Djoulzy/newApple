@@ -12,6 +12,7 @@ type Globals struct {
 	LoadPRG      string
 	Model        string
 	ColorDisplay bool
+	CPUModel     string
 	Mhz          int
 }
 

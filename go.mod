@@ -13,7 +13,7 @@ require (
 )
 
 require (
-	github.com/Djoulzy/emutools/charset v0.0.0-20220615143415-ac1e41c725b6 // indirect
+	github.com/Djoulzy/emutools/charset v0.0.0-20220616174737-0b8bae1ef37f // indirect
 	github.com/albenik/bcd v0.0.0-20170831201648-635201416bc7 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-ini/ini v1.66.6 // indirect
@@ -21,6 +21,7 @@ require (
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/veandco/go-sdl2 v0.4.22 // indirect
+	golang.org/x/exp v0.0.0-20220613132600-b0d781184e0d // indirect
 	golang.org/x/image v0.0.0-20220601225756-64ec528b34cd // indirect
 	golang.org/x/sys v0.0.0-20220615213510-4f61da869c0c // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

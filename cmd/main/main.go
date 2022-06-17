@@ -167,7 +167,7 @@ func setup() {
 	outputDriver.SetKeyboardLine(&InputLine)
 
 	// CPU Setup
-	cpu.Init(conf.Mhz, &MEM, conf.Debug || conf.Disassamble)
+	cpu.Init(conf.CPUModel, conf.Mhz, &MEM, conf.Debug || conf.Disassamble)
 }
 
 func input() {
