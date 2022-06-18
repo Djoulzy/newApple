@@ -13,7 +13,7 @@ require (
 )
 
 require (
-	github.com/Djoulzy/emutools/charset v0.0.0-20220615143415-ac1e41c725b6 // indirect
+	github.com/Djoulzy/emutools/charset v0.0.0-20220616174737-0b8bae1ef37f // indirect
 	github.com/albenik/bcd v0.0.0-20170831201648-635201416bc7 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-ini/ini v1.66.6 // indirect
