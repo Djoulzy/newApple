@@ -143,12 +143,14 @@ func setup() {
 	// Disk1.LoadDiskImage("imgTest/anti-m.woz")
 	// Disk2.LoadDiskImage("imgTest/Choplifter.woz")
 
-	Disk1.LoadDiskImage("imgTest/Wizardry_boot.woz")
+	// Disk1.LoadDiskImage("imgTest/Wizardry_boot.woz")
 	// Disk1.LoadDiskImage("imgTest/CompInsp.woz")
-	// Disk1.LoadDiskImage("imgTest/Conan_A.woz")
+	Disk1.LoadDiskImage("imgTest/Conan_A.woz")
 	// Disk1.LoadDiskImage("imgTest/CapGood_A.woz")
 
-	IOAccess = &io_access{Disks: [2]*disk.DRIVE{Disk1, Disk2}, Video: &CRTC}
+	// Disk1.LoadDiskImage("imgTest/vierge.woz")
+
+	IOAccess = InitIO(Disk1, Disk2, &CRTC)
 
 	if MODEL == 1 {
 		apple2_Roms()

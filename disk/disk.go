@@ -47,7 +47,6 @@ type DRIVE struct {
 	motorPhases      [4]bool
 	IsWriteProtected bool
 	IsRunning        bool
-	ReadMode         bool
 	wozImage         *woz.Disk
 	wozTrack         *woz.Track
 	WOZ              WOZ
@@ -67,7 +66,6 @@ func Attach(cpu *mos6510.CPU) *DRIVE {
 	drive.motorPhases = [4]bool{false, false, false, false}
 	drive.halftrack = 0
 	drive.IsWriteProtected = false
-	drive.ReadMode = true
 	drive.wozTrack = nil
 
 	return &drive

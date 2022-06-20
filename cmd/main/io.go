@@ -4,9 +4,6 @@ import (
 	"log"
 	"newApple/crtc"
 	"newApple/disk"
-	"time"
-
-	"github.com/Djoulzy/Tools/clog"
 )
 
 const (
@@ -100,6 +97,24 @@ var (
 type io_access struct {
 	Disks [2]*disk.DRIVE
 	Video *crtc.CRTC
+
+	connectedDrive int
+}
+
+func InitIO(d1 *disk.DRIVE, d2 *disk.DRIVE, vid *crtc.CRTC) *io_access {
+	tmp := io_access{}
+	tmp.Video = vid
+	tmp.connectedDrive = 0
+	if d1 != nil {
+		tmp.Disks[0] = d1
+		tmp.connectedDrive++
+	}
+	if d2 != nil {
+		tmp.Disks[1] = d2
+		tmp.connectedDrive++
+	}
+
+	return &tmp
 }
 
 func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
@@ -293,49 +308,41 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 		C.Disks[SelectedDrive].SetPhase(3, true)
 		return 0
 
+/*
+PRINT (PEEK(49386))
+PRINT (PEEK(49385))
+PRINT (PEEK(49390))
+PRINT (PEEK(49293))
+
+*/
+
 	case SLOT6_OFFSET + DRIVE:
-		clog.FileRaw("\n%s : Stop Motor: %04X", time.Now().Format("15:04:05"), cpu.InstStart)
+		// PRINT (PEEK(49384))
 		return C.diskMotorsOFF()
 	case SLOT6_OFFSET + DRIVE + 1:
-		clog.FileRaw("\n%s : Start Motor: %04X", time.Now().Format("15:04:05"), cpu.InstStart)
+		// PRINT (PEEK(49385))
 		return C.diskMotorsON()
 
 	case SLOT6_OFFSET + DRVSEL:
+		// PRINT (PEEK(49386))
 		return C.driveSelect(0)
 	case SLOT6_OFFSET + DRVSEL + 1:
+		// PRINT (PEEK(49387))
 		return C.driveSelect(1)
 
-	case SLOT6_OFFSET + DRVWRITE: // Q7
-		C.Disks[SelectedDrive].ReadMode = true
-		clog.FileRaw("\nRead Mode")
-		if C.Disks[SelectedDrive].IsWriteProtected {
-			log.Printf("Disk is Write Protected")
-			return 0xFF
-		} else {
-			log.Printf("Disk is Writable")
-		}
-		return 0
-	case SLOT6_OFFSET + DRVWRITE + 1: // Q7
-		C.Disks[SelectedDrive].ReadMode = false
-		clog.FileRaw("\nWrite Mode")
-		log.Printf("Try to write")
-		return 0
-
 	case SLOT6_OFFSET + DRVDATA: // Q6
-		if C.Disks[SelectedDrive].IsRunning && C.Disks[SelectedDrive].ReadMode {
-			tmp := C.Disks[SelectedDrive].GetNextByte()
-			// clog.Debug("IO", "disk", "Read : %02X\n", tmp)
-			// log.Printf("%02X ", tmp)
-			// clog.FileRaw("\n%s : => READ DATA => %02X [%04X]", time.Now().Format("15:04:05"), tmp, cpu.InstStart)
-			clog.FileRaw("\n%s", cpu.FullDebug)
-			return tmp
-		}
-		return 0x00
+		// PRINT (PEEK(49292))
+		return C.ShiftOrRead()
 	case SLOT6_OFFSET + DRVDATA + 1: // Q6
-		if C.Disks[SelectedDrive].IsWriteProtected {
-			return 0x80
-		}
-		return 0x00
+		// PRINT (PEEK(49293))
+		return C.LoadOrCheck()
+
+	case SLOT6_OFFSET + DRVWRITE: // Q7
+		// PRINT (PEEK(49390))
+		return C.SetSequencerMode(SEQ_READ_MODE)
+	case SLOT6_OFFSET + DRVWRITE + 1: // Q7
+		// PRINT (PEEK(49391))
+		return C.SetSequencerMode(SEQ_WRITE_MODE)
 
 	default:
 		// log.Printf("Read Unknown: %02X\n", translatedAddr)
@@ -472,30 +479,32 @@ func (C *io_access) MWrite(mem []byte, translatedAddr uint16, val byte) {
 		C.Disks[SelectedDrive].SetPhase(3, true)
 
 	case SLOT6_OFFSET + DRIVE:
+		// PRINT (PEEK(49384))
 		C.diskMotorsOFF()
-		log.Printf("Write DRIVE OFF\n")
 	case SLOT6_OFFSET + DRIVE + 1:
+		// PRINT (PEEK(49385))
 		C.diskMotorsON()
-		log.Printf("Write DRIVE ON\n")
 
 	case SLOT6_OFFSET + DRVSEL:
+		// PRINT (PEEK(49290))
 		C.driveSelect(0)
-		log.Printf("Write DRIVE SEL 1\n")
 	case SLOT6_OFFSET + DRVSEL + 1:
+		// PRINT (PEEK(49291))
 		C.driveSelect(1)
-		log.Printf("Write DRIVE SEL 2\n")
 
-	case SLOT6_OFFSET + DRVWRITE:
-		log.Printf("Write ReadMode\n")
-		C.Disks[SelectedDrive].ReadMode = true
-	case SLOT6_OFFSET + DRVWRITE + 1:
-		log.Printf("Write WriteMode\n")
-		C.Disks[SelectedDrive].ReadMode = false
+	case SLOT6_OFFSET + DRVDATA: // Q6
+		// PRINT (PEEK(49292))
+		C.ShiftOrRead()
+	case SLOT6_OFFSET + DRVDATA + 1: // Q6
+		// PRINT (PEEK(49293))
+		C.LoadOrCheck()
 
-	case SLOT6_OFFSET + DRVDATA:
-		log.Printf("Write DRVDATA\n")
-	case SLOT6_OFFSET + DRVDATA + 1:
-		log.Printf("Write DRVDATA+1\n")
+	case SLOT6_OFFSET + DRVWRITE: // Q7
+		// PRINT (PEEK(49390))
+		C.SetSequencerMode(SEQ_READ_MODE)
+	case SLOT6_OFFSET + DRVWRITE + 1: // Q7
+		C.SetSequencerMode(SEQ_WRITE_MODE)
+
 	default:
 		// log.Printf("Write Unknown: %02X\n", translatedAddr)
 	}

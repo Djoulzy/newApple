@@ -6,14 +6,14 @@ require (
 	github.com/DataDog/go-python3 v0.0.0-20211102160307-40adc605f1fe
 	github.com/Djoulzy/Tools/clog v0.0.0-20220609190146-71af779f6ddc
 	github.com/Djoulzy/Tools/confload v0.0.0-20220609190146-71af779f6ddc
-	github.com/Djoulzy/emutools/mem v0.0.0-20220618111135-6d466b4f81cf
-	github.com/Djoulzy/emutools/mos6510 v0.0.0-20220618111135-6d466b4f81cf
-	github.com/Djoulzy/emutools/render v0.0.0-20220618111135-6d466b4f81cf
+	github.com/Djoulzy/emutools/mem v0.0.0-20220620100952-42aec5b63f5b
+	github.com/Djoulzy/emutools/mos6510 v0.0.0-20220620100952-42aec5b63f5b
+	github.com/Djoulzy/emutools/render v0.0.0-20220620100952-42aec5b63f5b
 	github.com/mattn/go-tty v0.0.4
 )
 
 require (
-	github.com/Djoulzy/emutools/charset v0.0.0-20220618111135-6d466b4f81cf // indirect
+	github.com/Djoulzy/emutools/charset v0.0.0-20220620100952-42aec5b63f5b // indirect
 	github.com/albenik/bcd v0.0.0-20170831201648-635201416bc7 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-ini/ini v1.66.6 // indirect

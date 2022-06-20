@@ -2,36 +2,101 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"newApple/disk"
+	"time"
+
+	"github.com/Djoulzy/Tools/clog"
+)
+
+const (
+	SEQ_READ_MODE  = true
+	SEQ_WRITE_MODE = false
 )
 
 var (
-	SelectedDrive int = 0
+	SelectedDrive int  = 0
+	SequencerMode bool = false
 )
 
 func (C *io_access) diskMotorsON() byte {
 	disk.MotorIsOn = true
 	C.Disks[SelectedDrive].StartMotor()
 	// C.drivesStatus()
+	clog.FileRaw("\n%s : Start Motor: %04X", time.Now().Format("15:04:05"), cpu.InstStart)
 	return 0
 }
 
 func (C *io_access) diskMotorsOFF() byte {
-	disk.MotorIsOn = false
+	if C.connectedDrive == 0 || !disk.MotorIsOn {
+		return 0
+	}
+
 	C.Disks[0].StopMotor()
-	C.Disks[1].StopMotor()
-	// C.Disks[SelectedDrive].StopMotor()
-	// C.drivesStatus()
-	return 0
+	if C.connectedDrive > 1 {
+		C.Disks[1].StopMotor()
+	}
+
+	disk.MotorIsOn = false
+	clog.FileRaw("\n%s : Stop Motor: %04X", time.Now().Format("15:04:05"), cpu.InstStart)
+	return 171
 }
 
 func (C *io_access) driveSelect(driveNum int) byte {
+	var retVal byte = 0
+
+	if driveNum == 0 {
+		retVal = 0x80
+	}
+	if driveNum == SelectedDrive {
+		return retVal
+	}
 	if disk.MotorIsOn {
-		C.Disks[SelectedDrive].StopMotor()
-		C.Disks[driveNum].StartMotor()
+		if SelectedDrive != driveNum {
+			C.Disks[SelectedDrive].StopMotor()
+		}
+		if driveNum+1 <= C.connectedDrive {
+			C.Disks[driveNum].StartMotor()
+		}
 	}
 	SelectedDrive = driveNum
-	// C.drivesStatus()
+	return retVal
+}
+
+func (C *io_access) SetSequencerMode(mode bool) byte {
+	SequencerMode = mode
+	return 0
+}
+
+func (C *io_access) ShiftOrRead() byte {
+	if SequencerMode == SEQ_READ_MODE {
+		if C.Disks[SelectedDrive].IsRunning {
+			tmp := C.Disks[SelectedDrive].GetNextByte()
+			// clog.Debug("IO", "disk", "Read : %02X\n", tmp)
+			// log.Printf("%02X ", tmp)
+			// clog.FileRaw("\n%s : => READ DATA => %02X [%04X]", time.Now().Format("15:04:05"), tmp, cpu.InstStart)
+			clog.FileRaw("\n%s", cpu.FullDebug)
+			return tmp
+		}
+		return 0x00
+	} else {
+		// Shift sequencer
+	}
+	return 0
+}
+
+func (C *io_access) LoadOrCheck() byte {
+	if SequencerMode == SEQ_READ_MODE {
+		if C.Disks[SelectedDrive].IsWriteProtected {
+			log.Printf("Disk is Write Protected: %04X", cpu.InstStart)
+			return 0x80
+		} else {
+			log.Printf("Disk is Writable")
+			return 0
+		}
+	} else {
+		// Load sequencer
+	}
 	return 0
 }
 
@@ -57,17 +122,17 @@ func (C *io_access) drivesStatus() {
 	}
 	fmt.Printf("Motors:             %3s                 %3s\n", D1, D2)
 
-	if C.Disks[0].ReadMode {
-		D1 = "RD"
-	} else {
-		D1 = "WR"
-	}
-	if C.Disks[1].ReadMode {
-		D2 = "RD"
-	} else {
-		D2 = "WR"
-	}
-	fmt.Printf("Mode:               %3s                 %3s\n", D1, D2)
+	// if C.Disks[0].ReadMode {
+	// 	D1 = "RD"
+	// } else {
+	// 	D1 = "WR"
+	// }
+	// if C.Disks[1].ReadMode {
+	// 	D2 = "RD"
+	// } else {
+	// 	D2 = "WR"
+	// }
+	// fmt.Printf("Mode:               %3s                 %3s\n", D1, D2)
 
 	if C.Disks[0].IsWriteProtected {
 		D1 = "ON"
