@@ -7,8 +7,10 @@ import (
 	"newApple/config"
 	"newApple/crtc"
 	"newApple/disk"
+	woz "newApple/goWoz"
 	"os"
 	"reflect"
+	"runtime"
 	"strconv"
 	"sync"
 
@@ -74,11 +76,11 @@ var (
 	lastPC       uint16
 )
 
-// func init() {
-// 	// This is needed to arrange that main() runs on main thread.
-// 	// See documentation for functions that are only allowed to be called from the main thread.
-// 	runtime.LockOSThread()
-// }
+func init() {
+	// This is needed to arrange that main() runs on main thread.
+	// See documentation for functions that are only allowed to be called from the main thread.
+	runtime.LockOSThread()
+}
 
 func apple2_Roms() {
 	ROM_D = mem.LoadROM(romSize, "assets/roms/II/D.bin")
@@ -121,7 +123,7 @@ func setup() {
 	SLOT7 = make([]byte, slot_roms)
 	mem.Clear(SLOT7, 0, 0x71)
 
-	// woz.SetupLib()
+	woz.SetupLib()
 
 	Disk1 := disk.Attach(&cpu)
 	Disk2 := disk.Attach(&cpu)

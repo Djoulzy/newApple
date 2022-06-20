@@ -25,5 +25,5 @@ func memLayouts(model int) {
 	MEM.Layouts[0].Attach("SLOT6", 0xC600, SLOT6, mem.READONLY, false)
 	MEM.Layouts[0].Attach("SLOT7", 0xC700, SLOT7, mem.READONLY, false)
 	MEM.Layouts[0].Accessor("IO", IOAccess)
-	MEM.Layouts[0].Show()
+	// MEM.Layouts[0].Show()
 }

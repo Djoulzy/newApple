@@ -48,6 +48,6 @@ func (W *Disk) Seek(num float64) *Track {
 	return W.Tracks[num]
 }
 
-func (W *Disk) Dump() string {
-	return python3.PyBytes_AsString(W.pyRef.CallMethodArgs("to_json", nil))
+func (W *Disk) Dump() []byte {
+	return []byte(python3.PyBytes_AsString(W.pyRef.CallMethodArgs("to_json", nil)))
 }
