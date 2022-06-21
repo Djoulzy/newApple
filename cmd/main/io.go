@@ -308,39 +308,47 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 		C.Disks[SelectedDrive].SetPhase(3, true)
 		return 0
 
-/*
+		/*
 PRINT (PEEK(49386))
 PRINT (PEEK(49385))
+
+Check protect
+PRINT (PEEK(49389))
 PRINT (PEEK(49390))
-PRINT (PEEK(49293))
 
-*/
 
-	case SLOT6_OFFSET + DRIVE:
+Read data
+PRINT (PEEK(49390))
+PRINT (PEEK(49388))
+
+
+		*/
+
+	case SLOT6_OFFSET + DRIVE: // $C0E8
 		// PRINT (PEEK(49384))
 		return C.diskMotorsOFF()
 	case SLOT6_OFFSET + DRIVE + 1:
 		// PRINT (PEEK(49385))
 		return C.diskMotorsON()
 
-	case SLOT6_OFFSET + DRVSEL:
+	case SLOT6_OFFSET + DRVSEL: // $C0EA
 		// PRINT (PEEK(49386))
 		return C.driveSelect(0)
 	case SLOT6_OFFSET + DRVSEL + 1:
 		// PRINT (PEEK(49387))
 		return C.driveSelect(1)
 
-	case SLOT6_OFFSET + DRVDATA: // Q6
-		// PRINT (PEEK(49292))
+	case SLOT6_OFFSET + DRVDATA: // Q6 $C0EC
+		// PRINT (PEEK(49388))
 		return C.ShiftOrRead()
-	case SLOT6_OFFSET + DRVDATA + 1: // Q6
-		// PRINT (PEEK(49293))
+	case SLOT6_OFFSET + DRVDATA + 1: // Q6 $C0ED
+		// PRINT (PEEK(49389))
 		return C.LoadOrCheck()
 
-	case SLOT6_OFFSET + DRVWRITE: // Q7
+	case SLOT6_OFFSET + DRVWRITE: // Q7 $C0EE
 		// PRINT (PEEK(49390))
 		return C.SetSequencerMode(SEQ_READ_MODE)
-	case SLOT6_OFFSET + DRVWRITE + 1: // Q7
+	case SLOT6_OFFSET + DRVWRITE + 1: // Q7 $C0EF
 		// PRINT (PEEK(49391))
 		return C.SetSequencerMode(SEQ_WRITE_MODE)
 

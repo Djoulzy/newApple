@@ -255,7 +255,7 @@ func input() {
 func RunEmulation() {
 	var key byte
 	var speed float64
-	var trace bool = false
+	var trace bool = true
 
 	// defer timeTrack(time.Now(), "RunEmulation")
 	for {
@@ -279,13 +279,7 @@ func RunEmulation() {
 		// cpu.NextCycle()
 
 		if cpu.CycleCount == 1 {
-			if cpu.InstStart == 0x3D46 {
-				trace = true
-			}
-			if cpu.InstStart == 0x394F {
-				trace = false
-			}
-			if trace && (cpu.InstStart >= 0x3900 && cpu.InstStart < 0x4000) {
+			if trace && (cpu.InstStart < 0xC000) {
 				clog.FileRaw("\n%s", cpu.FullDebug)
 			}
 			outputDriver.DumpCode(cpu.FullInst)
@@ -300,18 +294,6 @@ func RunEmulation() {
 		}
 	}
 }
-
-// func packageName(v interface{}) string {
-// 	if v == nil {
-// 		return ""
-// 	}
-
-// 	val := reflect.ValueOf(v)
-// 	if val.Kind() == reflect.Ptr {
-// 		return val.Elem().Type().PkgPath()
-// 	}
-// 	return val.Type().PkgPath()
-// }
 
 func main() {
 	var b bytes.Buffer
