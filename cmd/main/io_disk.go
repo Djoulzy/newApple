@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"newApple/disk"
-	"time"
 
 	"github.com/Djoulzy/Tools/clog"
 )
@@ -17,13 +16,14 @@ const (
 var (
 	SelectedDrive int  = 0
 	SequencerMode bool = false
+	ProtectCheck  byte = 0
 )
 
 func (C *io_access) diskMotorsON() byte {
 	disk.MotorIsOn = true
 	C.Disks[SelectedDrive].StartMotor()
 	// C.drivesStatus()
-	clog.FileRaw("\n%s : Start Motor: %04X", time.Now().Format("15:04:05"), cpu.InstStart)
+	// clog.FileRaw("\n%s : Start Motor: %04X", time.Now().Format("15:04:05"), cpu.InstStart)
 	return 0
 }
 
@@ -38,7 +38,7 @@ func (C *io_access) diskMotorsOFF() byte {
 	}
 
 	disk.MotorIsOn = false
-	clog.FileRaw("\n%s : Stop Motor: %04X", time.Now().Format("15:04:05"), cpu.InstStart)
+	// clog.FileRaw("\n%s : Stop Motor: %04X", time.Now().Format("15:04:05"), cpu.InstStart)
 	return 171
 }
 
@@ -64,8 +64,14 @@ func (C *io_access) driveSelect(driveNum int) byte {
 }
 
 func (C *io_access) SetSequencerMode(mode bool) byte {
+	var retVal byte = 0
 	SequencerMode = mode
-	return 0
+	if SequencerMode == SEQ_READ_MODE {
+		retVal = ProtectCheck
+		ProtectCheck = 0
+		log.Printf("Sequencer read = %02X (%04X)", retVal, cpu.InstStart)
+	}
+	return retVal
 }
 
 func (C *io_access) ShiftOrRead() byte {
@@ -86,17 +92,17 @@ func (C *io_access) ShiftOrRead() byte {
 }
 
 func (C *io_access) LoadOrCheck() byte {
-	if SequencerMode == SEQ_READ_MODE {
-		if C.Disks[SelectedDrive].IsWriteProtected {
-			log.Printf("Disk is Write Protected: %04X", cpu.InstStart)
-			return 0x80
-		} else {
-			log.Printf("Disk is Writable")
-			return 0
-		}
+	// if SequencerMode == SEQ_READ_MODE {
+	if C.Disks[SelectedDrive].IsWriteProtected {
+		// log.Printf("Disk is Write Protected: %04X", cpu.InstStart)
+		ProtectCheck = 0x80
+		log.Printf("Protection Check = %02X (%04X)", ProtectCheck, cpu.InstStart)
 	} else {
-		// Load sequencer
+		log.Printf("Disk is Writable")
+		ProtectCheck = 0
 	}
+	// Load sequencer
+
 	return 0
 }
 

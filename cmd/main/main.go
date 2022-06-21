@@ -140,12 +140,12 @@ func setup() {
 	// Disk1.LoadDiskImage("imgTest/POP_A.woz")
 	// Disk1.LoadDiskImage("imgTest/Karateka.woz")
 
-	// Disk1.LoadDiskImage("imgTest/anti-m.woz")
-	// Disk2.LoadDiskImage("imgTest/Choplifter.woz")
+	Disk1.LoadDiskImage("imgTest/anti-m.woz")
+	Disk2.LoadDiskImage("imgTest/Choplifter.woz")
 
 	// Disk1.LoadDiskImage("imgTest/Wizardry_boot.woz")
 	// Disk1.LoadDiskImage("imgTest/CompInsp.woz")
-	Disk1.LoadDiskImage("imgTest/Conan_A.woz")
+	// Disk1.LoadDiskImage("imgTest/Conan_A.woz")
 	// Disk1.LoadDiskImage("imgTest/CapGood_A.woz")
 
 	// Disk1.LoadDiskImage("imgTest/vierge.woz")
@@ -253,7 +253,7 @@ func input() {
 func RunEmulation() {
 	var key byte
 	var speed float64
-	var trace bool = false
+	var trace bool = true
 
 	// defer timeTrack(time.Now(), "RunEmulation")
 	for {
@@ -277,13 +277,7 @@ func RunEmulation() {
 		// cpu.NextCycle()
 
 		if cpu.CycleCount == 1 {
-			if cpu.InstStart == 0x3D46 {
-				trace = true
-			}
-			if cpu.InstStart == 0x394F {
-				trace = false
-			}
-			if trace && (cpu.InstStart >= 0x3900 && cpu.InstStart < 0x4000) {
+			if trace && (cpu.InstStart < 0xC000) {
 				clog.FileRaw("\n%s", cpu.FullDebug)
 			}
 			outputDriver.DumpCode(cpu.FullInst)
@@ -298,18 +292,6 @@ func RunEmulation() {
 		}
 	}
 }
-
-// func packageName(v interface{}) string {
-// 	if v == nil {
-// 		return ""
-// 	}
-
-// 	val := reflect.ValueOf(v)
-// 	if val.Kind() == reflect.Ptr {
-// 		return val.Elem().Type().PkgPath()
-// 	}
-// 	return val.Type().PkgPath()
-// }
 
 func main() {
 	var b bytes.Buffer
