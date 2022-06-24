@@ -12,7 +12,6 @@ import (
 	"reflect"
 	"runtime"
 	"strconv"
-	"sync"
 
 	"github.com/Djoulzy/emutools/mos6510"
 
@@ -72,7 +71,7 @@ var (
 	CRTC         crtc.CRTC
 	cpuTurn      bool
 	run          bool
-	execInst     sync.Mutex
+	trace        bool
 	lastPC       uint16
 )
 
@@ -134,14 +133,14 @@ func setup() {
 	// Disk1.LoadDiskImage("imgTest/Locksmith.woz")
 	// Disk1.LoadDiskImage("imgTest/Wolf.woz")
 	// Disk1.LoadDiskImage("imgTest/DK.woz")
-	// Disk1.LoadDiskImage("imgTest/Intrigue_A.woz")
+	Disk1.LoadDiskImage("imgTest/I.woz")
 
-	// Disk1.LoadDiskImage("imgTest/Choplifter.woz")
 	// Disk1.LoadDiskImage("imgTest/POP_A.woz")
 	// Disk1.LoadDiskImage("imgTest/Karateka.woz")
 
-	Disk1.LoadDiskImage("imgTest/anti-m.woz")
-	Disk2.LoadDiskImage("imgTest/Choplifter.woz")
+	// Disk1.LoadDiskImage("imgTest/anti-m.woz")
+	// Disk2.LoadDiskImage("imgTest/Choplifter.woz")
+	// Disk1.LoadDiskImage("imgTest/chop.woz")
 
 	// Disk1.LoadDiskImage("imgTest/Wizardry_boot.woz")
 	// Disk1.LoadDiskImage("imgTest/Wizardry_Cracked.woz")
@@ -150,6 +149,7 @@ func setup() {
 	// Disk1.LoadDiskImage("imgTest/Conan_A.woz")
 	// Disk1.LoadDiskImage("imgTest/CapGood_A.woz")
 
+	// Disk1.LoadDiskImage("imgTest/Akalabeth.woz")
 	// Disk1.LoadDiskImage("imgTest/vierge.woz")
 
 	IOAccess = InitIO(Disk1, Disk2, &CRTC)
@@ -192,22 +192,17 @@ func input() {
 		case 'x':
 			// DumpMem(&pla, "memDump.bin")
 		case 'r':
-			conf.Disassamble = false
 			run = true
-			execInst.Unlock()
+			trace = false
 		case 'l':
 			// LoadPRG(&pla, "./prg/GARDEN.prg")
 			LoadPRG(&MEM, conf.LoadPRG)
 			// addr, _ := LoadPRG(mem.Val, conf.LoadPRG)
 			// cpu.GoTo(addr)
 		case ' ':
-			if run {
-				conf.Disassamble = true
-				run = false
-			} else {
-				execInst.Unlock()
-			}
-			// fmt.Printf("\n(s) Stack Dump - (z) Zero Page - (r) Run - (sp) Pause / unpause > ")
+			fmt.Printf("%s\n", cpu.FullDebug)
+			trace = true
+			run = true
 		case 'w':
 			fmt.Printf("\nFill Screen")
 			cpt := 0
@@ -255,41 +250,38 @@ func input() {
 func RunEmulation() {
 	var key byte
 	var speed float64
-	var trace bool = true
 
 	// defer timeTrack(time.Now(), "RunEmulation")
 	for {
 		CRTC.Run(!run)
-		if cpu.CycleCount == 1 && !run {
-			execInst.Lock()
-		}
 
-		if InputLine.KeyCode != 0 && !is_Keypressed {
-			key = keyMap[InputLine.KeyCode]
-			if InputLine.Mode == 1073742048 {
-				key -= 0x60
+		if run {
+			if InputLine.KeyCode != 0 && !is_Keypressed {
+				key = keyMap[InputLine.KeyCode]
+				if InputLine.Mode == 1073742048 {
+					key -= 0x60
+				}
+				IO[0] = key | 0b10000000
+				is_Keypressed = true
+				InputLine.KeyCode = 0
+				InputLine.Mode = 0
 			}
-			IO[0] = key | 0b10000000
-			is_Keypressed = true
-			InputLine.KeyCode = 0
-			InputLine.Mode = 0
-		}
 
-		speed = cpu.NextCycle()
-		// cpu.NextCycle()
+			speed = cpu.NextCycle()
+		}
 
 		if cpu.CycleCount == 1 {
-			if trace && (cpu.InstStart < 0xC000) {
-				clog.FileRaw("\n%s", cpu.FullDebug)
+			if trace {
+				run = false
 			}
+			// if cpu.InstStart > 0x0300 && cpu.InstStart < 0xC000 {
+			// 	clog.FileRaw("\n%d: %s", cpu.Cycles, cpu.FullDebug)
+			// }
 			outputDriver.DumpCode(cpu.FullInst)
 			outputDriver.SetSpeed(speed)
 			if conf.Breakpoint == cpu.InstStart {
-				conf.Disassamble = true
-				run = false
-			}
-			if !run || conf.Disassamble {
 				fmt.Printf("%s\n", cpu.FullDebug)
+				trace = true
 			}
 		}
 	}
@@ -328,6 +320,7 @@ func main() {
 	go input()
 
 	run = true
+	trace = false
 	cpuTurn = true
 	outputDriver.ShowCode = false
 	outputDriver.ShowFps = true

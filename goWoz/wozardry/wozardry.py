@@ -5,6 +5,7 @@
 
 import argparse
 import binascii
+from pprint import pprint
 import bitarray # https://pypi.org/project/bitarray/
 import collections
 import io
@@ -158,6 +159,7 @@ class Track:
         if self.bit_index >= self.bit_count:
             self.bit_index = 0
             self.revolutions += 1
+        # print(b, end = '')
         yield b
 
     def nibble(self):
@@ -168,6 +170,7 @@ class Track:
         for bit_index in range(6, -1, -1):
             b = next(self.bit())
             n += b << bit_index
+        # print(f' : {n}')
         yield n
 
     def rewind(self, bit_count):
@@ -684,6 +687,7 @@ class WozDiskImage:
         """returns Track object for the given track, or None if the track is not part of this disk image. track_num can be 0..40 in 0.25 increments (0, 0.25, 0.5, 0.75, 1, &c.)"""
         half_phase = self.track_num_to_half_phase(track_num)
         trk_id = self.tmap[half_phase]
+        print(trk_id)
         if trk_id == 0xFF: return None
         return self.tracks[trk_id]
 
@@ -697,6 +701,10 @@ class WozDiskImage:
         jdump = json.dumps(j, indent=4)
         # print(jdump)
         return bytes(jdump, 'utf-8')
+
+    def test(self):
+        print(self.tracks[0].bits)
+
 
 #---------- command line interface ----------
 

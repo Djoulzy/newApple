@@ -3,11 +3,21 @@
 import wozardry
 from pprint import pprint
 
-wz = wozardry.WozDiskImage("../imgTest/MrDo.woz")
+wz = wozardry.WozDiskImage("../imgTest/Choplifter.woz")
 pprint(wz.to_json())
-tr = wz.seek(39.75)
-tr.find(bytes.fromhex("D5 AA 96"))
+# wz.test()
+
 # for i in tr.nibble():
 #     pprint(i)
-while True:
-    pprint(next(tr.nibble()))
+
+tr = wz.seek(34)
+for x in range(10):
+    print(next(tr.nibble()))
+
+tr = wz.seek(0)
+for x in range(10):
+    print(next(tr.nibble()))
+
+tr = wz.seek(16)
+for x in range(10):
+    print(next(tr.nibble()))
