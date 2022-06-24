@@ -7,7 +7,6 @@ import (
 	"newApple/config"
 	"newApple/crtc"
 	"newApple/disk"
-	woz "newApple/goWoz"
 	"os"
 	"reflect"
 	"runtime"
@@ -122,7 +121,7 @@ func setup() {
 	SLOT7 = make([]byte, slot_roms)
 	mem.Clear(SLOT7, 0, 0x71)
 
-	woz.SetupLib()
+	// woz.SetupLib()
 
 	Disk1 := disk.Attach(&cpu)
 	Disk2 := disk.Attach(&cpu)
@@ -133,12 +132,12 @@ func setup() {
 	// Disk1.LoadDiskImage("imgTest/Locksmith.woz")
 	// Disk1.LoadDiskImage("imgTest/Wolf.woz")
 	// Disk1.LoadDiskImage("imgTest/DK.woz")
-	Disk1.LoadDiskImage("imgTest/I.woz")
+	// Disk1.LoadDiskImage("imgTest/I.woz")
 
 	// Disk1.LoadDiskImage("imgTest/POP_A.woz")
 	// Disk1.LoadDiskImage("imgTest/Karateka.woz")
 
-	// Disk1.LoadDiskImage("imgTest/anti-m.woz")
+	Disk1.LoadDiskImage("imgTest/anti-m.woz")
 	// Disk2.LoadDiskImage("imgTest/Choplifter.woz")
 	// Disk1.LoadDiskImage("imgTest/chop.woz")
 

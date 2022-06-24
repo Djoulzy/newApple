@@ -69,7 +69,7 @@ func (C *io_access) SetSequencerMode(mode bool) byte {
 	if SequencerMode == SEQ_READ_MODE {
 		retVal = ProtectCheck
 		ProtectCheck = 0
-		log.Printf("Sequencer read = %02X (%04X)", retVal, cpu.InstStart)
+		// log.Printf("Sequencer read = %02X (%04X)", retVal, cpu.InstStart)
 	}
 	return retVal
 }

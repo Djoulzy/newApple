@@ -89,31 +89,6 @@ func (D *DRIVE) StopMotor() {
 	go D.motorStopDelay()
 }
 
-func (D *DRIVE) moveHead(offset int) {
-	if D.trackStart[D.halftrack] > 0 {
-		D.prevHalfTrack = D.halftrack
-	}
-	D.halftrack += offset
-	if D.halftrack < 0 || D.halftrack > 68 {
-		if D.halftrack < 0 {
-			D.halftrack = 0
-		} else if D.halftrack > 68 {
-			D.halftrack = 68
-		}
-	}
-	// log.Printf("track=%0.1f\n", float64(D.halftrack)/2)
-	// Adjust new track location based on arm position relative to old track loc.
-	if D.trackStart[D.halftrack] > 0 && D.prevHalfTrack != D.halftrack {
-		// oldloc := D.trackLocation
-		D.trackLocation = uint32(math.Floor(float64(D.trackLocation * (D.trackNbits[D.halftrack] / D.trackNbits[D.prevHalfTrack]))))
-		if D.trackLocation > 3 {
-			D.trackLocation -= 4
-		}
-		// log.Printf("track=%d %d %d %d %d", D.halftrack, oldloc, D.trackLocation, D.trackNbits[D.halftrack], D.trackNbits[D.prevHalfTrack])
-	}
-	// log.Printf("HalfTrack: %0.1f", float64(D.halftrack)/2)
-}
-
 func (D *DRIVE) getNextBit() byte {
 	var bit byte
 	D.trackLocation = D.trackLocation % D.trackNbits[D.halftrack]
@@ -152,6 +127,31 @@ func (D *DRIVE) GetNextByte() byte {
 	// fmt.Printf("***** PC=%04X trackLocation=%d byte=%02X\n", D.cpu.InstStart, D.trackLocation, result)
 	// fmt.Printf("%02X ", result)
 	return result
+}
+
+func (D *DRIVE) moveHead(offset int) {
+	if D.trackStart[D.halftrack] > 0 {
+		D.prevHalfTrack = D.halftrack
+	}
+	D.halftrack += offset
+	if D.halftrack < 0 || D.halftrack > 68 {
+		if D.halftrack < 0 {
+			D.halftrack = 0
+		} else if D.halftrack > 68 {
+			D.halftrack = 68
+		}
+	}
+	// log.Printf("track=%0.1f\n", float64(D.halftrack)/2)
+	// Adjust new track location based on arm position relative to old track loc.
+	if D.trackStart[D.halftrack] > 0 && D.prevHalfTrack != D.halftrack {
+		// oldloc := D.trackLocation
+		D.trackLocation = uint32(math.Floor(float64(D.trackLocation * (D.trackNbits[D.halftrack] / D.trackNbits[D.prevHalfTrack]))))
+		if D.trackLocation > 3 {
+			D.trackLocation -= 4
+		}
+		// log.Printf("track=%d %d %d %d %d", D.halftrack, oldloc, D.trackLocation, D.trackNbits[D.halftrack], D.trackNbits[D.prevHalfTrack])
+	}
+	// log.Printf("HalfTrack: %0.1f", float64(D.halftrack)/2)
 }
 
 func (D *DRIVE) SetPhase(phase int, state bool) {

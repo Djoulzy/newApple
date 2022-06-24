@@ -10,11 +10,11 @@ pprint(wz.to_json())
 # for i in tr.nibble():
 #     pprint(i)
 
-tr = wz.seek(34)
-for x in range(10):
-    print(next(tr.nibble()))
-
 tr = wz.seek(0)
+for x in range(25000):
+    next(tr.nibble())
+
+tr = wz.seek(3)
 for x in range(10):
     print(next(tr.nibble()))
 
