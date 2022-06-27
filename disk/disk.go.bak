@@ -235,10 +235,11 @@ func (D *DRIVE) decodeDiskData(fileName string) {
 				D.trackStart[htrack] = 256 + uint32(tmap_index)*6656
 				trk := D.diskData[D.trackStart[htrack]+6646 : D.trackStart[htrack]+6656]
 				D.trackNbits[htrack] = uint32(trk[2]) + (uint32(trk[3]) << 8)
+				log.Printf("Data track %d\n", htrack/2)
 			} else {
 				D.trackStart[htrack] = 0
 				D.trackNbits[htrack] = 51200
-				// log.Printf("empty woz1 track %d\n", htrack/2)
+				log.Printf("empty woz1 track %d\n", htrack/2)
 			}
 		}
 		return
