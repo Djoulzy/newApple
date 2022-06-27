@@ -42,10 +42,11 @@ func (C *io_access) diskMotorsOFF() byte {
 	return 171
 }
 
+// Select drive 0 or 1
 func (C *io_access) driveSelect(driveNum int) byte {
 	var retVal byte = 0
 
-	if driveNum == 0 {
+	if C.connectedDrive == 0 {
 		retVal = 0x80
 	}
 	if driveNum == SelectedDrive {
@@ -57,9 +58,12 @@ func (C *io_access) driveSelect(driveNum int) byte {
 		}
 		if driveNum+1 <= C.connectedDrive {
 			C.Disks[driveNum].StartMotor()
+			SelectedDrive = driveNum
+		} else {
+			SelectedDrive = -1
 		}
 	}
-	SelectedDrive = driveNum
+
 	return retVal
 }
 
@@ -76,13 +80,15 @@ func (C *io_access) SetSequencerMode(mode bool) byte {
 
 func (C *io_access) ShiftOrRead() byte {
 	if SequencerMode == SEQ_READ_MODE {
-		if C.Disks[SelectedDrive].IsRunning {
-			tmp := C.Disks[SelectedDrive].GetNextByte()
-			// clog.Debug("IO", "disk", "Read : %02X\n", tmp)
-			// fmt.Printf("%02X ", tmp)
-			// clog.FileRaw("\n%s : => READ DATA => %02X [%04X]", time.Now().Format("15:04:05"), tmp, cpu.InstStart)
-			clog.FileRaw("\n%s", cpu.FullDebug)
-			return tmp
+		if SelectedDrive != -1 {
+			if C.Disks[SelectedDrive].IsRunning {
+				tmp := C.Disks[SelectedDrive].GetNextByte()
+				// clog.Debug("IO", "disk", "Read : %02X\n", tmp)
+				// fmt.Printf("%02X ", tmp)
+				// clog.FileRaw("\n%s : => READ DATA => %02X [%04X]", time.Now().Format("15:04:05"), tmp, cpu.InstStart)
+				clog.FileRaw("\n%s", cpu.FullDebug)
+				return tmp
+			}
 		}
 		return 0x00
 	} else {
@@ -93,13 +99,15 @@ func (C *io_access) ShiftOrRead() byte {
 
 func (C *io_access) LoadOrCheck() byte {
 	// if SequencerMode == SEQ_READ_MODE {
-	if C.Disks[SelectedDrive].IsWriteProtected {
-		// log.Printf("Disk is Write Protected: %04X", cpu.InstStart)
-		ProtectCheck = 0x80
-		log.Printf("Protection Check = %02X (%04X)", ProtectCheck, cpu.InstStart)
-	} else {
-		log.Printf("Disk is Writable")
-		ProtectCheck = 0
+	if SelectedDrive != -1 {
+		if C.Disks[SelectedDrive].IsWriteProtected {
+			// log.Printf("Disk is Write Protected: %04X", cpu.InstStart)
+			ProtectCheck = 0x80
+			log.Printf("Protection Check = %02X (%04X)", ProtectCheck, cpu.InstStart)
+		} else {
+			log.Printf("Disk is Writable")
+			ProtectCheck = 0
+		}
 	}
 	// Load sequencer
 

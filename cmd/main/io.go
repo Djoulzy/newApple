@@ -105,6 +105,10 @@ func InitIO(d1 *disk.DRIVE, d2 *disk.DRIVE, vid *crtc.CRTC) *io_access {
 	tmp := io_access{}
 	tmp.Video = vid
 	tmp.connectedDrive = 0
+	if d1 == nil && d2 != nil {
+		d1 = d2
+		d2 = nil
+	}
 	if d1 != nil {
 		tmp.Disks[0] = d1
 		tmp.connectedDrive++

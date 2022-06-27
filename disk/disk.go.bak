@@ -231,7 +231,7 @@ func (D *DRIVE) decodeDiskData(fileName string) {
 		D.IsWriteProtected = D.diskData[22] == 1
 		for htrack := 0; htrack < 80; htrack++ {
 			tmap_index := int(D.diskData[88+htrack*2])
-			if tmap_index < 255 {
+			if tmap_index < 0xFF {
 				D.trackStart[htrack] = 256 + uint32(tmap_index)*6656
 				trk := D.diskData[D.trackStart[htrack]+6646 : D.trackStart[htrack]+6656]
 				D.trackNbits[htrack] = uint32(trk[2]) + (uint32(trk[3]) << 8)
