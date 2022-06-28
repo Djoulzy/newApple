@@ -1,43 +1,62 @@
 package disk
 
 import (
+	"encoding/json"
 	"fmt"
-	"hash/crc32"
-	"io/ioutil"
 	"log"
-	"math"
-	"math/rand"
-	"os"
+	woz "newApple/goWoz"
+	"strconv"
 	"time"
 
 	"github.com/Djoulzy/emutools/mos6510"
 )
 
-var count int = 0
-var wheel []byte = []byte{'-', '\\', '|', '/'}
+var MotorIsOn bool = false
+
+type WozInfo struct {
+	Version            int      `json:"version"`
+	WriteProtected     bool     `json:"write_protected"`
+	RequireRam         int      `json:"requires_ram"`
+	CompatibleHardware []string `json:"compatible_hardware"`
+}
+
+type WozMeta struct {
+	Side            string   `json:"side"`
+	Version         string   `json:"version"`
+	Subtitle        string   `json:"subtitle"`
+	Language        string   `json:"language"`
+	Title           string   `json:"title"`
+	Publisher       string   `json:"publisher"`
+	RequireRam      string   `json:"requires_ram"`
+	Copyright       string   `json:"copyright"`
+	RequiresMachine []string `json:"requires_machine"`
+	Genre           string   `json:"genre"`
+	SideName        string   `json:"side_name"`
+}
+
+type WozDisk struct {
+	Info WozInfo `json:"info"`
+	Meta WozMeta `json:"meta"`
+}
+
+type WOZ struct {
+	Disk WozDisk `json:"woz"`
+}
 
 type DRIVE struct {
 	motorPhases      [4]bool
 	IsWriteProtected bool
 	IsRunning        bool
-	ReadMode         bool
+	wozImage         *woz.Disk
+	wozTrack         *woz.Track
+	WOZ              WOZ
 
-	prevHalfTrack  int
-	halftrack      int
-	trackLocation  uint32
-	trackStart     []uint32
-	trackNbits     []uint32
-	diskData       []byte
+	halftrack      float64
 	currentPhase   int
-	direction      int
 	diskHasChanges bool
 
 	cpu *mos6510.CPU
 }
-
-var MotorIsOn bool = false
-var pickbit = []byte{128, 64, 32, 16, 8, 4, 2, 1}
-var crcTable *crc32.Table
 
 func Attach(cpu *mos6510.CPU) *DRIVE {
 	drive := DRIVE{}
@@ -45,36 +64,20 @@ func Attach(cpu *mos6510.CPU) *DRIVE {
 
 	drive.currentPhase = 0
 	drive.motorPhases = [4]bool{false, false, false, false}
-	drive.direction = 0
-	drive.trackStart = make([]uint32, 80)
-	drive.trackNbits = make([]uint32, 80)
-	drive.prevHalfTrack = 0
 	drive.halftrack = 0
 	drive.IsWriteProtected = false
-	drive.ReadMode = true
+	drive.wozTrack = nil
 
-	crcTable = crc32.MakeTable(0xEDB88320)
 	return &drive
 }
 
 func (D *DRIVE) LoadDiskImage(fileName string) {
-	var i int64
-	fi, err := os.Stat(fileName)
-	if err != nil {
+	D.wozImage = woz.NewWozDisk(fileName)
+	if err := json.Unmarshal(D.wozImage.Dump(), &D.WOZ); err != nil {
 		panic(err)
 	}
-	size := fi.Size()
-
-	D.diskData = make([]byte, size)
-
-	data, err := ioutil.ReadFile(fileName)
-	if err != nil {
-		panic(err)
-	}
-	for i = 0; i < size; i++ {
-		D.diskData[i] = byte(data[i])
-	}
-	D.decodeDiskData(fileName)
+	D.DumpMeta()
+	D.IsWriteProtected = D.WOZ.Disk.Info.WriteProtected
 }
 
 func (D *DRIVE) StartMotor() {
@@ -85,7 +88,6 @@ func (D *DRIVE) motorStopDelay() {
 	time.Sleep(time.Millisecond * 1000)
 	if !MotorIsOn {
 		D.IsRunning = false
-		// clog.FileRaw("\nMOTO IS OFF")
 	}
 }
 
@@ -93,160 +95,57 @@ func (D *DRIVE) StopMotor() {
 	go D.motorStopDelay()
 }
 
-func (D *DRIVE) getNextBit() byte {
-	var bit byte
-	D.trackLocation = D.trackLocation % D.trackNbits[D.halftrack]
-	if D.trackStart[D.halftrack] > 0 {
-		fileOffset := D.trackStart[D.halftrack] + (D.trackLocation >> 3)
-		byteRead := D.diskData[fileOffset]
-		b := D.trackLocation & 7
-		bit = (byteRead & pickbit[b]) >> (7 - b)
-	} else {
-		// TODO: Freak out like a MC3470 and return random bits
-		bit = byte(rand.Intn(2))
-		log.Printf("Fake bit: %02X", bit)
-		// bit = 0
-	}
-	D.trackLocation++
-	return bit
-}
-
-var JulesCpt int = 0
-var JulesTmp int = 0
-
-func (D *DRIVE) GetNextByte() byte {
-	var bit, result byte
-
-	result = 0
-	for bit = 0; bit == 0; bit = D.getNextBit() {
-	}
-	result = 0x80 // the bit we just retrieved is the high bit
-	for i := 6; i >= 0; i-- {
-		result |= D.getNextBit() << i
-	}
-
-	fmt.Printf("%c T:%02.02f Pos:%d\r", wheel[count], float64(D.halftrack)/2, D.trackLocation)
-	count++
-	if count >= len(wheel) {
-		count = 0
-	}
-	return result
-}
-
 func (D *DRIVE) moveHead(offset int) {
-	if D.trackStart[D.halftrack] > 0 {
-		D.prevHalfTrack = D.halftrack
-	}
-	D.halftrack += offset
-	if D.halftrack < 0 || D.halftrack > 68 {
+	if offset < 0 {
+		D.halftrack -= 0.5
 		if D.halftrack < 0 {
 			D.halftrack = 0
-		} else if D.halftrack > 68 {
+		}
+	} else {
+		D.halftrack += 0.5
+		if D.halftrack > 68 {
 			D.halftrack = 68
 		}
 	}
-	// log.Printf("track=%0.1f\n", float64(D.halftrack)/2)
-	// Adjust new track location based on arm position relative to old track loc.
-	if D.trackStart[D.halftrack] > 0 && D.prevHalfTrack != D.halftrack {
-		// oldloc := D.trackLocation
-		D.trackLocation = uint32(math.Floor(float64(D.trackLocation * (D.trackNbits[D.halftrack] / D.trackNbits[D.prevHalfTrack]))))
-		if D.trackLocation > 3 {
-			D.trackLocation -= 4
-		}
-		// log.Printf("track=%d %d %d %d %d", D.halftrack, oldloc, D.trackLocation, D.trackNbits[D.halftrack], D.trackNbits[D.prevHalfTrack])
+	// clog.FileRaw("\nHalfTrack: %0.1f", D.halftrack)
+	fmt.Printf("HalfTrack: %v\n", D.halftrack)
+	D.wozTrack = D.wozImage.Seek(D.halftrack)
+}
+
+func (D *DRIVE) GetNextByte() byte {
+	if D.wozTrack != nil {
+		return byte(D.wozTrack.Nibble())
+	} else {
+		return 0
 	}
-	fmt.Printf("\nMove to T:%02.02f at pos %d\n", float64(D.halftrack)/2, D.trackLocation)
 }
 
 func (D *DRIVE) SetPhase(phase int, state bool) {
-	// var debug string
-	D.motorPhases[phase] = state
-
-	ascend := D.motorPhases[(D.currentPhase+1)%4]
-	descend := D.motorPhases[(D.currentPhase+3)%4]
-	if !D.motorPhases[D.currentPhase] {
-		if D.IsRunning && ascend {
-			D.moveHead(1)
-			// clog.FileRaw("\nMove Head UP")
-			D.currentPhase = (D.currentPhase + 1) % 4
-			// debug = fmt.Sprintf(" currPhase= %d track= %0.1f", D.currentPhase, float64(D.halftrack)/2)
-
-		} else if D.IsRunning && descend {
-			D.moveHead(-1)
-			// clog.FileRaw("\nMove Head DOWN")
-			D.currentPhase = (D.currentPhase + 3) % 4
-			// debug = fmt.Sprintf(" currPhase= %d track= %0.1f", D.currentPhase, float64(D.halftrack)/2)
-		}
-		// log.Printf("***** %s", debug)
-	}
-}
-
-func (D *DRIVE) detectFormat(header []byte) bool {
-	for i := 0; i < len(header); i++ {
-		if D.diskData[i] != header[i] {
-			return false
-		}
-	}
-	return true
-}
-
-func get_crc32(data []byte, offset int) uint32 {
-	crc := 0 ^ ^uint32(0)
-	for i := offset; i < len(data); i++ {
-		crc = crcTable[(crc^uint32(data[i]))&0xFF] ^ (crc >> 8)
-	}
-	return crc ^ ^uint32(0)
-}
-
-func (D *DRIVE) decodeDiskData(fileName string) {
-	woz2 := []byte{0x57, 0x4F, 0x5A, 0x32, 0xFF, 0x0A, 0x0D, 0x0A}
-	woz1 := []byte{0x57, 0x4F, 0x5A, 0x31, 0xFF, 0x0A, 0x0D, 0x0A}
-
-	D.diskHasChanges = false
-	if D.detectFormat(woz2) {
-		log.Println("WOZ-2 Disk detected")
-		// D.IsWriteProtected = D.diskData[22] == 1
-		D.IsWriteProtected = true
-		crc := D.diskData[8:12]
-		storedCRC := uint32(crc[0]) + (uint32(crc[1]) << 8) + (uint32(crc[2]) << 16) + uint32(crc[3])*uint32(math.Pow(2, 24))
-		actualCRC := get_crc32(D.diskData, 12)
-		if (storedCRC != 0) && (storedCRC != actualCRC) {
-			log.Printf("CRC checksum error: %s (stored: %X - calculated: %X)\n", fileName, storedCRC, actualCRC)
-		}
-		for htrack := 0; htrack < 80; htrack++ {
-			tmap_index := uint32(D.diskData[88+htrack*2])
-			if tmap_index < 255 {
-				tmap_offset := 256 + 8*tmap_index
-				trk := D.diskData[tmap_offset : tmap_offset+8]
-				D.trackStart[htrack] = 512 * (uint32(trk[0]) + (uint32(trk[1]) << 8))
-				// const nBlocks = trk[2] + (trk[3] << 8)
-				D.trackNbits[htrack] = uint32(trk[4]) + uint32(trk[5])<<8 + uint32(trk[6])<<16 + uint32(trk[7])*uint32(math.Pow(2, 24))
-			} else {
-				D.trackStart[htrack] = 0
-				D.trackNbits[htrack] = 51200
-				// log.Printf("empty woz2 track %d\n", htrack/2)
-			}
-		}
+	if state == false {
 		return
 	}
-
-	if D.detectFormat(woz1) {
-		log.Println("WOZ-1 Disk detected")
-		D.IsWriteProtected = D.diskData[22] == 1
-		for htrack := 0; htrack < 80; htrack++ {
-			tmap_index := int(D.diskData[88+htrack*2])
-			if tmap_index < 0xFF {
-				D.trackStart[htrack] = 256 + uint32(tmap_index)*6656
-				trk := D.diskData[D.trackStart[htrack]+6646 : D.trackStart[htrack]+6656]
-				D.trackNbits[htrack] = uint32(trk[2]) + (uint32(trk[3]) << 8)
-				log.Printf("Data track %d\n", htrack/2)
-			} else {
-				D.trackStart[htrack] = 0
-				D.trackNbits[htrack] = 51200
-				log.Printf("empty woz1 track %d\n", htrack/2)
-			}
-		}
+	if phase == 3 && D.currentPhase == 0 {
+		D.moveHead(-1)
+		D.currentPhase = phase
 		return
 	}
-	log.Printf("Unknown disk format.\n")
+	if phase == 0 && D.currentPhase == 3 {
+		D.moveHead(1)
+		D.currentPhase = phase
+		return
+	}
+	if phase > D.currentPhase {
+		D.moveHead(1)
+		D.currentPhase = phase
+		return
+	}
+	if phase < D.currentPhase {
+		D.moveHead(-1)
+		D.currentPhase = phase
+		return
+	}
+}
+
+func (D *DRIVE) DumpMeta() {
+	log.Printf("WOZ Disk Meta:\n-- Title: %s (%s)\n-- Write Protected: %s", D.WOZ.Disk.Meta.Title, D.WOZ.Disk.Meta.Subtitle, strconv.FormatBool(D.WOZ.Disk.Info.WriteProtected))
 }

@@ -84,7 +84,7 @@ func (C *io_access) ShiftOrRead() byte {
 			if C.Disks[SelectedDrive].IsRunning {
 				tmp := C.Disks[SelectedDrive].GetNextByte()
 				// clog.Debug("IO", "disk", "Read : %02X\n", tmp)
-				// fmt.Printf("%02X ", tmp)
+				fmt.Printf("%02X\n", tmp)
 				// clog.FileRaw("\n%s : => READ DATA => %02X [%04X]", time.Now().Format("15:04:05"), tmp, cpu.InstStart)
 				clog.FileRaw("\n%s", cpu.FullDebug)
 				return tmp
