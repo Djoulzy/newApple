@@ -1,6 +1,7 @@
 package woz
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/DataDog/go-python3"
@@ -50,4 +51,14 @@ func (W *Disk) Seek(num float64) *Track {
 
 func (W *Disk) Dump() []byte {
 	return []byte(python3.PyBytes_AsString(W.pyRef.CallMethodArgs("to_json", nil)))
+}
+
+func (W *Disk) ReadTrack(track float64, nbBytes int) {
+	var val int
+
+	DataTrack := W.Seek(track)
+	for i := 0; i < nbBytes; i++ {
+		val = DataTrack.Nibble()
+		fmt.Printf("%02X ", val)
+	}
 }

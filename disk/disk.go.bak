@@ -108,6 +108,7 @@ func (D *DRIVE) getNextBit() byte {
 		// bit = 0
 	}
 	D.trackLocation++
+	fmt.Printf("%1b", bit)
 	return bit
 }
 
@@ -249,4 +250,30 @@ func (D *DRIVE) decodeDiskData(fileName string) {
 		return
 	}
 	log.Printf("Unknown disk format.\n")
+}
+
+func (D *DRIVE) ReadTrack(num float64, nbBytes int) {
+	var val byte
+
+	D.halftrack = int(num)
+	for i := 1; i <= nbBytes; i++ {
+		val = D.GetNextByte()
+		fmt.Printf(" = %02X\n", val)
+		// if i%32 == 0 {
+		// 	fmt.Printf("\n")
+		// }
+	}
+}
+
+func (D *DRIVE) ReadTrackRaw(num float64, nbBits int) {
+	var val byte
+
+	D.halftrack = int(num)
+	for i := 1; i <= nbBits; i++ {
+		val = D.getNextBit()
+		fmt.Printf("%1b", val)
+		if i%160 == 0 {
+			fmt.Printf("\n")
+		}
+	}
 }

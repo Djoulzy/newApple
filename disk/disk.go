@@ -1,57 +1,23 @@
 package disk
 
 import (
-	"encoding/json"
-	"fmt"
 	"log"
-	woz "newApple/goWoz"
-	"strconv"
 	"time"
 
+	"github.com/Djoulzy/gowoz"
+
+	"github.com/Djoulzy/Tools/clog"
 	"github.com/Djoulzy/emutools/mos6510"
 )
 
 var MotorIsOn bool = false
 
-type WozInfo struct {
-	Version            int      `json:"version"`
-	WriteProtected     bool     `json:"write_protected"`
-	RequireRam         int      `json:"requires_ram"`
-	CompatibleHardware []string `json:"compatible_hardware"`
-}
-
-type WozMeta struct {
-	Side            string   `json:"side"`
-	Version         string   `json:"version"`
-	Subtitle        string   `json:"subtitle"`
-	Language        string   `json:"language"`
-	Title           string   `json:"title"`
-	Publisher       string   `json:"publisher"`
-	RequireRam      string   `json:"requires_ram"`
-	Copyright       string   `json:"copyright"`
-	RequiresMachine []string `json:"requires_machine"`
-	Genre           string   `json:"genre"`
-	SideName        string   `json:"side_name"`
-}
-
-type WozDisk struct {
-	Info WozInfo `json:"info"`
-	Meta WozMeta `json:"meta"`
-}
-
-type WOZ struct {
-	Disk WozDisk `json:"woz"`
-}
-
 type DRIVE struct {
 	motorPhases      [4]bool
 	IsWriteProtected bool
 	IsRunning        bool
-	wozImage         *woz.Disk
-	wozTrack         *woz.Track
-	WOZ              WOZ
+	wozImage         *gowoz.WOZFileFormat
 
-	halftrack      float64
 	currentPhase   int
 	diskHasChanges bool
 
@@ -64,20 +30,21 @@ func Attach(cpu *mos6510.CPU) *DRIVE {
 
 	drive.currentPhase = 0
 	drive.motorPhases = [4]bool{false, false, false, false}
-	drive.halftrack = 0
 	drive.IsWriteProtected = false
-	drive.wozTrack = nil
 
 	return &drive
 }
 
 func (D *DRIVE) LoadDiskImage(fileName string) {
-	D.wozImage = woz.NewWozDisk(fileName)
-	if err := json.Unmarshal(D.wozImage.Dump(), &D.WOZ); err != nil {
+	var err error
+
+	D.wozImage, err = gowoz.InitWozFile(fileName)
+	if err != nil {
 		panic(err)
 	}
-	D.DumpMeta()
-	D.IsWriteProtected = D.WOZ.Disk.Info.WriteProtected
+	D.wozImage.Dump(false)
+
+	D.IsWriteProtected = D.wozImage.INFO.WriteProtected == 1
 }
 
 func (D *DRIVE) StartMotor() {
@@ -95,57 +62,41 @@ func (D *DRIVE) StopMotor() {
 	go D.motorStopDelay()
 }
 
-func (D *DRIVE) moveHead(offset int) {
-	if offset < 0 {
-		D.halftrack -= 0.5
-		if D.halftrack < 0 {
-			D.halftrack = 0
-		}
-	} else {
-		D.halftrack += 0.5
-		if D.halftrack > 68 {
-			D.halftrack = 68
-		}
-	}
-	// clog.FileRaw("\nHalfTrack: %0.1f", D.halftrack)
-	fmt.Printf("HalfTrack: %v\n", D.halftrack)
-	D.wozTrack = D.wozImage.Seek(D.halftrack)
-}
-
 func (D *DRIVE) GetNextByte() byte {
-	if D.wozTrack != nil {
-		return byte(D.wozTrack.Nibble())
-	} else {
-		return 0
-	}
+	return D.wozImage.GetNextByte()
 }
 
 func (D *DRIVE) SetPhase(phase int, state bool) {
+	// fmt.Printf("Set Phase %d - State: %v\n", phase, state)
 	if state == false {
 		return
 	}
 	if phase == 3 && D.currentPhase == 0 {
-		D.moveHead(-1)
+		clog.FileRaw("\nMove Head DOWN")
+		D.wozImage.Seek(-0.5)
 		D.currentPhase = phase
 		return
 	}
 	if phase == 0 && D.currentPhase == 3 {
-		D.moveHead(1)
+		clog.FileRaw("\nMove Head UP")
+		D.wozImage.Seek(0.5)
 		D.currentPhase = phase
 		return
 	}
 	if phase > D.currentPhase {
-		D.moveHead(1)
+		clog.FileRaw("\nMove Head UP")
+		D.wozImage.Seek(0.5)
 		D.currentPhase = phase
 		return
 	}
 	if phase < D.currentPhase {
-		D.moveHead(-1)
+		clog.FileRaw("\nMove Head DOWN")
+		D.wozImage.Seek(-0.5)
 		D.currentPhase = phase
 		return
 	}
 }
 
 func (D *DRIVE) DumpMeta() {
-	log.Printf("WOZ Disk Meta:\n-- Title: %s (%s)\n-- Write Protected: %s", D.WOZ.Disk.Meta.Title, D.WOZ.Disk.Meta.Subtitle, strconv.FormatBool(D.WOZ.Disk.Info.WriteProtected))
+	log.Printf("%s", D.wozImage.META.Metadata)
 }
