@@ -125,7 +125,7 @@ func setup() {
 	woz.SetupLib()
 
 	Disk1 := disk.Attach(&cpu)
-	// Disk2 := disk.Attach(&cpu)
+	Disk2 := disk.Attach(&cpu)
 
 	// Disk1.LoadDiskImage("imgTest/LodeRunner.woz")
 	// Disk1.LoadDiskImage("imgTest/DOS33.woz")
@@ -140,20 +140,24 @@ func setup() {
 
 	// Disk1.LoadDiskImage("imgTest/anti-m.woz")
 	// Disk2.LoadDiskImage("imgTest/Choplifter.woz")
-	// Disk1.LoadDiskImage("imgTest/chop.woz")
+	Disk1.LoadDiskImage("imgTest/Choplifter.woz")
 
 	// Disk1.LoadDiskImage("imgTest/Wizardry_boot.woz")
 	// Disk1.LoadDiskImage("imgTest/Wizardry_Cracked.woz")
 
 	// Disk1.LoadDiskImage("imgTest/CompInsp.woz")
-	Disk1.LoadDiskImage("imgTest/Conan_A.woz")
+	// Disk1.LoadDiskImage("imgTest/Conan_A.woz")
 	// Disk1.LoadDiskImage("imgTest/CapGood_A.woz")
 
 	// Disk1.LoadDiskImage("imgTest/Akalabeth.woz")
 	// Disk1.LoadDiskImage("imgTest/vierge.woz")
 
-	IOAccess = InitIO(Disk1, nil, &CRTC)
+	IOAccess = InitIO(Disk1, Disk2, &CRTC)
 
+	// Disk1.ReadTrack(0, 6675)
+	// Disk1.ReadTrackRaw(0, 53404)
+
+	// panic(1)
 	if MODEL == 1 {
 		apple2_Roms()
 	} else {

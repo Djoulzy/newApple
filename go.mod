@@ -9,6 +9,7 @@ require (
 	github.com/Djoulzy/emutools/mem v0.0.0-20220624083055-f5d43f4b7324
 	github.com/Djoulzy/emutools/mos6510 v0.0.0-20220624083055-f5d43f4b7324
 	github.com/Djoulzy/emutools/render v0.0.0-20220624083055-f5d43f4b7324
+	github.com/Djoulzy/gowoz v0.0.0-20220629153954-dac6c727a13d
 	github.com/mattn/go-tty v0.0.4
 )
 
@@ -29,8 +30,8 @@ require (
 
 replace (
 	github.com/Djoulzy/Tools/clog v0.0.0-20220429054701-4c221b41ecdf => ../github.com/Djoulzy/Tools/clog
-	github.com/Djoulzy/emutools/mem v0.0.0-20220620100952-42aec5b63f5b => ../github.com/Djoulzy/emutools/mem
-	github.com/Djoulzy/emutools/mos6510 v0.0.0-20220620100952-42aec5b63f5b => ../github.com/Djoulzy/emutools/mos6510
-	github.com/Djoulzy/emutools/render v0.0.0-20220620100952-42aec5b63f5b => ../github.com/Djoulzy/emutools/render
-	github.com/Djoulzy/gowoz v0.0.0-20220627095023-e204411ffbc4 => ../github.com/Djoulzy/gowoz
+	github.com/Djoulzy/emutools/mem v0.0.0-20220624083055-f5d43f4b7324 => ../github.com/Djoulzy/emutools/mem
+	github.com/Djoulzy/emutools/mos6510 v0.0.0-20220624083055-f5d43f4b7324 => ../github.com/Djoulzy/emutools/mos6510
+	github.com/Djoulzy/emutools/render v0.0.0-20220624083055-f5d43f4b7324 => ../github.com/Djoulzy/emutools/render
+	github.com/Djoulzy/gowoz v0.0.0-20220629153954-dac6c727a13d => ../github.com/Djoulzy/gowoz
 )
