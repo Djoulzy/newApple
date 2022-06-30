@@ -140,7 +140,7 @@ func setup() {
 
 	// Disk1.LoadDiskImage("imgTest/anti-m.woz")
 	// Disk2.LoadDiskImage("imgTest/Choplifter.woz")
-	Disk1.LoadDiskImage("imgTest/Choplifter.woz")
+	Disk1.LoadDiskImage("imgTest/Dos33.dsk")
 
 	// Disk1.LoadDiskImage("imgTest/Wizardry_boot.woz")
 	// Disk1.LoadDiskImage("imgTest/Wizardry_Cracked.woz")

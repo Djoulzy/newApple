@@ -2,8 +2,10 @@ package disk
 
 import (
 	"log"
+	"path/filepath"
 	"time"
 
+	"github.com/Djoulzy/godsk"
 	"github.com/Djoulzy/gowoz"
 
 	"github.com/Djoulzy/Tools/clog"
@@ -12,11 +14,19 @@ import (
 
 var MotorIsOn bool = false
 
+type DiskImage interface {
+	IsWriteProtected() bool
+	GetNextByte() byte
+	Seek(float32)
+	GetMeta() map[string]string
+	Dump(bool)
+}
+
 type DRIVE struct {
 	motorPhases      [4]bool
 	IsWriteProtected bool
 	IsRunning        bool
-	wozImage         *gowoz.WOZFileFormat
+	diskImage        DiskImage
 
 	currentPhase   int
 	diskHasChanges bool
@@ -38,13 +48,22 @@ func Attach(cpu *mos6510.CPU) *DRIVE {
 func (D *DRIVE) LoadDiskImage(fileName string) {
 	var err error
 
-	D.wozImage, err = gowoz.InitWozFile(fileName)
+	ext := filepath.Ext(fileName)
+	switch ext {
+	case ".woz":
+		D.diskImage, err = gowoz.InitContainer(fileName)
+	case ".dsk":
+		D.diskImage, err = godsk.InitContainer(fileName)
+	default:
+		panic("Unknown image disk format")
+	}
+
 	if err != nil {
 		panic(err)
 	}
-	D.wozImage.Dump(false)
+	D.diskImage.Dump(false)
 
-	D.IsWriteProtected = D.wozImage.INFO.WriteProtected == 1
+	D.IsWriteProtected = D.diskImage.IsWriteProtected()
 }
 
 func (D *DRIVE) StartMotor() {
@@ -63,7 +82,7 @@ func (D *DRIVE) StopMotor() {
 }
 
 func (D *DRIVE) GetNextByte() byte {
-	return D.wozImage.GetNextByte()
+	return D.diskImage.GetNextByte()
 }
 
 func (D *DRIVE) SetPhase(phase int, state bool) {
@@ -73,30 +92,30 @@ func (D *DRIVE) SetPhase(phase int, state bool) {
 	}
 	if phase == 3 && D.currentPhase == 0 {
 		clog.FileRaw("\nMove Head DOWN")
-		D.wozImage.Seek(-0.5)
+		D.diskImage.Seek(-0.5)
 		D.currentPhase = phase
 		return
 	}
 	if phase == 0 && D.currentPhase == 3 {
 		clog.FileRaw("\nMove Head UP")
-		D.wozImage.Seek(0.5)
+		D.diskImage.Seek(0.5)
 		D.currentPhase = phase
 		return
 	}
 	if phase > D.currentPhase {
 		clog.FileRaw("\nMove Head UP")
-		D.wozImage.Seek(0.5)
+		D.diskImage.Seek(0.5)
 		D.currentPhase = phase
 		return
 	}
 	if phase < D.currentPhase {
 		clog.FileRaw("\nMove Head DOWN")
-		D.wozImage.Seek(-0.5)
+		D.diskImage.Seek(-0.5)
 		D.currentPhase = phase
 		return
 	}
 }
 
 func (D *DRIVE) DumpMeta() {
-	log.Printf("%s", D.wozImage.META.Metadata)
+	log.Printf("%s", D.diskImage.GetMeta())
 }
