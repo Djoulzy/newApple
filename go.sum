@@ -6,8 +6,8 @@ github.com/Djoulzy/Tools/confload v0.0.0-20220609190146-71af779f6ddc h1:0bKH2dFr
 github.com/Djoulzy/Tools/confload v0.0.0-20220609190146-71af779f6ddc/go.mod h1:V1tjgiskN5pmqi06uqzCKXj6NoH9J+rLb6gccUOPh7A=
 github.com/Djoulzy/emutools/charset v0.0.0-20220624083055-f5d43f4b7324 h1:GcHW+RUIrdbfrJDZHHzjGlKRcdZ+5GkFOGPiDD2uHCw=
 github.com/Djoulzy/emutools/charset v0.0.0-20220624083055-f5d43f4b7324/go.mod h1:nHh/Oz8MYyMM1G6/QcjV+m/5fmzwHNLDom7PrgBqsQo=
-github.com/Djoulzy/godsk v0.0.0-20220629182547-bb2c0ebbe5e2 h1:IHOCf50ZXFZ5mIMHut6gE96jXHN5Qr6ZhkdXHeOW/IM=
-github.com/Djoulzy/godsk v0.0.0-20220629182547-bb2c0ebbe5e2/go.mod h1:10/hsbqcvhLksHN8y8hYIQuUTrf+FYgDLYWmBqAX84E=
+github.com/Djoulzy/gowoz v0.0.0-20220629200353-a062a281115e h1:bSAmvDth64wJmeTHTr724HpDnbkX0V8q8d+U+b2gHOk=
+github.com/Djoulzy/gowoz v0.0.0-20220629200353-a062a281115e/go.mod h1:n6vfymw/Sy9104Hjcdvh5BP3vHw61aC6ub4BiANpRvc=
 github.com/albenik/bcd v0.0.0-20170831201648-635201416bc7 h1:m3Ayfs5OcAlIMEdLIQKubBsVLGee4YMUr14+d1256WE=
 github.com/albenik/bcd v0.0.0-20170831201648-635201416bc7/go.mod h1:QIAMbrwsnQZ2ES3G26RubSrDB5SPyzsp9Hts5NJdTrI=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=

@@ -20,6 +20,8 @@ type DiskImage interface {
 	Seek(float32)
 	GetMeta() map[string]string
 	Dump(bool)
+	DumpTrack(float32)
+	DumpTrackRaw(float32)
 }
 
 type DRIVE struct {
@@ -118,4 +120,8 @@ func (D *DRIVE) SetPhase(phase int, state bool) {
 
 func (D *DRIVE) DumpMeta() {
 	log.Printf("%s", D.diskImage.GetMeta())
+}
+
+func (D *DRIVE) DumpTrack(trk float32) {
+	D.diskImage.DumpTrack(trk)
 }
