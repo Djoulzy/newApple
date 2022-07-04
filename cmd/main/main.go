@@ -7,7 +7,6 @@ import (
 	"newApple/config"
 	"newApple/crtc"
 	"newApple/disk"
-	woz "newApple/goWoz"
 	"os"
 	"reflect"
 	"runtime"
@@ -122,7 +121,7 @@ func setup() {
 	SLOT7 = make([]byte, slot_roms)
 	mem.Clear(SLOT7, 0, 0x71)
 
-	woz.SetupLib()
+	// woz.SetupLib()
 
 	Disk1 := disk.Attach(&cpu)
 	Disk2 := disk.Attach(&cpu)
@@ -154,8 +153,9 @@ func setup() {
 
 	IOAccess = InitIO(Disk1, Disk2, &CRTC)
 
-	// Disk1.ReadTrack(0, 6675)
+	Disk1.DumpTrack(0)
 	// Disk1.ReadTrackRaw(0, 53404)
+	Disk1.Dump(true)
 
 	// panic(1)
 	if MODEL == 1 {

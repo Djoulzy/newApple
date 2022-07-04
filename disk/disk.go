@@ -20,6 +20,7 @@ type DiskImage interface {
 	Seek(float32)
 	GetMeta() map[string]string
 	Dump(bool)
+	DumpTrack(float32)
 }
 
 type DRIVE struct {
@@ -61,7 +62,6 @@ func (D *DRIVE) LoadDiskImage(fileName string) {
 	if err != nil {
 		panic(err)
 	}
-	D.diskImage.Dump(false)
 
 	D.IsWriteProtected = D.diskImage.IsWriteProtected()
 }
@@ -116,6 +116,14 @@ func (D *DRIVE) SetPhase(phase int, state bool) {
 	}
 }
 
+func (D *DRIVE) Dump(full bool) {
+	D.diskImage.Dump(full)
+}
+
 func (D *DRIVE) DumpMeta() {
 	log.Printf("%s", D.diskImage.GetMeta())
+}
+
+func (D *DRIVE) DumpTrack(track float32) {
+	D.diskImage.DumpTrack(track)
 }
