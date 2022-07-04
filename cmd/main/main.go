@@ -124,7 +124,7 @@ func setup() {
 	// woz.SetupLib()
 
 	Disk1 := disk.Attach(&cpu)
-	Disk2 := disk.Attach(&cpu)
+	// Disk2 := disk.Attach(&cpu)
 
 	// Disk1.LoadDiskImage("imgTest/LodeRunner.woz")
 	// Disk1.LoadDiskImage("imgTest/DOS33.woz")
@@ -139,7 +139,9 @@ func setup() {
 
 	// Disk1.LoadDiskImage("imgTest/anti-m.woz")
 	// Disk2.LoadDiskImage("imgTest/Choplifter.woz")
-	Disk1.LoadDiskImage("imgTest/Dos33.dsk")
+	// Disk1.LoadDiskImage("imgTest/Dos33.dsk")
+	// Disk1.LoadDiskImage("imgTest/anti-m.dsk")
+	// Disk1.LoadDiskImage("imgTest/Choplifter.dsk")
 
 	// Disk1.LoadDiskImage("imgTest/Wizardry_boot.woz")
 	// Disk1.LoadDiskImage("imgTest/Wizardry_Cracked.woz")
@@ -147,13 +149,15 @@ func setup() {
 	// Disk1.LoadDiskImage("imgTest/CompInsp.woz")
 	// Disk1.LoadDiskImage("imgTest/Conan_A.woz")
 	// Disk1.LoadDiskImage("imgTest/CapGood_A.woz")
+	Disk1.LoadDiskImage("imgTest/HERO.woz")
+
 
 	// Disk1.LoadDiskImage("imgTest/Akalabeth.woz")
 	// Disk1.LoadDiskImage("imgTest/vierge.woz")
 
-	IOAccess = InitIO(Disk1, Disk2, &CRTC)
+	IOAccess = InitIO(Disk1, nil, &CRTC)
 
-	Disk1.DumpTrack(0)
+	// Disk1.DumpTrack(1)
 	// Disk1.ReadTrackRaw(0, 53404)
 	Disk1.Dump(true)
 
