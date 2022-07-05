@@ -139,7 +139,7 @@ func setup() {
 
 	// Disk1.LoadDiskImage("imgTest/anti-m.woz")
 	// Disk2.LoadDiskImage("imgTest/Choplifter.woz")
-	// Disk1.LoadDiskImage("imgTest/Dos33.dsk")
+	Disk1.LoadDiskImage("imgTest/Dos33.dsk")
 	// Disk1.LoadDiskImage("imgTest/anti-m.dsk")
 	// Disk1.LoadDiskImage("imgTest/Choplifter.dsk")
 
@@ -149,7 +149,7 @@ func setup() {
 	// Disk1.LoadDiskImage("imgTest/CompInsp.woz")
 	// Disk1.LoadDiskImage("imgTest/Conan_A.woz")
 	// Disk1.LoadDiskImage("imgTest/CapGood_A.woz")
-	Disk1.LoadDiskImage("imgTest/HERO.woz")
+	// Disk1.LoadDiskImage("imgTest/HERO.woz")
 
 
 	// Disk1.LoadDiskImage("imgTest/Akalabeth.woz")
