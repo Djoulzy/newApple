@@ -68,7 +68,6 @@ var (
 	InputLine    render.KEYPressed
 	outputDriver render.SDL2Driver
 	CRTC         crtc.CRTC
-	cpuTurn      bool
 	run          bool
 	trace        bool
 	lastPC       uint16
@@ -329,7 +328,6 @@ func main() {
 
 	run = true
 	trace = false
-	cpuTurn = true
 	outputDriver.ShowCode = false
 	outputDriver.ShowFps = true
 
