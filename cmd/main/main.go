@@ -126,7 +126,7 @@ func setup() {
 	// Disk2 := disk.Attach(&cpu)
 
 	// Disk1.LoadDiskImage("imgTest/LodeRunner.woz")
-	// Disk1.LoadDiskImage("imgTest/DOS33.woz")
+	Disk1.LoadDiskImage("imgTest/DOS33.woz")
 	// Disk1.LoadDiskImage("imgTest/demo.woz")
 	// Disk1.LoadDiskImage("imgTest/Locksmith.woz")
 	// Disk1.LoadDiskImage("imgTest/Wolf.woz")
@@ -138,7 +138,7 @@ func setup() {
 
 	// Disk1.LoadDiskImage("imgTest/anti-m.woz")
 	// Disk2.LoadDiskImage("imgTest/Choplifter.woz")
-	Disk1.LoadDiskImage("imgTest/Dos33.dsk")
+	// Disk1.LoadDiskImage("imgTest/Dos33.dsk")
 	// Disk1.LoadDiskImage("imgTest/anti-m.dsk")
 	// Disk1.LoadDiskImage("imgTest/Choplifter.dsk")
 
@@ -150,7 +150,6 @@ func setup() {
 	// Disk1.LoadDiskImage("imgTest/CapGood_A.woz")
 	// Disk1.LoadDiskImage("imgTest/HERO.woz")
 
-
 	// Disk1.LoadDiskImage("imgTest/Akalabeth.woz")
 	// Disk1.LoadDiskImage("imgTest/vierge.woz")
 
@@ -158,7 +157,7 @@ func setup() {
 
 	// Disk1.DumpTrack(1)
 	// Disk1.ReadTrackRaw(0, 53404)
-	Disk1.Dump(true)
+	// Disk1.Dump(true)
 
 	// panic(1)
 	if MODEL == 1 {
