@@ -118,6 +118,7 @@ func InitIO(d1 *disk.DRIVE, d2 *disk.DRIVE, vid *crtc.CRTC) *io_access {
 		tmp.connectedDrive++
 	}
 
+	log.Printf("DiskII drive connected: %d\n", tmp.connectedDrive)
 	return &tmp
 }
 
@@ -313,17 +314,17 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 		return 0
 
 		/*
-PRINT (PEEK(49386))
-PRINT (PEEK(49385))
+			PRINT (PEEK(49386))
+			PRINT (PEEK(49385))
 
-Check protect
-PRINT (PEEK(49389))
-PRINT (PEEK(49390))
+			Check protect
+			PRINT (PEEK(49389))
+			PRINT (PEEK(49390))
 
 
-Read data
-PRINT (PEEK(49390))
-PRINT (PEEK(49388))
+			Read data
+			PRINT (PEEK(49390))
+			PRINT (PEEK(49388))
 
 
 		*/

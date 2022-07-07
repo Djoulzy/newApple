@@ -25,6 +25,7 @@ type DiskImage interface {
 }
 
 type DRIVE struct {
+	IsEmpty          bool
 	motorPhases      [4]bool
 	IsWriteProtected bool
 	IsRunning        bool
@@ -43,6 +44,7 @@ func Attach(cpu *mos6510.CPU) *DRIVE {
 	drive.currentPhase = 0
 	drive.motorPhases = [4]bool{false, false, false, false}
 	drive.IsWriteProtected = false
+	drive.IsEmpty = true
 
 	return &drive
 }
@@ -64,6 +66,7 @@ func (D *DRIVE) LoadDiskImage(fileName string) {
 		panic(err)
 	}
 
+	D.IsEmpty = false
 	D.IsWriteProtected = D.diskImage.IsWriteProtected()
 }
 
@@ -83,11 +86,17 @@ func (D *DRIVE) StopMotor() {
 }
 
 func (D *DRIVE) GetNextByte() byte {
+	if D.IsEmpty {
+		return 0
+	}
 	return D.diskImage.GetNextByte()
 }
 
 func (D *DRIVE) SetPhase(phase int, state bool) {
 	// fmt.Printf("Set Phase %d - State: %v\n", phase, state)
+	if D.IsEmpty {
+		return
+	}
 	if state == false {
 		return
 	}

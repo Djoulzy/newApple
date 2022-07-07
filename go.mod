@@ -34,6 +34,6 @@ replace (
 	github.com/Djoulzy/emutools/mem v0.0.0-20220624083055-f5d43f4b7324 => ../github.com/Djoulzy/emutools/mem
 	github.com/Djoulzy/emutools/mos6510 v0.0.0-20220624083055-f5d43f4b7324 => ../github.com/Djoulzy/emutools/mos6510
 	github.com/Djoulzy/emutools/render v0.0.0-20220624083055-f5d43f4b7324 => ../github.com/Djoulzy/emutools/render
-	github.com/Djoulzy/godsk v0.0.0-20220701192445-f03a8190dfa5 => ../github.com/Djoulzy/godsk
+	github.com/Djoulzy/godsk v0.0.0-20220705093616-8da8bd02989a => ../github.com/Djoulzy/godsk
 	github.com/Djoulzy/gowoz v0.0.0-20220704094120-a5f645528c42 => ../github.com/Djoulzy/gowoz
 )

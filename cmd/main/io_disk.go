@@ -21,6 +21,7 @@ var (
 
 func (C *io_access) diskMotorsON() byte {
 	disk.MotorIsOn = true
+	// log.Printf("Start motor drive %d", SelectedDrive)
 	C.Disks[SelectedDrive].StartMotor()
 	// C.drivesStatus()
 	// clog.FileRaw("\n%s : Start Motor: %04X", time.Now().Format("15:04:05"), cpu.InstStart)
@@ -53,14 +54,12 @@ func (C *io_access) driveSelect(driveNum int) byte {
 		return retVal
 	}
 	if disk.MotorIsOn {
-		if SelectedDrive != driveNum {
-			C.Disks[SelectedDrive].StopMotor()
-		}
+		C.Disks[SelectedDrive].StopMotor()
 		if driveNum+1 <= C.connectedDrive {
 			C.Disks[driveNum].StartMotor()
 			SelectedDrive = driveNum
 		} else {
-			SelectedDrive = -1
+			SelectedDrive = 0
 		}
 	}
 
