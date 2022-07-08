@@ -124,4 +124,5 @@ var (
 	Is_MIXEDMODE bool = true
 	Is_HIRESMODE bool = false
 	Is_PAGE2     bool = false
+	Is_80COL     bool = false
 )

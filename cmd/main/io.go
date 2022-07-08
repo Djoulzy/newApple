@@ -125,6 +125,12 @@ func InitIO(d1 *disk.DRIVE, d2 *disk.DRIVE, vid *crtc.CRTC) *io_access {
 func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 	// clog.Test("Accessor", "MRead", "Addr: %04X", translatedAddr)
 	switch translatedAddr {
+	case _80COL:
+		// PRINT (PEEK(49183))
+		if crtc.Is_80COL {
+			return 141
+		}
+		return 13
 	case _80STOREOFF:
 		return mem[_80STOREOFF]
 	case AKD:
@@ -366,6 +372,10 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 func (C *io_access) MWrite(mem []byte, translatedAddr uint16, val byte) {
 	// clog.Test("Accessor", "MWrite", "Addr: %04X -> %02X", 0xE800+translatedAddr, val)
 	switch translatedAddr {
+	case _80COLOFF:
+		crtc.Is_80COL = false
+	case _80COLON:
+		crtc.Is_80COL = true
 	case _80STOREOFF:
 		// mem[_80STOREOFF] = val
 	case AKD:

@@ -44,9 +44,14 @@ var (
 	MODEL   int
 	BankSel byte
 
-	RAM    []byte
-	BANK1  []byte
-	BANK2  []byte
+	RAM   []byte
+	BANK1 []byte
+	BANK2 []byte
+
+	AUX       []byte
+	AUX_BANK1 []byte
+	AUX_BANK2 []byte
+
 	ROM_C  []byte
 	ROM_D  []byte
 	ROM_EF []byte
@@ -102,6 +107,13 @@ func setup() {
 	BANK1 = make([]byte, romSize)
 	mem.Clear(BANK1, 0x1000, 0xFF)
 	BANK2 = make([]byte, romSize*3)
+
+	AUX = make([]byte, ramSize)
+	mem.Clear(RAM, 0x1000, 0xFF)
+	AUX_BANK1 = make([]byte, romSize)
+	mem.Clear(BANK1, 0x1000, 0xFF)
+	AUX_BANK2 = make([]byte, romSize*3)
+
 	mem.Clear(BANK2, 0x1000, 0xFF)
 	IO = make([]byte, softSwitches)
 	mem.Clear(IO, 0, 0x00)
@@ -145,9 +157,9 @@ func setup() {
 	// Disk1.LoadDiskImage("imgTest/Wizardry_boot.woz")
 	// Disk1.LoadDiskImage("imgTest/Wizardry_Cracked.woz")
 
-	Disk1.LoadDiskImage("imgTest/ID2_ProDOS.woz")
+	// Disk1.LoadDiskImage("imgTest/ID2_ProDOS.woz")
 
-	// Disk1.LoadDiskImage("imgTest/CompInsp.woz")
+	Disk1.LoadDiskImage("imgTest/CompInsp.woz")
 	// Disk1.LoadDiskImage("imgTest/Conan_A.woz")
 	// Disk1.LoadDiskImage("imgTest/CapGood_A.woz")
 	// Disk1.LoadDiskImage("imgTest/HERO.woz")

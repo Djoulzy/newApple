@@ -10,6 +10,11 @@ func memLayouts(model int) {
 	MEM.Layouts[0].Attach("RAM", 0x0000, RAM, mem.READWRITE, false)
 	MEM.Layouts[0].Attach("BANK2", 0xD000, BANK2, mem.READWRITE, false)
 	MEM.Layouts[0].Attach("BANK1", 0xD000, BANK1, mem.READWRITE, false)
+
+	MEM.Layouts[0].Attach("AUX", 0x0000, AUX, mem.READWRITE, true)
+	MEM.Layouts[0].Attach("AUX_BANK2", 0xD000, AUX_BANK2, mem.READWRITE, true)
+	MEM.Layouts[0].Attach("AUX_BANK1", 0xD000, AUX_BANK1, mem.READWRITE, true)
+
 	if model == 2 {
 		MEM.Layouts[0].Attach("ROM_C", 0xC000, ROM_C, mem.READONLY, false)
 	}
