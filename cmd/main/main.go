@@ -48,6 +48,7 @@ var (
 	BANK1 []byte
 	BANK2 []byte
 
+	ALT_ZP    []byte
 	AUX       []byte
 	AUX_BANK1 []byte
 	AUX_BANK2 []byte
@@ -108,7 +109,9 @@ func setup() {
 	mem.Clear(BANK1, 0x1000, 0xFF)
 	BANK2 = make([]byte, romSize*3)
 
-	AUX = make([]byte, ramSize)
+	ALT_ZP = make([]byte, 0x0200)
+	mem.Clear(ALT_ZP, 0x1000, 0xFF)
+	AUX = make([]byte, ramSize-0x0200)
 	mem.Clear(RAM, 0x1000, 0xFF)
 	AUX_BANK1 = make([]byte, romSize)
 	mem.Clear(BANK1, 0x1000, 0xFF)

@@ -10,7 +10,7 @@ require (
 	github.com/Djoulzy/emutools/mos6510 v0.0.0-20220624083055-f5d43f4b7324
 	github.com/Djoulzy/emutools/render v0.0.0-20220624083055-f5d43f4b7324
 	github.com/Djoulzy/godsk v0.0.0-20220705093616-8da8bd02989a
-	github.com/Djoulzy/gowoz v0.0.0-20220704094120-a5f645528c42
+	github.com/Djoulzy/gowoz v0.0.0-20220707173953-ab69067b349a
 	github.com/mattn/go-tty v0.0.4
 )
 
@@ -25,7 +25,7 @@ require (
 	github.com/veandco/go-sdl2 v0.4.24 // indirect
 	golang.org/x/exp v0.0.0-20220706164943-b4a6d9510983 // indirect
 	golang.org/x/image v0.0.0-20220617043117-41969df76e82 // indirect
-	golang.org/x/sys v0.0.0-20220704084225-05e143d24a9e // indirect
+	golang.org/x/sys v0.0.0-20220708085239-5a0f0661e09d // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
@@ -35,5 +35,5 @@ replace (
 	github.com/Djoulzy/emutools/mos6510 v0.0.0-20220624083055-f5d43f4b7324 => ../github.com/Djoulzy/emutools/mos6510
 	github.com/Djoulzy/emutools/render v0.0.0-20220624083055-f5d43f4b7324 => ../github.com/Djoulzy/emutools/render
 	github.com/Djoulzy/godsk v0.0.0-20220705093616-8da8bd02989a => ../github.com/Djoulzy/godsk
-	github.com/Djoulzy/gowoz v0.0.0-20220704094120-a5f645528c42 => ../github.com/Djoulzy/gowoz
+	github.com/Djoulzy/gowoz v0.0.0-20220707173953-ab69067b349a => ../github.com/Djoulzy/gowoz
 )

@@ -9,6 +9,11 @@ import (
 const (
 	// MEMORY MANAGEMENT SOFT SWITCHES (W)
 	_80STOREOFF  = 0x00
+	_80STOREON   = 0x01
+	RAMRDON      = 0x03
+	RAMRDOFF     = 0x02
+	RAMWRTON     = 0x05
+	RAMWRTOFF    = 0x04
 	INTCXROMOFF  = 0x06
 	INTCXROMON   = 0x07
 	ALZTPOFF     = 0x08
@@ -21,6 +26,8 @@ const (
 	// VIDEO SOFT SWITCHES (W/R)
 	_80COLOFF     = 0x0C
 	_80COLON      = 0x0D
+	RAMRD         = 0x13
+	RAMWRT        = 0x14
 	ALTCHARSETOFF = 0x0E
 	ALTCHARSETON  = 0x0F
 	TEXTOFF       = 0x50
@@ -43,6 +50,7 @@ const (
 	HIRES      = 0x1D
 	ALTCHARSET = 0x1E
 	_80COL     = 0x1F
+	_80STORE   = 0x18
 
 	// BANK SWITCHING
 	RDRAM_B2  = 0x80
@@ -92,6 +100,8 @@ var (
 	is_C3_INT     bool = true
 	is_CX_INT     bool = false
 	is_Keypressed bool = false
+	is_80Store    bool = false
+	is_ALT_ZP     bool = false
 )
 
 type io_access struct {
@@ -128,11 +138,16 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 	case _80COL:
 		// PRINT (PEEK(49183))
 		if crtc.Is_80COL {
-			return 141
+			return 0x8D
 		}
-		return 13
+		return 0x00
 	case _80STOREOFF:
 		return mem[_80STOREOFF]
+	case _80STORE:
+		if is_80Store {
+			return 0x8D
+		}
+		return 0x00
 	case AKD:
 		if is_Keypressed {
 			is_Keypressed = false
@@ -149,7 +164,9 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 		log.Println("BSRREADRAM not implemented")
 		return 0x00
 	case ALTZP:
-		log.Println("ALTZP not implemented")
+		if is_ALT_ZP {
+			return 0x8D
+		}
 		return 0x00
 	case INTCXROM:
 		if is_CX_INT {
@@ -370,21 +387,26 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 }
 
 func (C *io_access) MWrite(mem []byte, translatedAddr uint16, val byte) {
-	// clog.Test("Accessor", "MWrite", "Addr: %04X -> %02X", 0xE800+translatedAddr, val)
 	switch translatedAddr {
 	case _80COLOFF:
 		crtc.Is_80COL = false
 	case _80COLON:
 		crtc.Is_80COL = true
 	case _80STOREOFF:
-		// mem[_80STOREOFF] = val
+		MEM.Disable("AUX")
+		is_80Store = false
+	case _80STOREON:
+		MEM.Enable("AUX")
+		is_80Store = true
 	case AKD:
 		is_Keypressed = false
 		mem[_80STOREOFF] = 0
 	case ALZTPOFF:
-		log.Println("ALZTPOFF not implemented")
+		is_ALT_ZP = false
+		MEM.Disable("ALT_ZP")
 	case ALZTPON:
-		log.Println("ALZTPON not implemented")
+		is_ALT_ZP = true
+		MEM.Enable("ALT_ZP")
 	case INTCXROMOFF:
 		is_CX_INT = false
 		MEM.Enable("SLOT1")

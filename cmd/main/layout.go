@@ -11,7 +11,8 @@ func memLayouts(model int) {
 	MEM.Layouts[0].Attach("BANK2", 0xD000, BANK2, mem.READWRITE, false)
 	MEM.Layouts[0].Attach("BANK1", 0xD000, BANK1, mem.READWRITE, false)
 
-	MEM.Layouts[0].Attach("AUX", 0x0000, AUX, mem.READWRITE, true)
+	MEM.Layouts[0].Attach("ALT_ZP", 0x0000, ALT_ZP, mem.READWRITE, true)
+	MEM.Layouts[0].Attach("AUX", 0x0200, AUX, mem.READWRITE, true)
 	MEM.Layouts[0].Attach("AUX_BANK2", 0xD000, AUX_BANK2, mem.READWRITE, true)
 	MEM.Layouts[0].Attach("AUX_BANK1", 0xD000, AUX_BANK1, mem.READWRITE, true)
 
