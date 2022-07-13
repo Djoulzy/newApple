@@ -3,27 +3,28 @@ package crtc
 import (
 	"fmt"
 	"newApple/config"
+	"time"
 
 	"github.com/Djoulzy/emutools/render"
 )
 
 var blink bool = false
 
-// func NE5555() {
-// 	ticker := time.NewTicker(time.Millisecond * 200)
-// 	defer func() {
-// 		ticker.Stop()
-// 	}()
+func NE5555() {
+	ticker := time.NewTicker(time.Millisecond * 200)
+	defer func() {
+		ticker.Stop()
+	}()
 
-// 	for {
-// 		<-ticker.C
-// 		blink = !blink
-// 	}
-// }
+	for {
+		<-ticker.C
+		blink = !blink
+	}
+}
 
-func (C *CRTC) Init(ram []byte, io []byte, chargen []byte, video *render.SDL2Driver, conf *config.ConfigData) {
-	C.Reg[R0] = 63
-	C.Reg[R1] = 40
+func (C *CRTC) Init(ram []byte, aux []byte, io []byte, chargen []byte, video *render.SDL2Driver, conf *config.ConfigData) {
+	C.Reg[R0] = 126
+	C.Reg[R1] = 80 // 80 colonnes
 	C.Reg[R2] = 50
 	C.Reg[R3] = 0b10001000
 	C.Reg[R4] = 32
@@ -35,11 +36,12 @@ func (C *CRTC) Init(ram []byte, io []byte, chargen []byte, video *render.SDL2Dri
 	C.Reg[R13] = 0
 
 	C.RAM = ram
+	C.AUX = aux
 	C.screenWidth = int(C.Reg[R1]) * 7
-	C.screenHeight = int(C.Reg[R6]) * 8
+	C.screenHeight = int(C.Reg[R6]) * 8 * 2
 
 	C.graph = video
-	C.graph.Init(C.screenWidth, C.screenHeight, "Go Apple II", true, conf.Disassamble)
+	C.graph.Init(C.screenWidth, C.screenHeight, 1, "Go Apple II", false, conf.Disassamble)
 	C.conf = conf
 	C.VideoPages[0] = [2]uint16{0x0400, 0x2000}
 	C.VideoPages[1] = [2]uint16{0x0400, 0x2000}
@@ -61,9 +63,9 @@ func (C *CRTC) Init(ram []byte, io []byte, chargen []byte, video *render.SDL2Dri
 
 	C.UpdateGraphMode()
 
-	// if C.conf.Model == "2" {
-	// 	go NE5555()
-	// }
+	if C.conf.Model == "2" {
+		go NE5555()
+	}
 }
 
 func (C *CRTC) ToggleMonitorColor() {
@@ -81,7 +83,11 @@ func (C *CRTC) UpdateGraphMode() {
 		if C.conf.Model == "2" {
 			C.videoMode = (*CRTC).StandardTextModeA2
 		} else {
-			C.videoMode = (*CRTC).StandardTextModeA2E
+			if Is_80COL {
+				C.videoMode = (*CRTC).Standard80ColTextMode
+			} else {
+				C.videoMode = (*CRTC).StandardTextModeA2E
+			}
 		}
 	} else {
 		if Is_HIRESMODE {
@@ -103,10 +109,12 @@ func (C *CRTC) UpdateVideoRam() {
 		C.videoBase = C.VideoPages[page][0]
 		C.pageSize = C.VideoPages[0][0]
 		C.videoRam = C.RAM[C.videoBase : C.videoBase+C.pageSize]
+		C.videoAux = C.AUX[C.videoBase : C.videoBase+C.pageSize]
 	} else {
 		C.videoBase = C.VideoPages[page][1]
 		C.pageSize = C.VideoPages[0][1]
 		C.videoRam = C.RAM[C.videoBase : C.videoBase+C.pageSize]
+		C.videoAux = C.AUX[C.videoBase : C.videoBase+C.pageSize]
 	}
 }
 
@@ -131,14 +139,14 @@ func (C *CRTC) Run(debug bool) bool {
 
 	// log.Printf("BeamX: %d - BeamY: %d - CCLK: %02d - RasterLine: %02d", C.BeamX, C.BeamY, C.CCLK, C.RasterLine)
 
-	if C.CCLK < C.Reg[R1] {
+	if C.CCLK < (C.Reg[R1]) {
 		C.drawChar(C.BeamX, C.BeamY)
 	}
 
-	C.CCLK++
+	C.CCLK += 2
 	if C.CCLK == C.Reg[R0] {
 		C.CCLK = 0
-		C.BeamY++
+		C.BeamY += 2
 		if C.BeamY >= C.screenHeight {
 			C.BeamY = 0
 			C.RasterCount = 0

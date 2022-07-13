@@ -67,6 +67,7 @@ var Colors [16]color.Color = [16]color.Color{
 type CRTC struct {
 	Reg          [18]byte
 	RAM          []byte
+	AUX          []byte
 	screenWidth  int
 	screenHeight int
 
@@ -85,6 +86,7 @@ type CRTC struct {
 	graph *render.SDL2Driver
 
 	videoRam  []byte
+	videoAux  []byte
 	charRom   []byte
 	videoMode func(*CRTC, int, int)
 }

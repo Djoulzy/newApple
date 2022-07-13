@@ -4,16 +4,30 @@ package config
 type Globals struct {
 	StartLogging bool
 	FileLog      string
-	RunPerfStats bool
 	Disassamble  bool
 	LogLevel     int
 	Debug        bool
 	Display      bool
-	LoadPRG      string
 	Model        string
 	ColorDisplay bool
 	CPUModel     string
 	Mhz          int
+}
+
+type Slots struct {
+	Slot1   string
+	Slot2   string
+	Slot3   string
+	Slot4   string
+	Slot5   string
+	Slot6   string
+	Slot7   string
+	Catalog [8]string
+}
+
+type Disks struct {
+	Disk1 string
+	Disk2 string
 }
 
 type DebugMode struct {
@@ -25,5 +39,7 @@ type DebugMode struct {
 // ConfigData : Data structure du fichier de conf
 type ConfigData struct {
 	Globals
+	Slots
+	Disks
 	DebugMode
 }

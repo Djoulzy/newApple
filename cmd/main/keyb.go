@@ -1,94 +1,45 @@
 package main
 
-var keyMap map[uint]byte //{
-// 0:          Keyb_NULL,
-// 8:          Keyb_DEL,
-// 13:         Keyb_RETURN,
-// 27:         Keyb_RUNSTOP,
-// 32:         Keyb_SPACE,
-// 44:         Keyb_COMMA,
-// 45:         Keyb_MINUS,
-// 48:         Keyb_0,
-// 49:         Keyb_1,
-// 50:         Keyb_2,
-// 51:         Keyb_3,
-// 52:         Keyb_4,
-// 53:         Keyb_5,
-// 54:         Keyb_6,
-// 55:         Keyb_7,
-// 56:         Keyb_8,
-// 57:         Keyb_9,
-// 58:         Keyb_COLON,    // :
-// 59:         Keyb_SEMICOLN, // ;
-// 60:         Keyb_AROBASE,
-// 61:         Keyb_EQUAL,
-// 94:         Keyb_ARROW_UP,
-// 97: 0xC1,
-// 98: 0xC2,
-// 99:         Keyb_C,
-// 100:        Keyb_D,
-// 101:        Keyb_E,
-// 102:        Keyb_F,
-// 103:        Keyb_G,
-// 104:        Keyb_H,
-// 105:        Keyb_I,
-// 106:        Keyb_J,
-// 107:        Keyb_K,
-// 108:        Keyb_L,
-// 109:        Keyb_M,
-// 110:        Keyb_N,
-// 111:        Keyb_O,
-// 112:        Keyb_P,
-// 113:        Keyb_Q,
-// 114:        Keyb_R,
-// 115:        Keyb_S,
-// 116:        Keyb_T,
-// 117:        Keyb_U,
-// 118:        Keyb_V,
-// 119:        Keyb_W,
-// 120:        Keyb_X,
-// 121:        Keyb_Y,
-// 122:        Keyb_Z,
-// 1073742048: Keyb_CTRL,
-// 1073742049: Keyb_LSHIFT,
-// 1073742051: Keyb_CBM,
-// 1073742053: Keyb_RSHIFT,
-// 1073741905: Keyb_CRSR_DOWN,
-// 1073741903: Keyb_CRSR_RIGHT,
-//}
+const (
+	KB_NORMAL  = 0
+	KB_L_SHIFT = 1073742049
+	KB_R_SHIFT = 1073742053
+	KB_L_CTRL  = 1073742048
+	KB_R_CTRL  = 1073742052
+	KB_L_META  = 1073742051
+	KB_R_META  = 1073742055
+	KB_L_ALT   = 1073742050
+	KB_R_ALT   = 1073742054
+)
+
+var keyMap map[uint](map[uint]byte)
 
 func initKeyboard() {
 	var i uint
-	keyMap = make(map[uint]byte)
+	keyMap = make(map[uint]map[uint]byte)
 
 	for i = 0; i < 256; i++ {
-		keyMap[i] = byte(i)
+		keyMap[i] = make(map[uint]byte)
+		keyMap[i][KB_NORMAL] = byte(i)
+		keyMap[i][KB_L_SHIFT] = byte(i) - 0x20
+		keyMap[i][KB_R_SHIFT] = byte(i) - 0x20
+		keyMap[i][KB_L_CTRL] = byte(i) - 0x60
+		keyMap[i][KB_R_CTRL] = byte(i) - 0x60
 	}
 
-	keyMap[10] = 0x8D // Return
+	keyMap[10][KB_NORMAL] = 0x8D // RETURN
 
-	// cpt := 0xB0
-	// for i = 48; i < 58; i++ {
-	// 	keyMap[i] = byte(cpt)
-	// 	keyMap[i+1000] = byte(cpt)
-	// 	cpt++
-	// }
+	keyMap[51][KB_NORMAL] = 0x22  // "
+	keyMap[51][KB_L_SHIFT] = 0x33 // 3
+	keyMap[51][KB_R_SHIFT] = 0x33 // 3
 
-	// cpt = 0xC1
-	// for i = 97; i < 123; i++ {
-	// 	keyMap[i] = byte(cpt)
-	// 	cpt++
-	// }
+	keyMap[53][KB_NORMAL] = 0x28  // (
+	keyMap[53][KB_L_SHIFT] = 0x35 // 5
+	keyMap[53][KB_R_SHIFT] = 0x35 // 5
 
-	// keyMap[13] = 0x8D // Return
-	// keyMap[10] = 0x8D // Return
-	// keyMap[32] = 0xA0 // Space
-	// keyMap[45] = 0xAD // Minus
-	// keyMap[59] = 0xAE // Semicolon
-	// keyMap[61] = 0x3D // Equal
-	// keyMap[51] = 0x22 // Quote
+	keyMap[41][KB_NORMAL] = 0x29  // )
 
-	// // Shifted
-	// keyMap[44+1000] = 0x3F // Question mark
-	// keyMap[63] = 0x3F      // Question mark
+	keyMap[60][KB_NORMAL] = 0x40  // @
+	keyMap[60][KB_L_SHIFT] = 0x23 // #
+	keyMap[60][KB_R_SHIFT] = 0x23 // #
 }

@@ -25,7 +25,7 @@ require (
 	github.com/veandco/go-sdl2 v0.4.24 // indirect
 	golang.org/x/exp v0.0.0-20220706164943-b4a6d9510983 // indirect
 	golang.org/x/image v0.0.0-20220617043117-41969df76e82 // indirect
-	golang.org/x/sys v0.0.0-20220708085239-5a0f0661e09d // indirect
+	golang.org/x/sys v0.0.0-20220712014510-0a85c31ab51e // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 

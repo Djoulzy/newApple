@@ -97,6 +97,8 @@ const (
 // PRINT PEEK(49173)
 
 var (
+	is_READ_RAM   bool = false
+	is_BANK2      bool = false
 	is_C3_INT     bool = true
 	is_CX_INT     bool = false
 	is_Keypressed bool = false
@@ -158,10 +160,14 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 		mem[_80STOREOFF] = 0
 		return 0x00
 	case BSRBANK2:
-		log.Println("BSRBANK2 not implemented")
+		if is_BANK2 {
+			return 0x8D
+		}
 		return 0x00
 	case BSRREADRAM:
-		log.Println("BSRREADRAM not implemented")
+		if is_READ_RAM {
+			return 0x8D
+		}
 		return 0x00
 	case ALTZP:
 		if is_ALT_ZP {
@@ -242,6 +248,8 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 		MEM.Disable("BANK1")
 		MEM.Enable("BANK2")
 		MEM.ReadOnly("BANK2")
+		is_READ_RAM = true
+		is_BANK2 = true
 		return 0x80
 	case RDROM_WB2:
 		MEM.Enable("ROM_D")
@@ -249,12 +257,16 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 		MEM.Disable("BANK1")
 		MEM.Enable("BANK2")
 		MEM.ReadWrite("BANK2")
+		is_READ_RAM = false
+		is_BANK2 = true
 		return 0x80
 	case RDROM_2:
 		MEM.Enable("ROM_D")
 		MEM.Enable("ROM_EF")
 		MEM.Disable("BANK1")
 		MEM.Disable("BANK2")
+		is_READ_RAM = false
+		is_BANK2 = false
 		return 0x80
 	case RWRAM_B2:
 		MEM.Disable("ROM_D")
@@ -262,6 +274,8 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 		MEM.Disable("BANK1")
 		MEM.Enable("BANK2")
 		MEM.ReadWrite("BANK2")
+		is_READ_RAM = true
+		is_BANK2 = true
 		return 0x80
 
 	case RDROM_1:
@@ -269,6 +283,8 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 		MEM.Enable("ROM_EF")
 		MEM.Disable("BANK1")
 		MEM.Disable("BANK2")
+		is_READ_RAM = false
+		is_BANK2 = false
 		return 0x80
 	case RDRAM_B1:
 		MEM.Disable("ROM_D")
@@ -276,6 +292,8 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 		MEM.Enable("BANK1")
 		MEM.Disable("BANK2")
 		MEM.ReadOnly("BANK1")
+		is_READ_RAM = true
+		is_BANK2 = false
 		return 0x80
 	case RDROM_WB1:
 		MEM.Enable("ROM_D")
@@ -283,6 +301,8 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 		MEM.Enable("BANK1")
 		MEM.Disable("BANK2")
 		MEM.ReadWrite("BANK1")
+		is_READ_RAM = false
+		is_BANK2 = false
 		return 0x80
 	case RWRAM_B1:
 		MEM.Disable("ROM_D")
@@ -290,6 +310,8 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 		MEM.Enable("BANK1")
 		MEM.Disable("BANK2")
 		MEM.ReadWrite("BANK1")
+		is_READ_RAM = true
+		is_BANK2 = false
 		return 0x80
 
 	case SATURN_CTRL1:
@@ -390,23 +412,27 @@ func (C *io_access) MWrite(mem []byte, translatedAddr uint16, val byte) {
 	switch translatedAddr {
 	case _80COLOFF:
 		crtc.Is_80COL = false
+		C.Video.UpdateGraphMode()
 	case _80COLON:
 		crtc.Is_80COL = true
+		C.Video.UpdateGraphMode()
 	case _80STOREOFF:
-		MEM.Disable("AUX")
 		is_80Store = false
 	case _80STOREON:
-		MEM.Enable("AUX")
 		is_80Store = true
 	case AKD:
 		is_Keypressed = false
 		mem[_80STOREOFF] = 0
 	case ALZTPOFF:
+		log.Printf("ALT_ZP Off")
 		is_ALT_ZP = false
+		MEM.Enable("ZP")
 		MEM.Disable("ALT_ZP")
 	case ALZTPON:
+		log.Printf("ALT_ZP On")
 		is_ALT_ZP = true
 		MEM.Enable("ALT_ZP")
+		MEM.Disable("ZP")
 	case INTCXROMOFF:
 		is_CX_INT = false
 		MEM.Enable("SLOT1")
@@ -453,10 +479,18 @@ func (C *io_access) MWrite(mem []byte, translatedAddr uint16, val byte) {
 		C.Video.UpdateGraphMode()
 	case PAGE2OFF:
 		crtc.Is_PAGE2 = false
-		C.Video.UpdateVideoRam()
+		if is_80Store {
+			// MEM.Disable("AUX")
+		} else {
+			C.Video.UpdateVideoRam()
+		}
 	case PAGE2ON:
 		crtc.Is_PAGE2 = true
-		C.Video.UpdateVideoRam()
+		if is_80Store {
+			// MEM.Enable("AUX")
+		} else {
+			C.Video.UpdateVideoRam()
+		}
 
 	case RDRAM_B2:
 		MEM.Disable("ROM_D")

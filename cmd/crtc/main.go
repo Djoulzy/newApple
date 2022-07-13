@@ -50,7 +50,7 @@ func start() {
 	mem.Clear(RAM, 0x1000, 0xFF)
 	IO = make([]byte, ioSize)
 	CHARGEN = mem.LoadROM(chargenSize, "assets/roms/II/3410036.bin")
-	CRTC.Init(RAM, IO, CHARGEN, &outputDriver, &conf)
+	CRTC.Init(RAM, nil, IO, CHARGEN, &outputDriver, &conf)
 
 	cpt := 0
 	for i := screenStart; i < screenStart+screenSize; i++ {
