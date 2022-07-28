@@ -16,7 +16,7 @@ import (
 
 	"github.com/Djoulzy/Tools/clog"
 	"github.com/Djoulzy/Tools/confload"
-	"github.com/Djoulzy/emutools/mem"
+	"github.com/Djoulzy/emutools/mem2"
 	"github.com/Djoulzy/emutools/render"
 	"github.com/mattn/go-tty"
 )
@@ -62,8 +62,8 @@ var (
 	SLOTS   [8][]byte
 	CHARGEN []byte
 
-	MEM      mem.BANK
-	IOAccess mem.MEMAccess
+	MEM      mem2.BANK
+	IOAccess mem2.MEMAccess
 
 	InputLine    render.KEYPressed
 	outputDriver render.SDL2Driver
@@ -80,16 +80,16 @@ func init() {
 }
 
 func apple2_Roms() {
-	ROM_D = mem.LoadROM(romSize, "assets/roms/II/D.bin")
-	ROM_EF = mem.LoadROM(romSize*2, "assets/roms/II/EF.bin")
-	CHARGEN = mem.LoadROM(chargenSize, "assets/roms/II/3410036.bin")
+	ROM_D = mem2.LoadROM(romSize, "assets/roms/II/D.bin")
+	ROM_EF = mem2.LoadROM(romSize*2, "assets/roms/II/EF.bin")
+	CHARGEN = mem2.LoadROM(chargenSize, "assets/roms/II/3410036.bin")
 }
 
 func apple2e_Roms() {
-	ROM_C = mem.LoadROM(romSize, "assets/roms/IIe/C.bin")
-	ROM_D = mem.LoadROM(romSize, "assets/roms/IIe/D.bin")
-	ROM_EF = mem.LoadROM(romSize*2, "assets/roms/IIe/EF.bin")
-	CHARGEN = mem.LoadROM(chargenSize*2, "assets/roms/IIe/Video_US.bin")
+	ROM_C = mem2.LoadROM(romSize, "assets/roms/IIe/C.bin")
+	ROM_D = mem2.LoadROM(romSize, "assets/roms/IIe/D.bin")
+	ROM_EF = mem2.LoadROM(romSize*2, "assets/roms/IIe/EF.bin")
+	CHARGEN = mem2.LoadROM(chargenSize*2, "assets/roms/IIe/Video_US.bin")
 }
 
 func loadSlots() {
@@ -103,10 +103,10 @@ func loadSlots() {
 
 	for i := 1; i < 8; i++ {
 		if conf.Slots.Catalog[i] != "" {
-			SLOTS[i] = mem.LoadROM(slot_roms, conf.Slots.Catalog[i])
+			SLOTS[i] = mem2.LoadROM(slot_roms, conf.Slots.Catalog[i])
 		} else {
 			SLOTS[i] = make([]byte, slot_roms)
-			mem.Clear(SLOTS[i], 0, 0x71)
+			mem2.Clear(SLOTS[i], 0, 0x71)
 		}
 	}
 }
@@ -134,29 +134,29 @@ func loadDisks() (*disk.DRIVE, *disk.DRIVE) {
 
 func setup() {
 	BankSel = 0
-	MEM = mem.InitBanks(nbMemLayout, &BankSel)
+	MEM = mem2.InitBanks(nbMemLayout, &BankSel)
 
 	// Common Setup
 	RAM = make([]byte, ramSize)
-	mem.Clear(RAM, 0x1000, 0xFF)
+	mem2.Clear(RAM, 0x1000, 0xFF)
 	BANK1 = make([]byte, romSize)
-	mem.Clear(BANK1, 0x1000, 0xFF)
+	mem2.Clear(BANK1, 0x1000, 0xFF)
 	BANK2 = make([]byte, romSize*3)
 
 	ZP = make([]byte, 0x0200)
-	mem.Clear(ZP, 0x1000, 0xFF)
+	mem2.Clear(ZP, 0x1000, 0xFF)
 	ALT_ZP = make([]byte, 0x0200)
-	mem.Clear(ALT_ZP, 0x1000, 0xFF)
+	mem2.Clear(ALT_ZP, 0x1000, 0xFF)
 
 	AUX = make([]byte, ramSize)
-	mem.Clear(RAM, 0x1000, 0xFF)
+	mem2.Clear(RAM, 0x1000, 0xFF)
 	AUX_BANK1 = make([]byte, romSize)
-	mem.Clear(BANK1, 0x1000, 0xFF)
+	mem2.Clear(BANK1, 0x1000, 0xFF)
 	AUX_BANK2 = make([]byte, romSize*3)
 
-	mem.Clear(BANK2, 0x1000, 0xFF)
+	mem2.Clear(BANK2, 0x1000, 0xFF)
 	IO = make([]byte, softSwitches)
-	mem.Clear(IO, 0, 0x00)
+	mem2.Clear(IO, 0, 0x00)
 
 	Disk1, Disk2 := loadDisks()
 	loadSlots()
@@ -174,7 +174,7 @@ func setup() {
 		apple2e_Roms()
 	}
 
-	// mem.DisplayCharRom(CHARGEN, 1, 8, 16)
+	// mem2.DisplayCharRom(CHARGEN, 1, 8, 16)
 
 	// MEM Setup
 
@@ -187,9 +187,6 @@ func setup() {
 
 	// CPU Setup
 	cpu.Init(conf.CPUModel, conf.Mhz, &MEM, conf.Debug || conf.Disassamble)
-
-	MEM.CheckLayoutForAddr(0x0020)
-	MEM.CheckLayoutForAddr(0xC610)
 }
 
 func input() {
@@ -220,7 +217,7 @@ func input() {
 			fmt.Printf("\nFill Screen")
 			cpt := 0
 			for i := 0x0400; i < 0x0800; i++ {
-				RAM[uint16(i)] = byte(cpt)
+				// RAM[uint16(i)] = byte(cpt)
 				AUX[uint16(i)] = byte(cpt)
 				cpt++
 			}

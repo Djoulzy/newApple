@@ -4,85 +4,87 @@ import (
 	"log"
 	"newApple/crtc"
 	"newApple/disk"
+
+	"github.com/Djoulzy/emutools/mem2"
 )
 
 const (
 	// MEMORY MANAGEMENT SOFT SWITCHES (W)
-	_80STOREOFF  = 0x00
-	_80STOREON   = 0x01
-	RAMRDON      = 0x03
-	RAMRDOFF     = 0x02
-	RAMWRTON     = 0x05
-	RAMWRTOFF    = 0x04
-	INTCXROMOFF  = 0x06
-	INTCXROMON   = 0x07
-	ALZTPOFF     = 0x08
-	ALZTPON      = 0x09
-	SLOTC3ROMOFF = 0x0A
-	SLOTC3ROMON  = 0x0B
-	BSRBANK2     = 0x11
-	BSRREADRAM   = 0x12
+	_80STOREOFF  = 0xC000
+	_80STOREON   = 0xC001
+	RAMRDON      = 0xC003
+	RAMRDOFF     = 0xC002
+	RAMWRTON     = 0xC005
+	RAMWRTOFF    = 0xC004
+	INTCXROMOFF  = 0xC006
+	INTCXROMON   = 0xC007
+	ALZTPOFF     = 0xC008
+	ALZTPON      = 0xC009
+	SLOTC3ROMOFF = 0xC00A
+	SLOTC3ROMON  = 0xC00B
+	BSRBANK2     = 0xC011
+	BSRREADRAM   = 0xC012
 
 	// VIDEO SOFT SWITCHES (W/R)
-	_80COLOFF     = 0x0C
-	_80COLON      = 0x0D
-	RAMRD         = 0x13
-	RAMWRT        = 0x14
-	ALTCHARSETOFF = 0x0E
-	ALTCHARSETON  = 0x0F
-	TEXTOFF       = 0x50
-	TEXTON        = 0x51
-	MIXEDOFF      = 0x52
-	MIXEDON       = 0x53
-	PAGE2OFF      = 0x54
-	PAGE2ON       = 0x55
-	HIRESOFF      = 0x56
-	HIRESON       = 0x57
+	_80COLOFF     = 0xC00C
+	_80COLON      = 0xC00D
+	RAMRD         = 0xC013
+	RAMWRT        = 0xC014
+	ALTCHARSETOFF = 0xC00E
+	ALTCHARSETON  = 0xC00F
+	TEXTOFF       = 0xC050
+	TEXTON        = 0xC051
+	MIXEDOFF      = 0xC052
+	MIXEDON       = 0xC053
+	PAGE2OFF      = 0xC054
+	PAGE2ON       = 0xC055
+	HIRESOFF      = 0xC056
+	HIRESON       = 0xC057
 
 	// SOFT SWITCH STATUS FLAGS (R bit 7)
-	AKD        = 0x10
-	INTCXROM   = 0x15
-	SLOTC3ROM  = 0x17
-	ALTZP      = 0x16
-	TEXT       = 0x1A
-	MIXED      = 0x1B
-	PAGE2      = 0x1C
-	HIRES      = 0x1D
-	ALTCHARSET = 0x1E
-	_80COL     = 0x1F
-	_80STORE   = 0x18
+	AKD        = 0xC010
+	INTCXROM   = 0xC015
+	SLOTC3ROM  = 0xC017
+	ALTZP      = 0xC016
+	TEXT       = 0xC01A
+	MIXED      = 0xC01B
+	PAGE2      = 0xC01C
+	HIRES      = 0xC01D
+	ALTCHARSET = 0xC01E
+	_80COL     = 0xC01F
+	_80STORE   = 0xC018
 
 	// BANK SWITCHING
-	RDRAM_B2  = 0x80
-	RDROM_WB2 = 0x81
-	RDROM_2   = 0x82
-	RWRAM_B2  = 0x83
-	RDRAM_B1  = 0x88
-	RDROM_WB1 = 0x89
-	RDROM_1   = 0x8A
-	RWRAM_B1  = 0x8B
+	RDRAM_B2  = 0xC080
+	RDROM_WB2 = 0xC081
+	RDROM_2   = 0xC082
+	RWRAM_B2  = 0xC083
+	RDRAM_B1  = 0xC088
+	RDROM_WB1 = 0xC089
+	RDROM_1   = 0xC08A
+	RWRAM_B1  = 0xC08B
 
-	SATURN_CTRL1 = 0x84
-	SATURN_CTRL2 = 0x85
-	SATURN_CTRL3 = 0x86
-	SATURN_CTRL4 = 0x87
-	SATURN1      = 0x8C
-	SATURN2      = 0x8D
-	SATURN3      = 0x8E
-	SATURN4      = 0x8F
+	SATURN_CTRL1 = 0xC084
+	SATURN_CTRL2 = 0xC085
+	SATURN_CTRL3 = 0xC086
+	SATURN_CTRL4 = 0xC087
+	SATURN1      = 0xC08C
+	SATURN2      = 0xC08D
+	SATURN3      = 0xC08E
+	SATURN4      = 0xC08F
 
 	// OTHER
 	SPKR = 0x30
 
 	// SLOTS
-	SLOT0_OFFSET = 0x90
-	SLOT1_OFFSET = 0x90
-	SLOT2_OFFSET = 0xA0
-	SLOT3_OFFSET = 0xB0
-	SLOT4_OFFSET = 0xC0
-	SLOT5_OFFSET = 0xD0
-	SLOT6_OFFSET = 0xE0
-	SLOT7_OFFSET = 0xF0
+	SLOT0_OFFSET = 0xC090
+	SLOT1_OFFSET = 0xC090
+	SLOT2_OFFSET = 0xC0A0
+	SLOT3_OFFSET = 0xC0B0
+	SLOT4_OFFSET = 0xC0C0
+	SLOT5_OFFSET = 0xC0D0
+	SLOT6_OFFSET = 0xC0E0
+	SLOT7_OFFSET = 0xC0F0
 
 	DRVSM0   = 0x00 // Q0
 	DRVSM1   = 0x02 // Q1
@@ -134,9 +136,9 @@ func InitIO(d1 *disk.DRIVE, d2 *disk.DRIVE, vid *crtc.CRTC) *io_access {
 	return &tmp
 }
 
-func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
+func (C *io_access) MRead(mem []mem2.MEMCell, addr uint16) byte {
 	// clog.Test("Accessor", "MRead", "Addr: %04X", translatedAddr)
-	switch translatedAddr {
+	switch addr {
 	case _80COL:
 		// PRINT (PEEK(49183))
 		if crtc.Is_80COL {
@@ -144,7 +146,7 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 		}
 		return 0x00
 	case _80STOREOFF:
-		return mem[_80STOREOFF]
+		return *mem[_80STOREOFF].Val
 	case _80STORE:
 		if is_80Store {
 			return 0x8D
@@ -153,11 +155,11 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 	case AKD:
 		if is_Keypressed {
 			is_Keypressed = false
-			mem[_80STOREOFF] = 0
+			*mem[_80STOREOFF].Val = 0
 			return 0x8D
 		}
 		is_Keypressed = false
-		mem[_80STOREOFF] = 0
+		*mem[_80STOREOFF].Val = 0
 		return 0x00
 	case BSRBANK2:
 		if is_BANK2 {
@@ -408,8 +410,8 @@ func (C *io_access) MRead(mem []byte, translatedAddr uint16) byte {
 	}
 }
 
-func (C *io_access) MWrite(mem []byte, translatedAddr uint16, val byte) {
-	switch translatedAddr {
+func (C *io_access) MWrite(mem []mem2.MEMCell, addr uint16, val byte) {
+	switch addr {
 	case _80COLOFF:
 		crtc.Is_80COL = false
 		C.Video.UpdateGraphMode()
@@ -422,7 +424,7 @@ func (C *io_access) MWrite(mem []byte, translatedAddr uint16, val byte) {
 		is_80Store = true
 	case AKD:
 		is_Keypressed = false
-		mem[_80STOREOFF] = 0
+		*mem[_80STOREOFF].Val = 0
 	case ALZTPOFF:
 		log.Printf("ALT_ZP Off")
 		is_ALT_ZP = false
@@ -588,4 +590,8 @@ func (C *io_access) MWrite(mem []byte, translatedAddr uint16, val byte) {
 		// log.Printf("Write Unknown: %02X\n", translatedAddr)
 	}
 	// mem[translatedAddr] = val
+}
+
+func (C *io_access) MWriteUnder(mem []mem2.MEMCell, addr uint16, value byte) {
+	*mem[addr].Under = value
 }
