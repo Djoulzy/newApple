@@ -23,8 +23,8 @@ func NE5555() {
 }
 
 func (C *CRTC) Init(ram []byte, aux []byte, io []byte, chargen []byte, video *render.SDL2Driver, conf *config.ConfigData) {
-	C.Reg[R0] = 126
-	C.Reg[R1] = 80 // 80 colonnes
+	C.Reg[R0] = 63 // 126
+	C.Reg[R1] = 40 // 80 colonnes
 	C.Reg[R2] = 50
 	C.Reg[R3] = 0b10001000
 	C.Reg[R4] = 32
@@ -38,7 +38,7 @@ func (C *CRTC) Init(ram []byte, aux []byte, io []byte, chargen []byte, video *re
 	C.RAM = ram
 	C.AUX = aux
 	C.screenWidth = int(C.Reg[R1]) * 7
-	C.screenHeight = int(C.Reg[R6]) * 8 * 2
+	C.screenHeight = int(C.Reg[R6]) * 8 // * 2
 
 	C.graph = video
 	C.graph.Init(C.screenWidth, C.screenHeight, 1, "Go Apple II", false, conf.Disassamble)
@@ -143,10 +143,10 @@ func (C *CRTC) Run(debug bool) bool {
 		C.drawChar(C.BeamX, C.BeamY)
 	}
 
-	C.CCLK += 2
+	C.CCLK++ // += 2
 	if C.CCLK == C.Reg[R0] {
 		C.CCLK = 0
-		C.BeamY += 2
+		C.BeamY++ // += 2
 		if C.BeamY >= C.screenHeight {
 			C.BeamY = 0
 			C.RasterCount = 0
