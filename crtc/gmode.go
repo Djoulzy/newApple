@@ -86,22 +86,16 @@ func (C *CRTC) Standard80ColTextMode(X int, Y int) {
 }
 
 func (C *CRTC) StandardTextModeA2E(X int, Y int) {
-	screenChar = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK/2)]
+	screenChar = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK)]
 	pixelData = C.charRom[uint16(screenChar)<<3+uint16(C.RasterCount)]
 	pixelData = ^pixelData
 
 	for column := 0; column < 7; column++ {
 		bit := byte(0b00000001 << column)
 		if pixelData&bit == bit {
-			C.graph.DrawPixel(X+column*2, Y, C.TextColor)
-			C.graph.DrawPixel(X+1+column*2, Y, C.TextColor)
-			C.graph.DrawPixel(X+column*2, Y+1, C.TextColor)
-			C.graph.DrawPixel(X+1+column*2, Y+1, C.TextColor)
+			C.graph.DrawPixel(X+column, Y, C.TextColor)
 		} else {
-			C.graph.DrawPixel(X+column*2, Y, Colors[Black])
-			C.graph.DrawPixel(X+1+column*2, Y, Colors[Black])
-			C.graph.DrawPixel(X+column*2, Y+1, Colors[Black])
-			C.graph.DrawPixel(X+1+column*2, Y+1, Colors[Black])
+			C.graph.DrawPixel(X+column, Y, Colors[Black])
 		}
 	}
 }
