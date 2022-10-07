@@ -41,7 +41,7 @@ func (C *CRTC) Init(ram []byte, aux []byte, io []byte, chargen []byte, video *re
 	C.screenHeight = int(C.Reg[R6]) * 8 // * 2
 
 	C.graph = video
-	C.graph.Init(C.screenWidth, C.screenHeight, 2, "Go Apple II", false, conf.Disassamble)
+	C.graph.Init(C.screenWidth, C.screenHeight, 2, "Go Apple II", true, conf.Disassamble)
 	C.conf = conf
 	C.VideoPages[0] = [2]uint16{0x0400, 0x2000}
 	C.VideoPages[1] = [2]uint16{0x0400, 0x2000}
