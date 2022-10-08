@@ -11,6 +11,7 @@ import (
 	"reflect"
 	"runtime"
 	"strconv"
+	"time"
 
 	"github.com/Djoulzy/emutools/mos6510"
 
@@ -68,9 +69,9 @@ var (
 	InputLine    render.KEYPressed
 	outputDriver render.SDL2Driver
 	CRTC         crtc.CRTC
-	run          bool
 	trace        bool
 	lastPC       uint16
+	timeGap      time.Duration // 1Mhz = 1 000 000/s = 1000/ms
 )
 
 func init() {
@@ -185,8 +186,15 @@ func setup() {
 	CRTC.Init(RAM, AUX, IO, CHARGEN, &outputDriver, conf)
 	outputDriver.SetKeyboardLine(&InputLine)
 
+	// Throttle setup
+	if conf.Mhz == 0 {
+		timeGap = time.Microsecond * 1
+	} else {
+		timeGap = (time.Duration(conf.ThrottleInterval/conf.Mhz) * time.Microsecond)
+	}
+
 	// CPU Setup
-	cpu.Init(conf.CPUModel, conf.Mhz, &MEM, conf.Debug || conf.Disassamble)
+	cpu.Init(conf.CPUModel, &MEM, conf.Debug || conf.Disassamble)
 }
 
 func input() {
@@ -206,13 +214,11 @@ func input() {
 		case 'x':
 			// DumpMem(&pla, "memDump.bin")
 		case 'r':
-			run = true
 			trace = false
 		case 'l':
 		case ' ':
 			fmt.Printf("%s\n", cpu.FullDebug)
 			trace = true
-			run = true
 		case 'w':
 			fmt.Printf("\nFill Screen")
 			cpt := 0
@@ -260,13 +266,16 @@ func input() {
 
 func RunEmulation() {
 	var key byte
-	var speed float64
+	var cycles int64 = 0
+	var start = time.Now()
+	var elapsed time.Duration
+	var throttled = false
 
 	// defer timeTrack(time.Now(), "RunEmulation")
 	for {
-		CRTC.Run(!run)
+		CRTC.Run()
 
-		if run {
+		if !throttled {
 			if InputLine.KeyCode != 0 && !is_Keypressed {
 				key = keyMap[InputLine.KeyCode][InputLine.Mode]
 				// log.Printf("KEY DOWN - Code: %d  Mode: %d  -> %d", InputLine.KeyCode, InputLine.Mode, key)
@@ -276,23 +285,36 @@ func RunEmulation() {
 				InputLine.Mode = 0
 			}
 
-			speed = cpu.NextCycle()
+			cpu.NextCycle()
+			cycles++
 		}
 
-		if cpu.CycleCount == 1 {
-			if trace {
-				run = false
-			}
-			// if cpu.InstStart > 0x0300 && cpu.InstStart < 0xC000 {
-			// 	clog.FileRaw("\n%d: %s", cpu.Cycles, cpu.FullDebug)
-			// }
-			outputDriver.DumpCode(cpu.FullInst)
-			outputDriver.SetSpeed(speed)
-			if conf.Breakpoint == cpu.InstStart {
-				fmt.Printf("%s\n", cpu.FullDebug)
-				trace = true
+		if cycles >= conf.ThrottleInterval {
+			elapsed = time.Now().Sub(start)
+			if elapsed < timeGap {
+				throttled = true
+			} else {
+				outputDriver.SetSpeed(float64(cycles / elapsed.Microseconds()))
+				cycles = 0
+				throttled = false
+				start = time.Now()
 			}
 		}
+
+		// if cpu.CycleCount == 1 {
+		// 	if trace {
+		// 		run = false
+		// 	}
+		// 	// if cpu.InstStart > 0x0300 && cpu.InstStart < 0xC000 {
+		// 	// 	clog.FileRaw("\n%d: %s", cpu.Cycles, cpu.FullDebug)
+		// 	// }
+		// 	// outputDriver.DumpCode(cpu.FullInst)
+		// 	outputDriver.SetSpeed(speed)
+		// 	if conf.Breakpoint == cpu.InstStart {
+		// 		fmt.Printf("%s\n", cpu.FullDebug)
+		// 		trace = true
+		// 	}
+		// }
 	}
 }
 
@@ -328,7 +350,6 @@ func main() {
 	setup()
 	go input()
 
-	run = true
 	trace = false
 	outputDriver.ShowCode = false
 	outputDriver.ShowFps = true

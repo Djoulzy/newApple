@@ -2,16 +2,17 @@ package config
 
 // Globals : Partie globale du fichier de conf
 type Globals struct {
-	StartLogging bool
-	FileLog      string
-	Disassamble  bool
-	LogLevel     int
-	Debug        bool
-	Display      bool
-	Model        string
-	ColorDisplay bool
-	CPUModel     string
-	Mhz          int
+	StartLogging     bool
+	FileLog          string
+	Disassamble      bool
+	LogLevel         int
+	Debug            bool
+	Display          bool
+	Model            string
+	ColorDisplay     bool
+	CPUModel         string
+	Mhz              int64
+	ThrottleInterval int64
 }
 
 type Slots struct {

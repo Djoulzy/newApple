@@ -134,7 +134,7 @@ func (C *CRTC) drawChar(X int, Y int) {
 	C.videoMode(C, X, Y)
 }
 
-func (C *CRTC) Run(debug bool) bool {
+func (C *CRTC) Run() bool {
 	C.BeamX = int(C.CCLK) * 7
 
 	// log.Printf("BeamX: %d - BeamY: %d - CCLK: %02d - RasterLine: %02d", C.BeamX, C.BeamY, C.CCLK, C.RasterLine)

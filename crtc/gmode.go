@@ -18,11 +18,13 @@ var screenLine = [24]uint16{
 
 var boxLine = [8]uint16{0x0000, 0x0400, 0x0800, 0x0C00, 0x1000, 0x1400, 0x1800, 0x1C00}
 
-//////////////////////////////////////////////////////////////////////
-//                      Pour Apple II Original                      //
-//////////////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////////////////
+//
+//	Pour Apple II Original                      //
+//
+// ////////////////////////////////////////////////////////////////////
 func (C *CRTC) StandardTextModeA2(X int, Y int) {
-	screenChar = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK/2)]
+	screenChar = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK)]
 	pixelData = C.charRom[uint16(screenChar)<<3+uint16(C.RasterCount)]
 	switch screenChar & 0b11000000 {
 	case 0:
@@ -36,15 +38,9 @@ func (C *CRTC) StandardTextModeA2(X int, Y int) {
 	for column := 0; column < 7; column++ {
 		bit := byte(0b01000000 >> column)
 		if pixelData&bit == bit {
-			C.graph.DrawPixel(X+column*2, Y, C.TextColor)
-			C.graph.DrawPixel(X+1+column*2, Y, C.TextColor)
-			C.graph.DrawPixel(X+column*2, Y+1, C.TextColor)
-			C.graph.DrawPixel(X+1+column*2, Y+1, C.TextColor)
+			C.graph.DrawPixel(X+column, Y, C.TextColor)
 		} else {
-			C.graph.DrawPixel(X+column*2, Y, Colors[Black])
-			C.graph.DrawPixel(X+1+column*2, Y, Colors[Black])
-			C.graph.DrawPixel(X+column*2, Y+1, Colors[Black])
-			C.graph.DrawPixel(X+1+column*2, Y+1, Colors[Black])
+			C.graph.DrawPixel(X+column, Y, Colors[Black])
 		}
 	}
 }
