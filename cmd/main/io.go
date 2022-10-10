@@ -245,6 +245,7 @@ func (C *io_access) MRead(mem []mem2.MEMCell, addr uint16) byte {
 		return 0x00
 
 	case RDRAM_B2:
+		log.Println("RDRAM_B2")
 		MEM.Disable("ROM_D")
 		MEM.Disable("ROM_EF")
 		MEM.Disable("BANK1")
@@ -254,6 +255,7 @@ func (C *io_access) MRead(mem []mem2.MEMCell, addr uint16) byte {
 		is_BANK2 = true
 		return 0x80
 	case RDROM_WB2:
+		log.Println("RDROM_WB2")
 		MEM.Enable("ROM_D")
 		MEM.Enable("ROM_EF")
 		MEM.Disable("BANK1")
@@ -263,6 +265,7 @@ func (C *io_access) MRead(mem []mem2.MEMCell, addr uint16) byte {
 		is_BANK2 = true
 		return 0x80
 	case RDROM_2:
+		log.Println("RDROM_2")
 		MEM.Enable("ROM_D")
 		MEM.Enable("ROM_EF")
 		MEM.Disable("BANK1")
@@ -271,6 +274,7 @@ func (C *io_access) MRead(mem []mem2.MEMCell, addr uint16) byte {
 		is_BANK2 = false
 		return 0x80
 	case RWRAM_B2:
+		log.Println("RWRAM_B2")
 		MEM.Disable("ROM_D")
 		MEM.Disable("ROM_EF")
 		MEM.Disable("BANK1")
@@ -281,6 +285,7 @@ func (C *io_access) MRead(mem []mem2.MEMCell, addr uint16) byte {
 		return 0x80
 
 	case RDROM_1:
+		log.Println("RDROM_1")
 		MEM.Enable("ROM_D")
 		MEM.Enable("ROM_EF")
 		MEM.Disable("BANK1")
@@ -289,6 +294,7 @@ func (C *io_access) MRead(mem []mem2.MEMCell, addr uint16) byte {
 		is_BANK2 = false
 		return 0x80
 	case RDRAM_B1:
+		log.Println("RDRAM_B1")
 		MEM.Disable("ROM_D")
 		MEM.Disable("ROM_EF")
 		MEM.Enable("BANK1")
@@ -298,6 +304,7 @@ func (C *io_access) MRead(mem []mem2.MEMCell, addr uint16) byte {
 		is_BANK2 = false
 		return 0x80
 	case RDROM_WB1:
+		log.Println("RDROM_WB1")
 		MEM.Enable("ROM_D")
 		MEM.Enable("ROM_EF")
 		MEM.Enable("BANK1")
@@ -307,6 +314,7 @@ func (C *io_access) MRead(mem []mem2.MEMCell, addr uint16) byte {
 		is_BANK2 = false
 		return 0x80
 	case RWRAM_B1:
+		log.Println("RWRAM_B1")
 		MEM.Disable("ROM_D")
 		MEM.Disable("ROM_EF")
 		MEM.Enable("BANK1")
@@ -497,23 +505,27 @@ func (C *io_access) MWrite(mem []mem2.MEMCell, addr uint16, val byte) {
 		}
 
 	case RDRAM_B2:
+		log.Println("RDROM_WB2")
 		MEM.Disable("ROM_D")
 		MEM.Disable("ROM_EF")
 		MEM.Disable("BANK1")
 		MEM.Enable("BANK2")
 		MEM.ReadOnly("BANK2")
 	case RDROM_WB2:
+		log.Println("RDROM_WB2")
 		MEM.Enable("ROM_D")
 		MEM.Enable("ROM_EF")
 		MEM.Disable("BANK1")
 		MEM.Enable("BANK2")
 		MEM.ReadWrite("BANK2")
 	case RDROM_2:
+		log.Println("RDROM_WB2")
 		MEM.Enable("ROM_D")
 		MEM.Enable("ROM_EF")
 		MEM.Disable("BANK1")
 		MEM.Disable("BANK2")
 	case RWRAM_B2:
+		log.Println("RDROM_WB2")
 		MEM.Disable("ROM_D")
 		MEM.Disable("ROM_EF")
 		MEM.Disable("BANK1")
@@ -521,23 +533,27 @@ func (C *io_access) MWrite(mem []mem2.MEMCell, addr uint16, val byte) {
 		MEM.ReadWrite("BANK2")
 
 	case RDROM_1:
+		log.Println("RDROM_WB2")
 		MEM.Enable("ROM_D")
 		MEM.Enable("ROM_EF")
 		MEM.Disable("BANK1")
 		MEM.Disable("BANK2")
 	case RDRAM_B1:
+		log.Println("RDROM_WB2")
 		MEM.Disable("ROM_D")
 		MEM.Disable("ROM_EF")
 		MEM.Enable("BANK1")
 		MEM.Disable("BANK2")
 		MEM.ReadOnly("BANK1")
 	case RDROM_WB1:
+		log.Println("RDROM_WB2")
 		MEM.Enable("ROM_D")
 		MEM.Enable("ROM_EF")
 		MEM.Enable("BANK1")
 		MEM.Disable("BANK2")
 		MEM.ReadWrite("BANK1")
 	case RWRAM_B1:
+		log.Println("RDROM_WB2")
 		MEM.Disable("ROM_D")
 		MEM.Disable("ROM_EF")
 		MEM.Enable("BANK1")
