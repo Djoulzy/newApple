@@ -109,12 +109,12 @@ func (C *CRTC) UpdateVideoRam() {
 		C.videoBase = C.VideoPages[page][0]
 		C.pageSize = C.VideoPages[0][0]
 		C.videoRam = C.RAM[C.videoBase : C.videoBase+C.pageSize]
-		C.videoAux = C.AUX[C.videoBase : C.videoBase+C.pageSize]
+		// C.videoAux = C.AUX[C.videoBase : C.videoBase+C.pageSize]
 	} else {
 		C.videoBase = C.VideoPages[page][1]
 		C.pageSize = C.VideoPages[0][1]
 		C.videoRam = C.RAM[C.videoBase : C.videoBase+C.pageSize]
-		C.videoAux = C.AUX[C.videoBase : C.videoBase+C.pageSize]
+		// C.videoAux = C.AUX[C.videoBase : C.videoBase+C.pageSize]
 	}
 }
 

@@ -436,6 +436,7 @@ func (C *io_access) MWrite(mem []mem2.MEMCell, addr uint16, val byte) {
 		MEM.Enable("ALT_ZP")
 		MEM.Disable("ZP")
 	case INTCXROMOFF:
+		log.Println("INTCXROMOFF")
 		is_CX_INT = false
 		MEM.Enable("SLOT1")
 		MEM.Enable("SLOT2")
@@ -445,6 +446,7 @@ func (C *io_access) MWrite(mem []mem2.MEMCell, addr uint16, val byte) {
 		MEM.Enable("SLOT6")
 		MEM.Enable("SLOT7")
 	case INTCXROMON:
+		log.Println("INTCXROMON")
 		is_CX_INT = true
 		MEM.Disable("SLOT1")
 		MEM.Disable("SLOT2")

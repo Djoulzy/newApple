@@ -41,9 +41,9 @@ const (
 var (
 	conf = &config.ConfigData{}
 
-	cpu     mos6510.CPU
-	MODEL   int
-	BankSel byte
+	cpu       mos6510.CPU
+	MODEL     int
+	LayoutSel byte
 
 	RAM   []byte
 	BANK1 []byte
@@ -134,8 +134,8 @@ func loadDisks() (*disk.DRIVE, *disk.DRIVE) {
 }
 
 func setup() {
-	BankSel = 0
-	MEM = mem2.InitBanks(nbMemLayout, &BankSel)
+	LayoutSel = 0
+	MEM = mem2.InitBanks(nbMemLayout, &LayoutSel)
 
 	// Common Setup
 	RAM = make([]byte, ramSize)
@@ -143,41 +143,31 @@ func setup() {
 	BANK1 = make([]byte, romSize)
 	mem2.Clear(BANK1, 0x1000, 0xFF)
 	BANK2 = make([]byte, romSize*3)
-
-	ZP = make([]byte, 0x0200)
-	mem2.Clear(ZP, 0x1000, 0xFF)
-	ALT_ZP = make([]byte, 0x0200)
-	mem2.Clear(ALT_ZP, 0x1000, 0xFF)
-
-	AUX = make([]byte, ramSize)
-	mem2.Clear(RAM, 0x1000, 0xFF)
-	AUX_BANK1 = make([]byte, romSize)
-	mem2.Clear(BANK1, 0x1000, 0xFF)
-	AUX_BANK2 = make([]byte, romSize*3)
-
 	mem2.Clear(BANK2, 0x1000, 0xFF)
+
 	IO = make([]byte, softSwitches)
 	mem2.Clear(IO, 0, 0x00)
-
 	Disk1, Disk2 := loadDisks()
 	loadSlots()
-
 	IOAccess = InitIO(Disk1, Disk2, &CRTC)
 
-	// Disk1.DumpTrack(1)
-	// Disk1.ReadTrackRaw(0, 53404)
-	// Disk1.Dump(true)
-
-	// panic(1)
 	if MODEL == 1 {
+		AUX = nil
 		apple2_Roms()
 	} else {
+		ZP = make([]byte, 0x0200)
+		mem2.Clear(ZP, 0x1000, 0xFF)
+		ALT_ZP = make([]byte, 0x0200)
+		mem2.Clear(ALT_ZP, 0x1000, 0xFF)
+	
+		AUX = make([]byte, ramSize)
+		mem2.Clear(AUX, 0x1000, 0xFF)
+		AUX_BANK1 = make([]byte, romSize)
+		mem2.Clear(AUX_BANK1, 0x1000, 0xFF)
+		AUX_BANK2 = make([]byte, romSize*3)
+		mem2.Clear(AUX_BANK2, 0x1000, 0xFF)
 		apple2e_Roms()
 	}
-
-	// mem2.DisplayCharRom(CHARGEN, 1, 8, 16)
-
-	// MEM Setup
 
 	memLayouts(MODEL)
 
@@ -207,7 +197,7 @@ func input() {
 		switch r {
 		case 's':
 			MEM.DumpStack(cpu.SP)
-			fmt.Printf("Bank: %d\n", BankSel)
+			fmt.Printf("Bank: %d\n", LayoutSel)
 			cpu.DumpStackDebug()
 		case 'z':
 			MEM.Dump(0)
