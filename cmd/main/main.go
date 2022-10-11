@@ -3,23 +3,20 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"newApple/config"
 	"newApple/crtc"
 	"newApple/disk"
-	"os"
 	"reflect"
 	"runtime"
-	"strconv"
 	"time"
 
 	"github.com/Djoulzy/emutools/mos6510"
+	"github.com/mattn/go-tty"
 
 	"github.com/Djoulzy/Tools/clog"
 	"github.com/Djoulzy/Tools/confload"
 	"github.com/Djoulzy/emutools/mem2"
 	"github.com/Djoulzy/emutools/render"
-	"github.com/mattn/go-tty"
 )
 
 const (
@@ -70,6 +67,7 @@ var (
 	outputDriver render.SDL2Driver
 	CRTC         crtc.CRTC
 	trace        bool
+	stepper      bool
 	lastPC       uint16
 	timeGap      time.Duration // 1Mhz = 1 000 000/s = 1000/ms
 )
@@ -147,9 +145,9 @@ func setup() {
 
 	IO = make([]byte, softSwitches)
 	mem2.Clear(IO, 0, 0x00)
-	Disk1, Disk2 := loadDisks()
+	Disk1, _ := loadDisks()
 	loadSlots()
-	IOAccess = InitIO(Disk1, Disk2, &CRTC)
+	IOAccess = InitIO(Disk1, nil, &CRTC)
 
 	if MODEL == 1 {
 		AUX = nil
@@ -159,7 +157,7 @@ func setup() {
 		mem2.Clear(ZP, 0x1000, 0xFF)
 		ALT_ZP = make([]byte, 0x0200)
 		mem2.Clear(ALT_ZP, 0x1000, 0xFF)
-	
+
 		AUX = make([]byte, ramSize)
 		mem2.Clear(AUX, 0x1000, 0xFF)
 		AUX_BANK1 = make([]byte, romSize)
@@ -187,68 +185,6 @@ func setup() {
 	cpu.Init(conf.CPUModel, &MEM, conf.Debug || conf.Disassamble)
 }
 
-func input() {
-	dumpAddr := ""
-	var keyb *tty.TTY
-	keyb, _ = tty.Open()
-
-	for {
-		r, _ := keyb.ReadRune()
-		switch r {
-		case 's':
-			MEM.DumpStack(cpu.SP)
-			fmt.Printf("Bank: %d\n", LayoutSel)
-			cpu.DumpStackDebug()
-		case 'z':
-			MEM.Dump(0)
-		case 'x':
-			// DumpMem(&pla, "memDump.bin")
-		case 'r':
-			trace = false
-		case 'l':
-		case ' ':
-			fmt.Printf("%s\n", cpu.FullDebug)
-			trace = true
-		case 'w':
-			fmt.Printf("\nFill Screen")
-			cpt := 0
-			for i := 0x0400; i < 0x0800; i++ {
-				// RAM[uint16(i)] = byte(cpt)
-				AUX[uint16(i)] = byte(cpt)
-				cpt++
-			}
-		// for i := 0x0800; i < 0x0C00; i++ {
-		// 	IO[uint16(i)] = 0
-		// }
-		case 'k':
-			CRTC.ToggleMonitorColor()
-		case 'p':
-			if crtc.Is_PAGE2 {
-				crtc.Is_PAGE2 = false
-				log.Println("PAGE 1")
-			} else {
-				crtc.Is_PAGE2 = true
-				log.Println("PAGE 2")
-			}
-			CRTC.UpdateVideoRam()
-			CRTC.DumpMode()
-		case 'q':
-			fmt.Printf("%s\n", cpu.FullDebug)
-			os.Exit(0)
-		default:
-			dumpAddr += string(r)
-			fmt.Printf("%c", r)
-			if len(dumpAddr) == 4 {
-				hx, _ := strconv.ParseInt(dumpAddr, 16, 64)
-				fmt.Printf("\n")
-				MEM.Dump(uint16(hx))
-				dumpAddr = ""
-			}
-		}
-
-	}
-}
-
 // func timeTrack(start time.Time, name string) {
 // 	elapsed := time.Now().Sub(start)
 // 	log.Printf("%s took %s", name, elapsed)
@@ -260,6 +196,11 @@ func RunEmulation() {
 	var start = time.Now()
 	var elapsed time.Duration
 	var throttled = false
+
+	keyb, _ = tty.Open()
+	defer keyb.Close()
+
+	go input()
 
 	// defer timeTrack(time.Now(), "RunEmulation")
 	for {
@@ -288,6 +229,15 @@ func RunEmulation() {
 				cycles = 0
 				throttled = false
 				start = time.Now()
+			}
+		}
+
+		if cpu.CycleCount == 1 && trace {
+			fmt.Println(cpu.Trace())
+			if stepper {
+				if InterractiveMode() {
+					go input()
+				}
 			}
 		}
 
@@ -330,25 +280,14 @@ func main() {
 		MODEL = 2
 	}
 
-	// f, err := os.Create("newC64.prof")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// pprof.StartCPUProfile(f)
-	// defer pprof.StopCPUProfile()
-
 	setup()
-	go input()
 
 	trace = false
+	stepper = false
 	outputDriver.ShowCode = false
 	outputDriver.ShowFps = true
 
 	go RunEmulation()
-	// }()
 
 	outputDriver.Run(true)
-
-	// cpu.DumpStats()
-	// <-exit
 }
