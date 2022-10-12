@@ -1,12 +1,10 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"newApple/config"
 	"newApple/crtc"
 	"newApple/disk"
-	"reflect"
 	"runtime"
 	"time"
 
@@ -259,11 +257,6 @@ func RunEmulation() {
 }
 
 func main() {
-	var b bytes.Buffer
-	fmt.Println(reflect.TypeOf(b).PkgPath())
-	// var exit chan bool
-	// exit = make(chan bool)
-
 	confload.Load("config.ini", conf)
 
 	clog.LogLevel = conf.LogLevel
