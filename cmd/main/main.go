@@ -115,11 +115,11 @@ func loadDisks() (*disk.DRIVE, *disk.DRIVE) {
 	dsk2 = nil
 	if conf.Slots.Slot6 != "" {
 		if conf.Disks.Disk1 != "" {
-			dsk1 = disk.Attach(&cpu)
+			dsk1 = disk.Attach(&cpu, conf.Globals.DebugMode)
 			dsk1.LoadDiskImage(conf.Disks.Disk1)
 		}
 		if conf.Disks.Disk2 != "" {
-			dsk2 = disk.Attach(&cpu)
+			dsk2 = disk.Attach(&cpu, conf.Globals.DebugMode)
 			dsk2.LoadDiskImage(conf.Disks.Disk2)
 		}
 		if dsk1 == nil && dsk2 == nil {
@@ -180,17 +180,13 @@ func setup() {
 	}
 
 	// CPU Setup
-	cpu.Init(conf.CPUModel, &MEM, conf.Debug || conf.Disassamble)
+	cpu.Init(conf.CPUModel, &MEM, conf.Globals.DebugMode)
 }
-
-// func timeTrack(start time.Time, name string) {
-// 	elapsed := time.Now().Sub(start)
-// 	log.Printf("%s took %s", name, elapsed)
-// }
 
 func RunEmulation() {
 	var key byte
-	var cycles int64 = 0
+	var interCycles int64 = 0
+	var cycles uint64 = 0
 	var start = time.Now()
 	var elapsed time.Duration
 	var throttled = false
@@ -215,44 +211,35 @@ func RunEmulation() {
 			}
 
 			cpu.NextCycle()
+			interCycles++
 			cycles++
 		}
 
-		if cycles >= conf.ThrottleInterval {
+		if interCycles >= conf.ThrottleInterval {
 			elapsed = time.Now().Sub(start)
 			if elapsed < timeGap {
 				throttled = true
 			} else {
-				outputDriver.SetSpeed(float64(cycles / elapsed.Microseconds()))
-				cycles = 0
+				outputDriver.SetSpeed(float64(interCycles / elapsed.Microseconds()))
+				interCycles = 0
 				throttled = false
 				start = time.Now()
 			}
 		}
 
+		if (conf.Breakpoint == cpu.InstStart) || (cycles >= conf.BreakCycle) {
+			trace = true
+			stepper = true
+		}
+
 		if cpu.CycleCount == 1 && trace {
-			fmt.Println(cpu.Trace())
+			fmt.Printf("%d -- %s\n", cycles, cpu.Trace())
 			if stepper {
 				if InterractiveMode() {
 					go input()
 				}
 			}
 		}
-
-		// if cpu.CycleCount == 1 {
-		// 	if trace {
-		// 		run = false
-		// 	}
-		// 	// if cpu.InstStart > 0x0300 && cpu.InstStart < 0xC000 {
-		// 	// 	clog.FileRaw("\n%d: %s", cpu.Cycles, cpu.FullDebug)
-		// 	// }
-		// 	// outputDriver.DumpCode(cpu.FullInst)
-		// 	outputDriver.SetSpeed(speed)
-		// 	if conf.Breakpoint == cpu.InstStart {
-		// 		fmt.Printf("%s\n", cpu.FullDebug)
-		// 		trace = true
-		// 	}
-		// }
 	}
 }
 
@@ -275,12 +262,11 @@ func main() {
 
 	setup()
 
-	trace = false
+	trace = conf.Trace
 	stepper = false
 	outputDriver.ShowCode = false
 	outputDriver.ShowFps = true
 
 	go RunEmulation()
-
 	outputDriver.Run(true)
 }

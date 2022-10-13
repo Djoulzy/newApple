@@ -37,7 +37,9 @@ type DRIVE struct {
 	cpu *mos6510.CPU
 }
 
-func Attach(cpu *mos6510.CPU) *DRIVE {
+var debug bool
+
+func Attach(cpu *mos6510.CPU, debugMode bool) *DRIVE {
 	drive := DRIVE{}
 	drive.cpu = cpu
 
@@ -46,6 +48,7 @@ func Attach(cpu *mos6510.CPU) *DRIVE {
 	drive.IsWriteProtected = false
 	drive.IsEmpty = true
 
+	debug = debugMode
 	return &drive
 }
 
@@ -55,9 +58,9 @@ func (D *DRIVE) LoadDiskImage(fileName string) {
 	ext := filepath.Ext(fileName)
 	switch ext {
 	case ".woz":
-		D.diskImage, err = gowoz.InitContainer(fileName)
+		D.diskImage, err = gowoz.InitContainer(fileName, debug)
 	case ".dsk":
-		D.diskImage, err = godsk.InitContainer(fileName)
+		D.diskImage, err = godsk.InitContainer(fileName, debug)
 	default:
 		panic("Unknown image disk format")
 	}

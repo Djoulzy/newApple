@@ -44,8 +44,6 @@ func LoadData(mem []byte, file string, memStart uint16) error {
 }
 
 func start() {
-	conf.Disassamble = false
-
 	RAM = make([]byte, ramSize)
 	mem.Clear(RAM, 0x1000, 0xFF)
 	IO = make([]byte, ioSize)

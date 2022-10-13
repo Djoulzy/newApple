@@ -4,14 +4,14 @@ package config
 type Globals struct {
 	StartLogging     bool
 	FileLog          string
-	Disassamble      bool
 	LogLevel         int
-	Debug            bool
 	Display          bool
 	Model            string
 	ColorDisplay     bool
 	CPUModel         string
 	Mhz              int64
+	Trace            bool
+	DebugMode        bool
 	ThrottleInterval int64
 }
 
@@ -33,6 +33,7 @@ type Disks struct {
 
 type DebugMode struct {
 	Breakpoint uint16
+	BreakCycle uint64
 	Dump       uint16
 	Zone       int
 }
