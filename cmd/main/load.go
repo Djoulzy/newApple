@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Djoulzy/emutools/mem"
+	mem "github.com/Djoulzy/emutools/mem2"
 )
 
 func LoadHex(mem []byte, code string) (uint16, error) {

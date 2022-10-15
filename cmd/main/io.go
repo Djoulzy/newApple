@@ -5,7 +5,7 @@ import (
 	"newApple/crtc"
 	"newApple/disk"
 
-	"github.com/Djoulzy/emutools/mem2"
+	mem "github.com/Djoulzy/emutools/mem2"
 )
 
 const (
@@ -136,7 +136,7 @@ func InitIO(d1 *disk.DRIVE, d2 *disk.DRIVE, vid *crtc.CRTC) *io_access {
 	return &tmp
 }
 
-func (C *io_access) MRead(mem []mem2.MEMCell, addr uint16) byte {
+func (C *io_access) MRead(mem []mem.MEMCell, addr uint16) byte {
 	// clog.Test("Accessor", "MRead", "Addr: %04X", translatedAddr)
 	switch addr {
 	case _80COL:
@@ -418,7 +418,7 @@ func (C *io_access) MRead(mem []mem2.MEMCell, addr uint16) byte {
 	}
 }
 
-func (C *io_access) MWrite(mem []mem2.MEMCell, addr uint16, val byte) {
+func (C *io_access) MWrite(mem []mem.MEMCell, addr uint16, val byte) {
 	switch addr {
 	case _80COLOFF:
 		crtc.Is_80COL = false
@@ -610,6 +610,6 @@ func (C *io_access) MWrite(mem []mem2.MEMCell, addr uint16, val byte) {
 	// mem[translatedAddr] = val
 }
 
-func (C *io_access) MWriteUnder(mem []mem2.MEMCell, addr uint16, value byte) {
+func (C *io_access) MWriteUnder(mem []mem.MEMCell, addr uint16, value byte) {
 	*mem[addr].Under = value
 }

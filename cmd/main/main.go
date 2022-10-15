@@ -8,12 +8,12 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/Djoulzy/emutools/mos6510"
+	PROC "github.com/Djoulzy/emutools/mos6510"
 	"github.com/mattn/go-tty"
 
 	"github.com/Djoulzy/Tools/clog"
 	"github.com/Djoulzy/Tools/confload"
-	"github.com/Djoulzy/emutools/mem2"
+	mem "github.com/Djoulzy/emutools/mem2"
 	"github.com/Djoulzy/emutools/render"
 )
 
@@ -36,7 +36,7 @@ const (
 var (
 	conf = &config.ConfigData{}
 
-	cpu       mos6510.CPU
+	cpu       PROC.CPU
 	MODEL     int
 	LayoutSel byte
 
@@ -58,8 +58,8 @@ var (
 	SLOTS   [8][]byte
 	CHARGEN []byte
 
-	MEM      mem2.BANK
-	IOAccess mem2.MEMAccess
+	MEM      PROC.MemoryManager
+	IOAccess mem.MEMAccess
 
 	InputLine    render.KEYPressed
 	outputDriver render.SDL2Driver
@@ -77,16 +77,16 @@ func init() {
 }
 
 func apple2_Roms() {
-	ROM_D = mem2.LoadROM(romSize, "assets/roms/II/D.bin")
-	ROM_EF = mem2.LoadROM(romSize*2, "assets/roms/II/EF.bin")
-	CHARGEN = mem2.LoadROM(chargenSize, "assets/roms/II/3410036.bin")
+	ROM_D = mem.LoadROM(romSize, "assets/roms/II/D.bin")
+	ROM_EF = mem.LoadROM(romSize*2, "assets/roms/II/EF.bin")
+	CHARGEN = mem.LoadROM(chargenSize, "assets/roms/II/3410036.bin")
 }
 
 func apple2e_Roms() {
-	ROM_C = mem2.LoadROM(romSize, "assets/roms/IIe/C.bin")
-	ROM_D = mem2.LoadROM(romSize, "assets/roms/IIe/D.bin")
-	ROM_EF = mem2.LoadROM(romSize*2, "assets/roms/IIe/EF.bin")
-	CHARGEN = mem2.LoadROM(chargenSize*2, "assets/roms/IIe/Video_US.bin")
+	ROM_C = mem.LoadROM(romSize, "assets/roms/IIe/C.bin")
+	ROM_D = mem.LoadROM(romSize, "assets/roms/IIe/D.bin")
+	ROM_EF = mem.LoadROM(romSize*2, "assets/roms/IIe/EF.bin")
+	CHARGEN = mem.LoadROM(chargenSize*2, "assets/roms/IIe/Video_US.bin")
 }
 
 func loadSlots() {
@@ -100,10 +100,10 @@ func loadSlots() {
 
 	for i := 1; i < 8; i++ {
 		if conf.Slots.Catalog[i] != "" {
-			SLOTS[i] = mem2.LoadROM(slot_roms, conf.Slots.Catalog[i])
+			SLOTS[i] = mem.LoadROM(slot_roms, conf.Slots.Catalog[i])
 		} else {
 			SLOTS[i] = make([]byte, slot_roms)
-			mem2.Clear(SLOTS[i], 0, 0x71)
+			mem.Clear(SLOTS[i], 0, 0x71)
 		}
 	}
 }
@@ -115,11 +115,11 @@ func loadDisks() (*disk.DRIVE, *disk.DRIVE) {
 	dsk2 = nil
 	if conf.Slots.Slot6 != "" {
 		if conf.Disks.Disk1 != "" {
-			dsk1 = disk.Attach(&cpu, conf.Globals.DebugMode)
+			dsk1 = disk.Attach(conf.Globals.DebugMode)
 			dsk1.LoadDiskImage(conf.Disks.Disk1)
 		}
 		if conf.Disks.Disk2 != "" {
-			dsk2 = disk.Attach(&cpu, conf.Globals.DebugMode)
+			dsk2 = disk.Attach(conf.Globals.DebugMode)
 			dsk2.LoadDiskImage(conf.Disks.Disk2)
 		}
 		if dsk1 == nil && dsk2 == nil {
@@ -131,18 +131,18 @@ func loadDisks() (*disk.DRIVE, *disk.DRIVE) {
 
 func setup() {
 	LayoutSel = 0
-	MEM = mem2.InitBanks(nbMemLayout, &LayoutSel)
+	MEM = mem.Init(nbMemLayout, ramSize, &LayoutSel)
 
 	// Common Setup
 	RAM = make([]byte, ramSize)
-	mem2.Clear(RAM, 0x1000, 0xFF)
+	mem.Clear(RAM, 0x1000, 0xFF)
 	BANK1 = make([]byte, romSize)
-	mem2.Clear(BANK1, 0x1000, 0xFF)
+	mem.Clear(BANK1, 0x1000, 0xFF)
 	BANK2 = make([]byte, romSize*3)
-	mem2.Clear(BANK2, 0x1000, 0xFF)
+	mem.Clear(BANK2, 0x1000, 0xFF)
 
 	IO = make([]byte, softSwitches)
-	mem2.Clear(IO, 0, 0x00)
+	mem.Clear(IO, 0, 0x00)
 	Disk1, _ := loadDisks()
 	loadSlots()
 	IOAccess = InitIO(Disk1, nil, &CRTC)
@@ -152,16 +152,16 @@ func setup() {
 		apple2_Roms()
 	} else {
 		ZP = make([]byte, 0x0200)
-		mem2.Clear(ZP, 0x1000, 0xFF)
+		mem.Clear(ZP, 0x1000, 0xFF)
 		ALT_ZP = make([]byte, 0x0200)
-		mem2.Clear(ALT_ZP, 0x1000, 0xFF)
+		mem.Clear(ALT_ZP, 0x1000, 0xFF)
 
 		AUX = make([]byte, ramSize)
-		mem2.Clear(AUX, 0x1000, 0xFF)
+		mem.Clear(AUX, 0x1000, 0xFF)
 		AUX_BANK1 = make([]byte, romSize)
-		mem2.Clear(AUX_BANK1, 0x1000, 0xFF)
+		mem.Clear(AUX_BANK1, 0x1000, 0xFF)
 		AUX_BANK2 = make([]byte, romSize*3)
-		mem2.Clear(AUX_BANK2, 0x1000, 0xFF)
+		mem.Clear(AUX_BANK2, 0x1000, 0xFF)
 		apple2e_Roms()
 	}
 
@@ -180,7 +180,7 @@ func setup() {
 	}
 
 	// CPU Setup
-	cpu.Init(conf.CPUModel, &MEM, conf.Globals.DebugMode)
+	cpu.Init(conf.CPUModel, MEM, conf.Globals.DebugMode)
 }
 
 func RunEmulation() {
@@ -227,7 +227,7 @@ func RunEmulation() {
 			}
 		}
 
-		if (conf.Breakpoint == cpu.InstStart) || (cycles >= conf.BreakCycle) {
+		if (conf.Breakpoint == cpu.InstStart) {
 			trace = true
 			stepper = true
 		}
@@ -267,6 +267,7 @@ func main() {
 	outputDriver.ShowCode = false
 	outputDriver.ShowFps = true
 
+	fmt.Printf("Trace : %t - Breakpoint: %04X - Breakcycle: %d\n", trace, conf.Breakpoint, conf.BreakCycle)
 	go RunEmulation()
 	outputDriver.Run(true)
 }

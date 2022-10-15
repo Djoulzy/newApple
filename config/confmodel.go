@@ -33,7 +33,7 @@ type Disks struct {
 
 type DebugMode struct {
 	Breakpoint uint16
-	BreakCycle uint64
+	BreakCycle int64
 	Dump       uint16
 	Zone       int
 }

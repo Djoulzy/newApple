@@ -9,7 +9,6 @@ import (
 	"github.com/Djoulzy/gowoz"
 
 	"github.com/Djoulzy/Tools/clog"
-	"github.com/Djoulzy/emutools/mos6510"
 )
 
 var MotorIsOn bool = false
@@ -33,15 +32,12 @@ type DRIVE struct {
 
 	currentPhase   int
 	diskHasChanges bool
-
-	cpu *mos6510.CPU
 }
 
 var debug bool
 
-func Attach(cpu *mos6510.CPU, debugMode bool) *DRIVE {
+func Attach(debugMode bool) *DRIVE {
 	drive := DRIVE{}
-	drive.cpu = cpu
 
 	drive.currentPhase = 0
 	drive.motorPhases = [4]bool{false, false, false, false}

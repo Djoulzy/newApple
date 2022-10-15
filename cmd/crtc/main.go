@@ -6,7 +6,7 @@ import (
 	"newApple/crtc"
 	"runtime"
 
-	"github.com/Djoulzy/emutools/mem"
+	mem "github.com/Djoulzy/emutools/mem2"
 	"github.com/Djoulzy/emutools/render"
 )
 
