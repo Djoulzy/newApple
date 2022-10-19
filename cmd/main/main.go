@@ -13,7 +13,7 @@ import (
 
 	"github.com/Djoulzy/Tools/clog"
 	"github.com/Djoulzy/Tools/confload"
-	mem "github.com/Djoulzy/emutools/mem2"
+	mem "github.com/Djoulzy/emutools/mem/v2"
 	"github.com/Djoulzy/emutools/render"
 )
 
@@ -58,7 +58,7 @@ var (
 	SLOTS   [8][]byte
 	CHARGEN []byte
 
-	MEM      PROC.MemoryManager
+	MEM      PROC.Manager
 	IOAccess mem.MEMAccess
 
 	InputLine    render.KEYPressed

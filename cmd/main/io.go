@@ -5,7 +5,7 @@ import (
 	"newApple/crtc"
 	"newApple/disk"
 
-	mem "github.com/Djoulzy/emutools/mem2"
+	mem "github.com/Djoulzy/emutools/mem/v2"
 )
 
 const (
