@@ -77,16 +77,16 @@ func init() {
 }
 
 func apple2_Roms() {
-	ROM_D = mem.LoadROM(romSize, "assets/roms/II/D.bin")
-	ROM_EF = mem.LoadROM(romSize*2, "assets/roms/II/EF.bin")
-	CHARGEN = mem.LoadROM(chargenSize, "assets/roms/II/3410036.bin")
+	ROM_D = MEM.LoadROM(romSize, "assets/roms/II/D.bin")
+	ROM_EF = MEM.LoadROM(romSize*2, "assets/roms/II/EF.bin")
+	CHARGEN = MEM.LoadROM(chargenSize, "assets/roms/II/3410036.bin")
 }
 
 func apple2e_Roms() {
-	ROM_C = mem.LoadROM(romSize, "assets/roms/IIe/C.bin")
-	ROM_D = mem.LoadROM(romSize, "assets/roms/IIe/D.bin")
-	ROM_EF = mem.LoadROM(romSize*2, "assets/roms/IIe/EF.bin")
-	CHARGEN = mem.LoadROM(chargenSize*2, "assets/roms/IIe/Video_US.bin")
+	ROM_C = MEM.LoadROM(romSize, "assets/roms/IIe/C.bin")
+	ROM_D = MEM.LoadROM(romSize, "assets/roms/IIe/D.bin")
+	ROM_EF = MEM.LoadROM(romSize*2, "assets/roms/IIe/EF.bin")
+	CHARGEN = MEM.LoadROM(chargenSize*2, "assets/roms/IIe/Video_US.bin")
 }
 
 func loadSlots() {
@@ -100,10 +100,10 @@ func loadSlots() {
 
 	for i := 1; i < 8; i++ {
 		if conf.Slots.Catalog[i] != "" {
-			SLOTS[i] = mem.LoadROM(slot_roms, conf.Slots.Catalog[i])
+			SLOTS[i] = MEM.LoadROM(slot_roms, conf.Slots.Catalog[i])
 		} else {
 			SLOTS[i] = make([]byte, slot_roms)
-			mem.Clear(SLOTS[i], 0, 0x71)
+			MEM.Clear(SLOTS[i], 0, 0x71)
 		}
 	}
 }
@@ -135,14 +135,14 @@ func setup() {
 
 	// Common Setup
 	RAM = make([]byte, ramSize)
-	mem.Clear(RAM, 0x1000, 0xFF)
+	MEM.Clear(RAM, 0x1000, 0xFF)
 	BANK1 = make([]byte, romSize)
-	mem.Clear(BANK1, 0x1000, 0xFF)
+	MEM.Clear(BANK1, 0x1000, 0xFF)
 	BANK2 = make([]byte, romSize*3)
-	mem.Clear(BANK2, 0x1000, 0xFF)
+	MEM.Clear(BANK2, 0x1000, 0xFF)
 
 	IO = make([]byte, softSwitches)
-	mem.Clear(IO, 0, 0x00)
+	MEM.Clear(IO, 0, 0x00)
 	Disk1, _ := loadDisks()
 	loadSlots()
 	IOAccess = InitIO(Disk1, nil, &CRTC)
@@ -152,16 +152,16 @@ func setup() {
 		apple2_Roms()
 	} else {
 		ZP = make([]byte, 0x0200)
-		mem.Clear(ZP, 0x1000, 0xFF)
+		MEM.Clear(ZP, 0x1000, 0xFF)
 		ALT_ZP = make([]byte, 0x0200)
-		mem.Clear(ALT_ZP, 0x1000, 0xFF)
+		MEM.Clear(ALT_ZP, 0x1000, 0xFF)
 
 		AUX = make([]byte, ramSize)
-		mem.Clear(AUX, 0x1000, 0xFF)
+		MEM.Clear(AUX, 0x1000, 0xFF)
 		AUX_BANK1 = make([]byte, romSize)
-		mem.Clear(AUX_BANK1, 0x1000, 0xFF)
+		MEM.Clear(AUX_BANK1, 0x1000, 0xFF)
 		AUX_BANK2 = make([]byte, romSize*3)
-		mem.Clear(AUX_BANK2, 0x1000, 0xFF)
+		MEM.Clear(AUX_BANK2, 0x1000, 0xFF)
 		apple2e_Roms()
 	}
 
@@ -227,7 +227,7 @@ func RunEmulation() {
 			}
 		}
 
-		if (conf.Breakpoint == cpu.InstStart) {
+		if conf.Breakpoint == cpu.InstStart {
 			trace = true
 			stepper = true
 		}
