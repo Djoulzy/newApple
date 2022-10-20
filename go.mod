@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/Djoulzy/Tools/clog v0.0.0-20220609190146-71af779f6ddc
 	github.com/Djoulzy/Tools/confload v0.0.0-20220609190146-71af779f6ddc
-	github.com/Djoulzy/emutools/mem/v2 v2.0.0-20221019172136-ccfe72c37753
+	github.com/Djoulzy/emutools/mem v0.0.0-20221019172136-ccfe72c37753
 	github.com/Djoulzy/emutools/mos6510 v0.0.0-20221019172136-ccfe72c37753
 	github.com/Djoulzy/emutools/render v0.0.0-20221019172136-ccfe72c37753
 	github.com/Djoulzy/godsk v0.0.0-20221012182138-3f22e902d449
@@ -32,5 +32,5 @@ replace (
 	github.com/Djoulzy/emutools/mem v0.0.0-20221019172136-ccfe72c37753 => ../github.com/Djoulzy/emutools/mem
 	github.com/Djoulzy/emutools/mem/v2 v2.0.0-20221019172136-ccfe72c37753 => ../github.com/Djoulzy/emutools/mem/v2
 	github.com/Djoulzy/emutools/mos6510 v0.0.0-20221019172136-ccfe72c37753 => ../github.com/Djoulzy/emutools/mos6510
-	github.com/Djoulzy/emutools/render v0.0.0-20221007120533-563ad8d32afa => ../github.com/Djoulzy/emutools/render
+	github.com/Djoulzy/emutools/render v0.0.0-20221019172136-ccfe72c37753 => ../github.com/Djoulzy/emutools/render
 )

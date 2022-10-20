@@ -5,7 +5,7 @@ import (
 	"newApple/crtc"
 	"newApple/disk"
 
-	mem "github.com/Djoulzy/emutools/mem/v2"
+	mem "github.com/Djoulzy/emutools/mem"
 )
 
 const (
@@ -413,7 +413,7 @@ func (C *io_access) MRead(mem []mem.MEMCell, addr uint16) byte {
 		return C.SetSequencerMode(SEQ_WRITE_MODE)
 
 	default:
-		// log.Printf("Read Unknown: %02X\n", translatedAddr)
+		log.Printf("Read Unknown: %02X\n", addr)
 		return 0x00
 	}
 }
@@ -611,5 +611,6 @@ func (C *io_access) MWrite(mem []mem.MEMCell, addr uint16, val byte) {
 }
 
 func (C *io_access) MWriteUnder(mem []mem.MEMCell, addr uint16, value byte) {
+	log.Printf("WRITE UNDER")
 	*mem[addr].Under = value
 }

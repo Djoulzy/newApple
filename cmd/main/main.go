@@ -13,7 +13,7 @@ import (
 
 	"github.com/Djoulzy/Tools/clog"
 	"github.com/Djoulzy/Tools/confload"
-	mem "github.com/Djoulzy/emutools/mem/v2"
+	mem "github.com/Djoulzy/emutools/mem"
 	"github.com/Djoulzy/emutools/render"
 )
 
