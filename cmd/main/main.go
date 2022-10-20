@@ -131,7 +131,7 @@ func loadDisks() (*disk.DRIVE, *disk.DRIVE) {
 
 func setup() {
 	LayoutSel = 0
-	MEM = mem.Init(nbMemLayout, ramSize, &LayoutSel)
+	MEM = mem.GetMemoryManager(nbMemLayout, ramSize, &LayoutSel)
 
 	// Common Setup
 	RAM = make([]byte, ramSize)
