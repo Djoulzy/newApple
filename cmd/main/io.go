@@ -5,7 +5,7 @@ import (
 	"newApple/crtc"
 	"newApple/disk"
 
-	mem "github.com/Djoulzy/emutools/mem"
+	mem "github.com/Djoulzy/emutools/mem/v2"
 )
 
 const (
@@ -137,7 +137,6 @@ func InitIO(d1 *disk.DRIVE, d2 *disk.DRIVE, vid *crtc.CRTC) *io_access {
 }
 
 func (C *io_access) MRead(mem []mem.MEMCell, addr uint16) byte {
-	// clog.Test("Accessor", "MRead", "Addr: %04X", translatedAddr)
 	switch addr {
 	case _80COL:
 		// PRINT (PEEK(49183))
