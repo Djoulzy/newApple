@@ -1,15 +1,23 @@
 module newApple
 
-go 1.18
+go 1.20
+
+replace (
+	github.com/Djoulzy/chip => ../github.com/Djoulzy/chip
+	github.com/Djoulzy/emutools/mos6510 => ../github.com/Djoulzy/emutools/mos6510
+	github.com/Djoulzy/mmu => ../github.com/Djoulzy/mmu
+)
 
 require (
 	github.com/Djoulzy/Tools/clog v0.0.0-20220609190146-71af779f6ddc
 	github.com/Djoulzy/Tools/confload v0.0.0-20220609190146-71af779f6ddc
+	github.com/Djoulzy/chip v0.0.0-20230522060824-01f08e372199
 	github.com/Djoulzy/emutools/mem v0.0.0-20221020174520-027303f02bbe
-	github.com/Djoulzy/emutools/mos6510 v0.0.0-20221020174520-027303f02bbe
+	github.com/Djoulzy/emutools/mos6510 v0.0.0-00010101000000-000000000000
 	github.com/Djoulzy/emutools/render v0.0.0-20221020174520-027303f02bbe
 	github.com/Djoulzy/godsk v0.0.0-20221012182138-3f22e902d449
 	github.com/Djoulzy/gowoz v0.0.0-20221012182153-b80301c0b697
+	github.com/Djoulzy/mmu v0.0.0-20221015154434-3927fedd1199
 	github.com/mattn/go-tty v0.0.5
 )
 
@@ -26,11 +34,4 @@ require (
 	golang.org/x/image v0.7.0 // indirect
 	golang.org/x/sys v0.8.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-)
-
-replace (
-	github.com/Djoulzy/emutools/mem v0.0.0-20221019172136-ccfe72c37753 => ../github.com/Djoulzy/emutools/mem
-	github.com/Djoulzy/emutools/mem/v2 v2.0.0-20221019172136-ccfe72c37753 => ../github.com/Djoulzy/emutools/mem/v2
-	github.com/Djoulzy/emutools/mos6510 v0.0.0-20221019172136-ccfe72c37753 => ../github.com/Djoulzy/emutools/mos6510
-	github.com/Djoulzy/emutools/render v0.0.0-20221019172136-ccfe72c37753 => ../github.com/Djoulzy/emutools/render
 )

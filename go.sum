@@ -6,8 +6,6 @@ github.com/Djoulzy/emutools/charset v0.0.0-20221020174520-027303f02bbe h1:+3zx6z
 github.com/Djoulzy/emutools/charset v0.0.0-20221020174520-027303f02bbe/go.mod h1:nHh/Oz8MYyMM1G6/QcjV+m/5fmzwHNLDom7PrgBqsQo=
 github.com/Djoulzy/emutools/mem v0.0.0-20221020174520-027303f02bbe h1:6lvrdH7z3ffFK95XEhBUXmAWgBjQXwxVPfaBjp+sXUI=
 github.com/Djoulzy/emutools/mem v0.0.0-20221020174520-027303f02bbe/go.mod h1:yCBq5m30YRrrhVWfDAa+X7vHzsA2+OoOpZ64vZZsvJM=
-github.com/Djoulzy/emutools/mos6510 v0.0.0-20221020174520-027303f02bbe h1:/dt7UzT8lnLuJ4aFa3zOhUUM/lvrILWA45PCy0wzSQQ=
-github.com/Djoulzy/emutools/mos6510 v0.0.0-20221020174520-027303f02bbe/go.mod h1:TsSkBgBD+mZHMbhXjDm4sill9ewvxo+TxpRhqreaxQM=
 github.com/Djoulzy/emutools/render v0.0.0-20221020174520-027303f02bbe h1:K7CmKIjHK6pN9irHizmzhEZsMPxe7yDqEgRVxf9zxis=
 github.com/Djoulzy/emutools/render v0.0.0-20221020174520-027303f02bbe/go.mod h1:6tsdFxguvAbiA3SJ56ajqBMPCXgEy7quBtcPpkV66i8=
 github.com/Djoulzy/godsk v0.0.0-20221012182138-3f22e902d449 h1:zFPXoeQFAbjVsgAhppNyU2dI7JKThWF48og/iRBzkao=
@@ -32,7 +30,7 @@ github.com/mattn/go-tty v0.0.5 h1:s09uXI7yDbXzzTTfw3zonKFzwGkyYlgU3OMjqA0ddz4=
 github.com/mattn/go-tty v0.0.5/go.mod h1:u5GGXBtZU6RQoKV8gY5W6UhMudbR5vXnUe7j3pxse28=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
-github.com/stretchr/testify v1.7.2 h1:4jaiDzPyXQvSd7D0EjG45355tLlV3VOECpq10pLC+8s=
+github.com/stretchr/testify v1.8.3 h1:RP3t2pwF7cMEbC1dqtB6poj3niw/9gnV4Cjg5oW5gtY=
 github.com/veandco/go-sdl2 v0.4.35 h1:NohzsfageDWGtCd9nf7Pc3sokMK/MOK+UA2QMJARWzQ=
 github.com/veandco/go-sdl2 v0.4.35/go.mod h1:OROqMhHD43nT4/i9crJukyVecjPNYYuCofep6SNiAjY=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=

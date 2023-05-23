@@ -8,12 +8,13 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/Djoulzy/chip"
 	PROC "github.com/Djoulzy/emutools/mos6510"
+	"github.com/Djoulzy/mmu"
 	"github.com/mattn/go-tty"
 
 	"github.com/Djoulzy/Tools/clog"
 	"github.com/Djoulzy/Tools/confload"
-	mem "github.com/Djoulzy/emutools/mem"
 	"github.com/Djoulzy/emutools/render"
 )
 
@@ -40,26 +41,15 @@ var (
 	MODEL     int
 	LayoutSel byte
 
-	RAM   []byte
-	BANK1 []byte
-	BANK2 []byte
+	RAM    *chip.RAM
+	ROM_D  *chip.ROM
+	ROM_EF *chip.ROM
 
-	ZP        []byte
-	ALT_ZP    []byte
-	AUX       []byte
-	AUX_BANK1 []byte
-	AUX_BANK2 []byte
+	IO *chip.RAM
+	// SLOTS   [8][]byte
+	CHARGEN *chip.ROM
 
-	ROM_C  []byte
-	ROM_D  []byte
-	ROM_EF []byte
-
-	IO      []byte
-	SLOTS   [8][]byte
-	CHARGEN []byte
-
-	MEM      PROC.Manager
-	IOAccess mem.MEMAccess
+	MEM *mmu.MMU
 
 	InputLine    render.KEYPressed
 	outputDriver render.SDL2Driver
@@ -77,36 +67,36 @@ func init() {
 }
 
 func apple2_Roms() {
-	ROM_D = MEM.LoadROM(romSize, "assets/roms/II/D.bin")
-	ROM_EF = MEM.LoadROM(romSize*2, "assets/roms/II/EF.bin")
-	CHARGEN = MEM.LoadROM(chargenSize, "assets/roms/II/3410036.bin")
+	ROM_D = chip.NewROM(romSize, "assets/roms/II/D.bin")
+	ROM_EF = chip.NewROM(romSize*2, "assets/roms/II/EF.bin")
+	CHARGEN = chip.NewROM(chargenSize, "assets/roms/II/3410036.bin")
 }
 
-func apple2e_Roms() {
-	ROM_C = MEM.LoadROM(romSize, "assets/roms/IIe/C.bin")
-	ROM_D = MEM.LoadROM(romSize, "assets/roms/IIe/D.bin")
-	ROM_EF = MEM.LoadROM(romSize*2, "assets/roms/IIe/EF.bin")
-	CHARGEN = MEM.LoadROM(chargenSize*2, "assets/roms/IIe/Video_US.bin")
-}
+// func apple2e_Roms() {
+// 	ROM_C = MEM.LoadROM(romSize, "assets/roms/IIe/C.bin")
+// 	ROM_D = MEM.LoadROM(romSize, "assets/roms/IIe/D.bin")
+// 	ROM_EF = MEM.LoadROM(romSize*2, "assets/roms/IIe/EF.bin")
+// 	CHARGEN = MEM.LoadROM(chargenSize*2, "assets/roms/IIe/Video_US.bin")
+// }
 
-func loadSlots() {
-	conf.Slots.Catalog[1] = conf.Slots.Slot1
-	conf.Slots.Catalog[2] = conf.Slots.Slot2
-	conf.Slots.Catalog[3] = conf.Slots.Slot3
-	conf.Slots.Catalog[4] = conf.Slots.Slot4
-	conf.Slots.Catalog[5] = conf.Slots.Slot5
-	conf.Slots.Catalog[6] = conf.Slots.Slot6
-	conf.Slots.Catalog[7] = conf.Slots.Slot7
+// func loadSlots() {
+// 	conf.Slots.Catalog[1] = conf.Slots.Slot1
+// 	conf.Slots.Catalog[2] = conf.Slots.Slot2
+// 	conf.Slots.Catalog[3] = conf.Slots.Slot3
+// 	conf.Slots.Catalog[4] = conf.Slots.Slot4
+// 	conf.Slots.Catalog[5] = conf.Slots.Slot5
+// 	conf.Slots.Catalog[6] = conf.Slots.Slot6
+// 	conf.Slots.Catalog[7] = conf.Slots.Slot7
 
-	for i := 1; i < 8; i++ {
-		if conf.Slots.Catalog[i] != "" {
-			SLOTS[i] = MEM.LoadROM(slot_roms, conf.Slots.Catalog[i])
-		} else {
-			SLOTS[i] = make([]byte, slot_roms)
-			MEM.Clear(SLOTS[i], 0, 0x71)
-		}
-	}
-}
+// 	for i := 1; i < 8; i++ {
+// 		if conf.Slots.Catalog[i] != "" {
+// 			SLOTS[i] = MEM.LoadROM(slot_roms, conf.Slots.Catalog[i])
+// 		} else {
+// 			SLOTS[i] = make([]byte, slot_roms)
+// 			MEM.Clear(SLOTS[i], 0, 0x71)
+// 		}
+// 	}
+// }
 
 func loadDisks() (*disk.DRIVE, *disk.DRIVE) {
 	var dsk1, dsk2 *disk.DRIVE
@@ -131,41 +121,37 @@ func loadDisks() (*disk.DRIVE, *disk.DRIVE) {
 
 func setup() {
 	LayoutSel = 0
-	MEM = mem.GetMemoryManager(nbMemLayout, ramSize, &LayoutSel)
+	MEM = mmu.Init(256, 256)
 
 	// Common Setup
-	RAM = make([]byte, ramSize)
-	MEM.Clear(RAM, 0x1000, 0xFF)
-	BANK1 = make([]byte, romSize)
-	MEM.Clear(BANK1, 0x1000, 0xFF)
-	BANK2 = make([]byte, romSize*3)
-	MEM.Clear(BANK2, 0x1000, 0xFF)
+	RAM = chip.NewRAM("RAM", ramSize, false)
+	RAM.Clear(0x1000, 0xFF)
 
-	IO = make([]byte, softSwitches)
-	MEM.Clear(IO, 0, 0x00)
+	IO = chip.NewRAM("IO", softSwitches, false)
+
 	Disk1, _ := loadDisks()
-	loadSlots()
-	IOAccess = InitIO(Disk1, nil, &CRTC)
+	// loadSlots()
+	// IOAccess = InitIO(Disk1, nil, &CRTC)
 
-	if MODEL == 1 {
-		AUX = nil
-		apple2_Roms()
-	} else {
-		ZP = make([]byte, 0x0200)
-		MEM.Clear(ZP, 0x1000, 0xFF)
-		ALT_ZP = make([]byte, 0x0200)
-		MEM.Clear(ALT_ZP, 0x1000, 0xFF)
+	// if MODEL == 1 {
+	// 	AUX = nil
+	// 	apple2_Roms()
+	// } else {
+	// 	ZP = make([]byte, 0x0200)
+	// 	MEM.Clear(ZP, 0x1000, 0xFF)
+	// 	ALT_ZP = make([]byte, 0x0200)
+	// 	MEM.Clear(ALT_ZP, 0x1000, 0xFF)
 
-		AUX = make([]byte, ramSize)
-		MEM.Clear(AUX, 0x1000, 0xFF)
-		AUX_BANK1 = make([]byte, romSize)
-		MEM.Clear(AUX_BANK1, 0x1000, 0xFF)
-		AUX_BANK2 = make([]byte, romSize*3)
-		MEM.Clear(AUX_BANK2, 0x1000, 0xFF)
-		apple2e_Roms()
-	}
+	// 	AUX = make([]byte, ramSize)
+	// 	MEM.Clear(AUX, 0x1000, 0xFF)
+	// 	AUX_BANK1 = make([]byte, romSize)
+	// 	MEM.Clear(AUX_BANK1, 0x1000, 0xFF)
+	// 	AUX_BANK2 = make([]byte, romSize*3)
+	// 	MEM.Clear(AUX_BANK2, 0x1000, 0xFF)
+	// 	apple2e_Roms()
+	// }
 
-	memLayouts(MODEL)
+	// memLayouts(MODEL)
 
 	outputDriver = render.SDL2Driver{}
 	initKeyboard()
