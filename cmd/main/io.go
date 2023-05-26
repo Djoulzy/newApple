@@ -6,6 +6,7 @@ import (
 	"newApple/disk"
 
 	mem "github.com/Djoulzy/emutools/mem"
+	"github.com/Djoulzy/mmu"
 )
 
 const (
@@ -109,14 +110,17 @@ var (
 )
 
 type io_access struct {
+	mmu.IC
 	Disks [2]*disk.DRIVE
 	Video *crtc.CRTC
 
 	connectedDrive int
 }
 
-func InitIO(d1 *disk.DRIVE, d2 *disk.DRIVE, vid *crtc.CRTC) *io_access {
+func InitIO(name string, size int, d1 *disk.DRIVE, d2 *disk.DRIVE, vid *crtc.CRTC) *io_access {
 	tmp := io_access{}
+	tmp.Name = name
+	tmp.Buff = make([]byte, size)
 	tmp.Video = vid
 	tmp.connectedDrive = 0
 	if d1 == nil && d2 != nil {
@@ -136,7 +140,7 @@ func InitIO(d1 *disk.DRIVE, d2 *disk.DRIVE, vid *crtc.CRTC) *io_access {
 	return &tmp
 }
 
-func (C *io_access) MRead(mem []mem.MEMCell, addr uint16) byte {
+func (C *io_access) Read(addr uint16) byte {
 	// clog.Test("Accessor", "MRead", "Addr: %04X", translatedAddr)
 	switch addr {
 	case _80COL:
@@ -418,7 +422,7 @@ func (C *io_access) MRead(mem []mem.MEMCell, addr uint16) byte {
 	}
 }
 
-func (C *io_access) MWrite(mem []mem.MEMCell, addr uint16, val byte) {
+func (C *io_access) Write(addr uint16, val byte) {
 	switch addr {
 	case _80COLOFF:
 		crtc.Is_80COL = false

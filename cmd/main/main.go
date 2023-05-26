@@ -8,7 +8,6 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/Djoulzy/chip"
 	PROC "github.com/Djoulzy/emutools/mos6510"
 	"github.com/Djoulzy/mmu"
 	"github.com/mattn/go-tty"
@@ -41,13 +40,13 @@ var (
 	MODEL     int
 	LayoutSel byte
 
-	RAM    *chip.RAM
-	ROM_D  *chip.ROM
-	ROM_EF *chip.ROM
+	RAM    *mmu.RAM
+	ROM_D  *mmu.ROM
+	ROM_EF *mmu.ROM
 
-	IO *chip.RAM
+	IO *io_access
 	// SLOTS   [8][]byte
-	CHARGEN *chip.ROM
+	CHARGEN *mmu.ROM
 
 	MEM *mmu.MMU
 
@@ -67,9 +66,9 @@ func init() {
 }
 
 func apple2_Roms() {
-	ROM_D = chip.NewROM(romSize, "assets/roms/II/D.bin")
-	ROM_EF = chip.NewROM(romSize*2, "assets/roms/II/EF.bin")
-	CHARGEN = chip.NewROM(chargenSize, "assets/roms/II/3410036.bin")
+	ROM_D = mmu.NewROM("ROM_D", romSize, "assets/roms/II/D.bin")
+	ROM_EF = mmu.NewROM("ROM_EF", romSize*2, "assets/roms/II/EF.bin")
+	CHARGEN = mmu.NewROM("CHARGEN", chargenSize, "assets/roms/II/3410036.bin")
 }
 
 // func apple2e_Roms() {
@@ -124,12 +123,12 @@ func setup() {
 	MEM = mmu.Init(256, 256)
 
 	// Common Setup
-	RAM = chip.NewRAM("RAM", ramSize, false)
+	RAM = mmu.NewRAM("RAM", ramSize, false)
 	RAM.Clear(0x1000, 0xFF)
 
-	IO = chip.NewRAM("IO", softSwitches, false)
-
 	Disk1, _ := loadDisks()
+	IO = InitIO("IO", softSwitches, Disk1, nil, &CRTC)
+
 	// loadSlots()
 	// IOAccess = InitIO(Disk1, nil, &CRTC)
 
