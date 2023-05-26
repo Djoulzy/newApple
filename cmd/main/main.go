@@ -44,7 +44,7 @@ var (
 	ROM_D  *mmu.ROM
 	ROM_EF *mmu.ROM
 
-	IO *SoftSwitch
+	IO    *SoftSwitch
 	Disks *DiskInterface
 	// SLOTS   [8][]byte
 	CHARGEN *mmu.ROM
@@ -117,7 +117,7 @@ func setup() {
 
 	// if MODEL == 1 {
 	// 	AUX = nil
-	// 	apple2_Roms()
+	apple2_Roms()
 	// } else {
 	// 	ZP = make([]byte, 0x0200)
 	// 	MEM.Clear(ZP, 0x1000, 0xFF)
