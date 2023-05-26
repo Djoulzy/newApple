@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"newApple/config"
 	"newApple/crtc"
-	"newApple/disk"
 	"runtime"
 	"time"
 
@@ -41,10 +40,12 @@ var (
 	LayoutSel byte
 
 	RAM    *mmu.RAM
+	AUX    *mmu.RAM
 	ROM_D  *mmu.ROM
 	ROM_EF *mmu.ROM
 
-	IO *io_access
+	IO *SoftSwitch
+	Disks *DiskInterface
 	// SLOTS   [8][]byte
 	CHARGEN *mmu.ROM
 
@@ -97,27 +98,6 @@ func apple2_Roms() {
 // 	}
 // }
 
-func loadDisks() (*disk.DRIVE, *disk.DRIVE) {
-	var dsk1, dsk2 *disk.DRIVE
-
-	dsk1 = nil
-	dsk2 = nil
-	if conf.Slots.Slot6 != "" {
-		if conf.Disks.Disk1 != "" {
-			dsk1 = disk.Attach(conf.Globals.DebugMode)
-			dsk1.LoadDiskImage(conf.Disks.Disk1)
-		}
-		if conf.Disks.Disk2 != "" {
-			dsk2 = disk.Attach(conf.Globals.DebugMode)
-			dsk2.LoadDiskImage(conf.Disks.Disk2)
-		}
-		if dsk1 == nil && dsk2 == nil {
-			conf.Slots.Slot6 = ""
-		}
-	}
-	return dsk1, dsk2
-}
-
 func setup() {
 	LayoutSel = 0
 	MEM = mmu.Init(256, 256)
@@ -126,8 +106,11 @@ func setup() {
 	RAM = mmu.NewRAM("RAM", ramSize, false)
 	RAM.Clear(0x1000, 0xFF)
 
-	Disk1, _ := loadDisks()
-	IO = InitIO("IO", softSwitches, Disk1, nil, &CRTC)
+	AUX = mmu.NewRAM("AUX", ramSize, false)
+	AUX.Clear(0x1000, 0xFF)
+
+	Disks = InitDiskInterface(conf)
+	IO = InitSoftSwitch("IO", softSwitches, Disks, &CRTC)
 
 	// loadSlots()
 	// IOAccess = InitIO(Disk1, nil, &CRTC)
@@ -154,7 +137,7 @@ func setup() {
 
 	outputDriver = render.SDL2Driver{}
 	initKeyboard()
-	CRTC.Init(RAM, AUX, IO, CHARGEN, &outputDriver, conf)
+	CRTC.Init(RAM.Buff, AUX.Buff, IO.Buff, CHARGEN.Buff, &outputDriver, conf)
 	outputDriver.SetKeyboardLine(&InputLine)
 
 	// Throttle setup
@@ -189,7 +172,7 @@ func RunEmulation() {
 			if InputLine.KeyCode != 0 && !is_Keypressed {
 				key = keyMap[InputLine.KeyCode][InputLine.Mode]
 				// log.Printf("KEY DOWN - Code: %d  Mode: %d  -> %d", InputLine.KeyCode, InputLine.Mode, key)
-				IO[0] = key | 0b10000000
+				IO.Buff[0] = key | 0b10000000
 				is_Keypressed = true
 				InputLine.KeyCode = 0
 				InputLine.Mode = 0
