@@ -8,83 +8,72 @@ import (
 )
 
 const (
-	// MEMORY MANAGEMENT SOFT SWITCHES (W)
-	_80STOREOFF  = 0xC000
-	_80STOREON   = 0xC001
-	RAMRDON      = 0xC003
-	RAMRDOFF     = 0xC002
-	RAMWRTON     = 0xC005
-	RAMWRTOFF    = 0xC004
-	INTCXROMOFF  = 0xC006
-	INTCXROMON   = 0xC007
-	ALZTPOFF     = 0xC008
-	ALZTPON      = 0xC009
-	SLOTC3ROMOFF = 0xC00A
-	SLOTC3ROMON  = 0xC00B
-	BSRBANK2     = 0xC011
-	BSRREADRAM   = 0xC012
+	_80STOREOFF   = 0x0000 // MEMORY MANAGEMENT SOFT SWITCHES (W)
+	_80STOREON    = 0x0001
+	RAMRDON       = 0x0003
+	RAMRDOFF      = 0x0002
+	RAMWRTON      = 0x0005
+	RAMWRTOFF     = 0x0004
+	INTCXROMOFF   = 0x0006
+	INTCXROMON    = 0x0007
+	ALZTPOFF      = 0x0008
+	ALZTPON       = 0x0009
+	SLOTC3ROMOFF  = 0x000A
+	SLOTC3ROMON   = 0x000B
+	BSRBANK2      = 0x0011
+	BSRREADRAM    = 0x0012
+	_80COLOFF     = 0x000C // VIDEO SOFT SWITCHES (W/R)
+	_80COLON      = 0x000D
+	RAMRD         = 0x0013
+	RAMWRT        = 0x0014
+	ALTCHARSETOFF = 0x000E
+	ALTCHARSETON  = 0x000F
+	TEXTOFF       = 0x0050
+	TEXTON        = 0x0051
+	MIXEDOFF      = 0x0052
+	MIXEDON       = 0x0053
+	PAGE2OFF      = 0x0054
+	PAGE2ON       = 0x0055
+	HIRESOFF      = 0x0056
+	HIRESON       = 0x0057
+	AKD           = 0x0010 // SOFT SWITCH STATUS FLAGS (R bit 7)
+	INTCXROM      = 0x0015
+	SLOTC3ROM     = 0x0017
+	ALTZP         = 0x0016
+	TEXT          = 0x001A
+	MIXED         = 0x001B
+	PAGE2         = 0x001C
+	HIRES         = 0x001D
+	ALTCHARSET    = 0x001E
+	_80COL        = 0x001F
+	_80STORE      = 0x0018
+	RDRAM_B2      = 0x0080 // BANK SWITCHING
+	RDROM_WB2     = 0x0081
+	RDROM_2       = 0x0082
+	RWRAM_B2      = 0x0083
+	RDRAM_B1      = 0x0088
+	RDROM_WB1     = 0x0089
+	RDROM_1       = 0x008A
+	RWRAM_B1      = 0x008B
+	SATURN_CTRL1  = 0x0084 // SATURN CARD
+	SATURN_CTRL2  = 0x0085
+	SATURN_CTRL3  = 0x0086
+	SATURN_CTRL4  = 0x0087
+	SATURN1       = 0x008C
+	SATURN2       = 0x008D
+	SATURN3       = 0x008E
+	SATURN4       = 0x008F
+	SPKR          = 0x0030 // OTHER
+	SLOT0_OFFSET  = 0x0090 // SLOTS
+	SLOT1_OFFSET  = 0x0090
+	SLOT2_OFFSET  = 0x00A0
+	SLOT3_OFFSET  = 0x00B0
+	SLOT4_OFFSET  = 0x00C0
+	SLOT5_OFFSET  = 0x00D0
+	SLOT6_OFFSET  = 0x00E0
+	SLOT7_OFFSET  = 0x00F0
 
-	// VIDEO SOFT SWITCHES (W/R)
-	_80COLOFF     = 0xC00C
-	_80COLON      = 0xC00D
-	RAMRD         = 0xC013
-	RAMWRT        = 0xC014
-	ALTCHARSETOFF = 0xC00E
-	ALTCHARSETON  = 0xC00F
-	TEXTOFF       = 0xC050
-	TEXTON        = 0xC051
-	MIXEDOFF      = 0xC052
-	MIXEDON       = 0xC053
-	PAGE2OFF      = 0xC054
-	PAGE2ON       = 0xC055
-	HIRESOFF      = 0xC056
-	HIRESON       = 0xC057
-
-	// SOFT SWITCH STATUS FLAGS (R bit 7)
-	AKD        = 0xC010
-	INTCXROM   = 0xC015
-	SLOTC3ROM  = 0xC017
-	ALTZP      = 0xC016
-	TEXT       = 0xC01A
-	MIXED      = 0xC01B
-	PAGE2      = 0xC01C
-	HIRES      = 0xC01D
-	ALTCHARSET = 0xC01E
-	_80COL     = 0xC01F
-	_80STORE   = 0xC018
-
-	// BANK SWITCHING
-	RDRAM_B2  = 0xC080
-	RDROM_WB2 = 0xC081
-	RDROM_2   = 0xC082
-	RWRAM_B2  = 0xC083
-	RDRAM_B1  = 0xC088
-	RDROM_WB1 = 0xC089
-	RDROM_1   = 0xC08A
-	RWRAM_B1  = 0xC08B
-
-	SATURN_CTRL1 = 0xC084
-	SATURN_CTRL2 = 0xC085
-	SATURN_CTRL3 = 0xC086
-	SATURN_CTRL4 = 0xC087
-	SATURN1      = 0xC08C
-	SATURN2      = 0xC08D
-	SATURN3      = 0xC08E
-	SATURN4      = 0xC08F
-
-	// OTHER
-	SPKR = 0x30
-
-	// SLOTS
-	SLOT0_OFFSET = 0xC090
-	SLOT1_OFFSET = 0xC090
-	SLOT2_OFFSET = 0xC0A0
-	SLOT3_OFFSET = 0xC0B0
-	SLOT4_OFFSET = 0xC0C0
-	SLOT5_OFFSET = 0xC0D0
-	SLOT6_OFFSET = 0xC0E0
-	SLOT7_OFFSET = 0xC0F0
-
+	// DRIVE OPERATIONS
 	DRVSM0   = 0x00 // Q0
 	DRVSM1   = 0x02 // Q1
 	DRVSM2   = 0x04 // Q2
@@ -233,101 +222,101 @@ func (C *SoftSwitch) Read(addr uint16) byte {
 			return 0x80
 		}
 		return 0x00
-	case MIXED:
-		if crtc.Is_MIXEDMODE {
-			return 0x80
-		}
-		return 0x00
-	case PAGE2:
-		if crtc.Is_PAGE2 {
-			return 0x80
-		}
-		return 0x00
-	case HIRES:
-		if crtc.Is_HIRESMODE {
-			return 0x80
-		}
-		return 0x00
+	// case MIXED:
+	// 	if crtc.Is_MIXEDMODE {
+	// 		return 0x80
+	// 	}
+	// 	return 0x00
+	// case PAGE2:
+	// 	if crtc.Is_PAGE2 {
+	// 		return 0x80
+	// 	}
+	// 	return 0x00
+	// case HIRES:
+	// 	if crtc.Is_HIRESMODE {
+	// 		return 0x80
+	// 	}
+	// 	return 0x00
 
-	case RDRAM_B2:
-		log.Println("RDRAM_B2")
-		C.Mmu.Disable("ROM_D")
-		C.Mmu.Disable("ROM_EF")
-		C.Mmu.Disable("BANK1")
-		C.Mmu.Enable("BANK2")
-		C.Mmu.ReadOnly("BANK2")
-		is_READ_RAM = true
-		is_BANK2 = true
-		return 0x80
-	case RDROM_WB2:
-		log.Println("RDROM_WB2")
-		C.Mmu.Enable("ROM_D")
-		C.Mmu.Enable("ROM_EF")
-		C.Mmu.Disable("BANK1")
-		C.Mmu.Enable("BANK2")
-		C.Mmu.ReadWrite("BANK2")
-		is_READ_RAM = false
-		is_BANK2 = true
-		return 0x80
-	case RDROM_2:
-		log.Println("RDROM_2")
-		C.Mmu.Enable("ROM_D")
-		C.Mmu.Enable("ROM_EF")
-		C.Mmu.Disable("BANK1")
-		C.Mmu.Disable("BANK2")
-		is_READ_RAM = false
-		is_BANK2 = false
-		return 0x80
-	case RWRAM_B2:
-		log.Println("RWRAM_B2")
-		C.Mmu.Disable("ROM_D")
-		C.Mmu.Disable("ROM_EF")
-		C.Mmu.Disable("BANK1")
-		C.Mmu.Enable("BANK2")
-		C.Mmu.ReadWrite("BANK2")
-		is_READ_RAM = true
-		is_BANK2 = true
-		return 0x80
+	// case RDRAM_B2:
+	// 	log.Println("RDRAM_B2")
+	// 	C.Mmu.Disable("ROM_D")
+	// 	C.Mmu.Disable("ROM_EF")
+	// 	C.Mmu.Disable("BANK1")
+	// 	C.Mmu.Enable("BANK2")
+	// 	C.Mmu.ReadOnly("BANK2")
+	// 	is_READ_RAM = true
+	// 	is_BANK2 = true
+	// 	return 0x80
+	// case RDROM_WB2:
+	// 	log.Println("RDROM_WB2")
+	// 	C.Mmu.Enable("ROM_D")
+	// 	C.Mmu.Enable("ROM_EF")
+	// 	C.Mmu.Disable("BANK1")
+	// 	C.Mmu.Enable("BANK2")
+	// 	C.Mmu.ReadWrite("BANK2")
+	// 	is_READ_RAM = false
+	// 	is_BANK2 = true
+	// 	return 0x80
+	// case RDROM_2:
+	// 	log.Println("RDROM_2")
+	// 	C.Mmu.Enable("ROM_D")
+	// 	C.Mmu.Enable("ROM_EF")
+	// 	C.Mmu.Disable("BANK1")
+	// 	C.Mmu.Disable("BANK2")
+	// 	is_READ_RAM = false
+	// 	is_BANK2 = false
+	// 	return 0x80
+	// case RWRAM_B2:
+	// 	log.Println("RWRAM_B2")
+	// 	C.Mmu.Disable("ROM_D")
+	// 	C.Mmu.Disable("ROM_EF")
+	// 	C.Mmu.Disable("BANK1")
+	// 	C.Mmu.Enable("BANK2")
+	// 	C.Mmu.ReadWrite("BANK2")
+	// 	is_READ_RAM = true
+	// 	is_BANK2 = true
+	// 	return 0x80
 
-	case RDROM_1:
-		log.Println("RDROM_1")
-		C.Mmu.Enable("ROM_D")
-		C.Mmu.Enable("ROM_EF")
-		C.Mmu.Disable("BANK1")
-		C.Mmu.Disable("BANK2")
-		is_READ_RAM = false
-		is_BANK2 = false
-		return 0x80
-	case RDRAM_B1:
-		log.Println("RDRAM_B1")
-		C.Mmu.Disable("ROM_D")
-		C.Mmu.Disable("ROM_EF")
-		C.Mmu.Enable("BANK1")
-		C.Mmu.Disable("BANK2")
-		C.Mmu.ReadOnly("BANK1")
-		is_READ_RAM = true
-		is_BANK2 = false
-		return 0x80
-	case RDROM_WB1:
-		log.Println("RDROM_WB1")
-		C.Mmu.Enable("ROM_D")
-		C.Mmu.Enable("ROM_EF")
-		C.Mmu.Enable("BANK1")
-		C.Mmu.Disable("BANK2")
-		C.Mmu.ReadWrite("BANK1")
-		is_READ_RAM = false
-		is_BANK2 = false
-		return 0x80
-	case RWRAM_B1:
-		log.Println("RWRAM_B1")
-		C.Mmu.Disable("ROM_D")
-		C.Mmu.Disable("ROM_EF")
-		C.Mmu.Enable("BANK1")
-		C.Mmu.Disable("BANK2")
-		C.Mmu.ReadWrite("BANK1")
-		is_READ_RAM = true
-		is_BANK2 = false
-		return 0x80
+	// case RDROM_1:
+	// 	log.Println("RDROM_1")
+	// 	C.Mmu.Enable("ROM_D")
+	// 	C.Mmu.Enable("ROM_EF")
+	// 	C.Mmu.Disable("BANK1")
+	// 	C.Mmu.Disable("BANK2")
+	// 	is_READ_RAM = false
+	// 	is_BANK2 = false
+	// 	return 0x80
+	// case RDRAM_B1:
+	// 	log.Println("RDRAM_B1")
+	// 	C.Mmu.Disable("ROM_D")
+	// 	C.Mmu.Disable("ROM_EF")
+	// 	C.Mmu.Enable("BANK1")
+	// 	C.Mmu.Disable("BANK2")
+	// 	C.Mmu.ReadOnly("BANK1")
+	// 	is_READ_RAM = true
+	// 	is_BANK2 = false
+	// 	return 0x80
+	// case RDROM_WB1:
+	// 	log.Println("RDROM_WB1")
+	// 	C.Mmu.Enable("ROM_D")
+	// 	C.Mmu.Enable("ROM_EF")
+	// 	C.Mmu.Enable("BANK1")
+	// 	C.Mmu.Disable("BANK2")
+	// 	C.Mmu.ReadWrite("BANK1")
+	// 	is_READ_RAM = false
+	// 	is_BANK2 = false
+	// 	return 0x80
+	// case RWRAM_B1:
+	// 	log.Println("RWRAM_B1")
+	// 	C.Mmu.Disable("ROM_D")
+	// 	C.Mmu.Disable("ROM_EF")
+	// 	C.Mmu.Enable("BANK1")
+	// 	C.Mmu.Disable("BANK2")
+	// 	C.Mmu.ReadWrite("BANK1")
+	// 	is_READ_RAM = true
+	// 	is_BANK2 = false
+	// 	return 0x80
 
 	case SATURN_CTRL1:
 		fallthrough
@@ -418,7 +407,7 @@ func (C *SoftSwitch) Read(addr uint16) byte {
 		return C.Disks.SetSequencerMode(SEQ_WRITE_MODE)
 
 	default:
-		log.Printf("Read Unknown: %02X\n", addr)
+		log.Printf("Read Unknown: %04X\n", addr)
 		return 0x00
 	}
 }
@@ -610,7 +599,7 @@ func (C *SoftSwitch) Write(addr uint16, val byte) {
 		C.Disks.SetSequencerMode(SEQ_WRITE_MODE)
 
 	default:
-		// log.Printf("Write Unknown: %02X\n", translatedAddr)
+		log.Printf("Write Unknown: %04X\n", addr)
 	}
 	// mem[translatedAddr] = val
 }

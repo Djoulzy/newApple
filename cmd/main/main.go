@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"newApple/config"
 	"newApple/crtc"
-	"os"
 	"runtime"
 	"strconv"
 	"time"
@@ -95,14 +94,9 @@ func loadSlots() {
 
 	for i := 1; i < 8; i++ {
 		if conf.Slots.Catalog[i] != "" {
-			// SLOTS[i] = MEM.LoadROM(slot_roms, conf.Slots.Catalog[i])
 			SLOTS[i] = mmu.NewROM("SLOT_"+strconv.Itoa(i), slot_roms, conf.Slots.Catalog[i])
 			MEM.Attach(SLOTS[i], 0xC0+uint(i), 1)
 		}
-		// else {
-		// 	SLOTS[i] = make([]byte, slot_roms)
-		// 	MEM.Clear(SLOTS[i], 0, 0x71)
-		// }
 	}
 }
 
@@ -122,28 +116,9 @@ func setup() {
 
 	MEM.Attach(RAM, 0x00, 256)
 	MEM.Attach(IO, 0xC0, 1)
+
 	loadSlots()
-	// IOAccess = InitIO(Disk1, nil, &CRTC)
-
-	// if MODEL == 1 {
-	// 	AUX = nil
 	apple2_Roms()
-	// } else {
-	// 	ZP = make([]byte, 0x0200)
-	// 	MEM.Clear(ZP, 0x1000, 0xFF)
-	// 	ALT_ZP = make([]byte, 0x0200)
-	// 	MEM.Clear(ALT_ZP, 0x1000, 0xFF)
-
-	// 	AUX = make([]byte, ramSize)
-	// 	MEM.Clear(AUX, 0x1000, 0xFF)
-	// 	AUX_BANK1 = make([]byte, romSize)
-	// 	MEM.Clear(AUX_BANK1, 0x1000, 0xFF)
-	// 	AUX_BANK2 = make([]byte, romSize*3)
-	// 	MEM.Clear(AUX_BANK2, 0x1000, 0xFF)
-	// 	apple2e_Roms()
-	// }
-
-	// memLayouts(MODEL)
 
 	outputDriver = render.SDL2Driver{}
 	initKeyboard()
@@ -157,8 +132,6 @@ func setup() {
 		timeGap = (time.Duration(conf.ThrottleInterval/conf.Mhz) * time.Microsecond)
 	}
 
-	MEM.DumpMap()
-	os.Exit(0)
 	// CPU Setup
 	cpu.Init(conf.CPUModel, MEM, conf.Globals.DebugMode)
 }
