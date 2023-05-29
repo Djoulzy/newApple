@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"newApple/config"
 	"newApple/crtc"
+	"os"
 	"runtime"
+	"strconv"
 	"time"
 
 	PROC "github.com/Djoulzy/emutools/mos6510"
@@ -44,9 +46,9 @@ var (
 	ROM_D  *mmu.ROM
 	ROM_EF *mmu.ROM
 
-	IO    *SoftSwitch
-	Disks *DiskInterface
-	// SLOTS   [8][]byte
+	IO      *SoftSwitch
+	Disks   *DiskInterface
+	SLOTS   [8]*mmu.ROM
 	CHARGEN *mmu.ROM
 
 	MEM *mmu.MMU
@@ -68,8 +70,11 @@ func init() {
 
 func apple2_Roms() {
 	ROM_D = mmu.NewROM("ROM_D", romSize, "assets/roms/II/D.bin")
+	MEM.Attach(ROM_D, 0xD0, 16)
 	ROM_EF = mmu.NewROM("ROM_EF", romSize*2, "assets/roms/II/EF.bin")
+	MEM.Attach(ROM_EF, 0xE0, 32)
 	CHARGEN = mmu.NewROM("CHARGEN", chargenSize, "assets/roms/II/3410036.bin")
+	// MEM.Attach(ROM_D, 0xD0, 8)
 }
 
 // func apple2e_Roms() {
@@ -79,24 +84,27 @@ func apple2_Roms() {
 // 	CHARGEN = MEM.LoadROM(chargenSize*2, "assets/roms/IIe/Video_US.bin")
 // }
 
-// func loadSlots() {
-// 	conf.Slots.Catalog[1] = conf.Slots.Slot1
-// 	conf.Slots.Catalog[2] = conf.Slots.Slot2
-// 	conf.Slots.Catalog[3] = conf.Slots.Slot3
-// 	conf.Slots.Catalog[4] = conf.Slots.Slot4
-// 	conf.Slots.Catalog[5] = conf.Slots.Slot5
-// 	conf.Slots.Catalog[6] = conf.Slots.Slot6
-// 	conf.Slots.Catalog[7] = conf.Slots.Slot7
+func loadSlots() {
+	conf.Slots.Catalog[1] = conf.Slots.Slot1
+	conf.Slots.Catalog[2] = conf.Slots.Slot2
+	conf.Slots.Catalog[3] = conf.Slots.Slot3
+	conf.Slots.Catalog[4] = conf.Slots.Slot4
+	conf.Slots.Catalog[5] = conf.Slots.Slot5
+	conf.Slots.Catalog[6] = conf.Slots.Slot6
+	conf.Slots.Catalog[7] = conf.Slots.Slot7
 
-// 	for i := 1; i < 8; i++ {
-// 		if conf.Slots.Catalog[i] != "" {
-// 			SLOTS[i] = MEM.LoadROM(slot_roms, conf.Slots.Catalog[i])
-// 		} else {
-// 			SLOTS[i] = make([]byte, slot_roms)
-// 			MEM.Clear(SLOTS[i], 0, 0x71)
-// 		}
-// 	}
-// }
+	for i := 1; i < 8; i++ {
+		if conf.Slots.Catalog[i] != "" {
+			// SLOTS[i] = MEM.LoadROM(slot_roms, conf.Slots.Catalog[i])
+			SLOTS[i] = mmu.NewROM("SLOT_"+strconv.Itoa(i), slot_roms, conf.Slots.Catalog[i])
+			MEM.Attach(SLOTS[i], 0xC0+uint(i), 1)
+		}
+		// else {
+		// 	SLOTS[i] = make([]byte, slot_roms)
+		// 	MEM.Clear(SLOTS[i], 0, 0x71)
+		// }
+	}
+}
 
 func setup() {
 	LayoutSel = 0
@@ -112,7 +120,9 @@ func setup() {
 	Disks = InitDiskInterface(conf)
 	IO = InitSoftSwitch("IO", softSwitches, Disks, &CRTC)
 
-	// loadSlots()
+	MEM.Attach(RAM, 0x00, 256)
+	MEM.Attach(IO, 0xC0, 1)
+	loadSlots()
 	// IOAccess = InitIO(Disk1, nil, &CRTC)
 
 	// if MODEL == 1 {
@@ -147,6 +157,8 @@ func setup() {
 		timeGap = (time.Duration(conf.ThrottleInterval/conf.Mhz) * time.Microsecond)
 	}
 
+	MEM.DumpMap()
+	os.Exit(0)
 	// CPU Setup
 	cpu.Init(conf.CPUModel, MEM, conf.Globals.DebugMode)
 }

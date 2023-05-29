@@ -137,6 +137,10 @@ func InitSoftSwitch(name string, size int, disk *DiskInterface, vid *crtc.CRTC) 
 	return &tmp
 }
 
+func (C *SoftSwitch) ReadOnly() bool {
+	return false
+}
+
 func (C *SoftSwitch) Read(addr uint16) byte {
 	// clog.Test("Accessor", "MRead", "Addr: %04X", translatedAddr)
 	switch addr {
