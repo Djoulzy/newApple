@@ -1,4 +1,4 @@
-package main
+package io
 
 const (
 	// https://www.kreativekorp.com/miscpages/a2info/iomemory.shtml
@@ -173,4 +173,23 @@ const (
 	// RDROMWB1    = 0x008D //  OECG  RR  Read ROM; write RAM bank 1
 	// RDROMNOWR   = 0x008E //  OECG  R   Read ROM; no write
 	// RWB1        = 0x008F //  OECG  RR  Read/write RAM bank 1
+
+	SLOT0_OFFSET  = 0x0090 // SLOTS
+	SLOT1_OFFSET  = 0x0090
+	SLOT2_OFFSET  = 0x00A0
+	SLOT3_OFFSET  = 0x00B0
+	SLOT4_OFFSET  = 0x00C0
+	SLOT5_OFFSET  = 0x00D0
+	SLOT6_OFFSET  = 0x00E0
+	SLOT7_OFFSET  = 0x00F0
+
+	// DRIVE OPERATIONS
+	DRVSM0   = 0x00 // Q0
+	DRVSM1   = 0x02 // Q1
+	DRVSM2   = 0x04 // Q2
+	DRVSM3   = 0x06 // Q3
+	DRIVE    = 0x08 // Q4
+	DRVSEL   = 0x0A // Q5
+	DRVDATA  = 0x0C // Q6
+	DRVWRITE = 0x0E // Q7
 )

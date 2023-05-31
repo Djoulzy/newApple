@@ -1,12 +1,10 @@
-package main
+package io
 
 import (
 	"fmt"
 	"log"
 	"newApple/config"
 	"newApple/disk"
-
-	"github.com/Djoulzy/Tools/clog"
 )
 
 const (
@@ -123,7 +121,7 @@ func (C *DiskInterface) ShiftOrRead() byte {
 				// clog.Debug("IO", "disk", "Read : %02X\n", tmp)
 				// fmt.Printf("%02X\n", tmp)
 				// clog.FileRaw("\n%s : => READ DATA => %02X [%04X]", time.Now().Format("15:04:05"), tmp, cpu.InstStart)
-				clog.FileRaw("\n%s", cpu.FullDebug)
+				// clog.FileRaw("\n%s", cpu.FullDebug)
 				return tmp
 			}
 		}
@@ -140,7 +138,7 @@ func (C *DiskInterface) LoadOrCheck() byte {
 		if C.Disks[C.SelectedDrive].IsWriteProtected {
 			// log.Printf("Disk is Write Protected: %04X", cpu.InstStart)
 			C.ProtectCheck = 0x80
-			log.Printf("Protection Check = %02X (%04X)", C.ProtectCheck, cpu.InstStart)
+			// log.Printf("Protection Check = %02X (%04X)", C.ProtectCheck, cpu.InstStart)
 		} else {
 			log.Printf("Disk is Writable")
 			C.ProtectCheck = 0

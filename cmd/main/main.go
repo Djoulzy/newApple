@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"newApple/config"
 	"newApple/crtc"
+	"newApple/io"
 	"runtime"
 	"strconv"
 	"time"
@@ -45,8 +46,8 @@ var (
 	ROM_D  *mmu.ROM
 	ROM_EF *mmu.ROM
 
-	IO      *SoftSwitch
-	Disks   *DiskInterface
+	IO      *io.SoftSwitch
+	Disks   *io.DiskInterface
 	SLOTS   [8]*mmu.ROM
 	CHARGEN *mmu.ROM
 
@@ -111,8 +112,8 @@ func setup() {
 	AUX = mmu.NewRAM("AUX", ramSize, false)
 	AUX.Clear(0x1000, 0xFF)
 
-	Disks = InitDiskInterface(conf)
-	IO = InitSoftSwitch("IO", softSwitches, Disks, &CRTC)
+	Disks = io.InitDiskInterface(conf)
+	IO = io.InitSoftSwitch("IO", softSwitches, Disks, &CRTC)
 
 	MEM.Attach(RAM, 0x00, 256)
 	MEM.Attach(IO, 0xC0, 1)
@@ -121,7 +122,7 @@ func setup() {
 	apple2_Roms()
 
 	outputDriver = render.SDL2Driver{}
-	initKeyboard()
+	io.InitKeyboard()
 	CRTC.Init(RAM.Buff, AUX.Buff, IO.Buff, CHARGEN.Buff, &outputDriver, conf)
 	outputDriver.SetKeyboardLine(&InputLine)
 
@@ -154,11 +155,11 @@ func RunEmulation() {
 		CRTC.Run()
 
 		if !throttled {
-			if InputLine.KeyCode != 0 && !is_Keypressed {
-				key = keyMap[InputLine.KeyCode][InputLine.Mode]
+			if InputLine.KeyCode != 0 && !io.Is_Keypressed {
+				key = io.KeyMap[InputLine.KeyCode][InputLine.Mode]
 				// log.Printf("KEY DOWN - Code: %d  Mode: %d  -> %d", InputLine.KeyCode, InputLine.Mode, key)
 				IO.Buff[0] = key | 0b10000000
-				is_Keypressed = true
+				io.Is_Keypressed = true
 				InputLine.KeyCode = 0
 				InputLine.Mode = 0
 			}
