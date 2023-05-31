@@ -8,70 +8,87 @@ import (
 )
 
 const (
-	_80STOREOFF   = 0x0000 // MEMORY MANAGEMENT SOFT SWITCHES (W)
-	_80STOREON    = 0x0001
-	RAMRDON       = 0x0003
-	RAMRDOFF      = 0x0002
-	RAMWRTON      = 0x0005
-	RAMWRTOFF     = 0x0004
-	INTCXROMOFF   = 0x0006
-	INTCXROMON    = 0x0007
-	ALZTPOFF      = 0x0008
-	ALZTPON       = 0x0009
-	SLOTC3ROMOFF  = 0x000A
-	SLOTC3ROMON   = 0x000B
-	BSRBANK2      = 0x0011
-	BSRREADRAM    = 0x0012
-	_80COLOFF     = 0x000C // VIDEO SOFT SWITCHES (W/R)
-	_80COLON      = 0x000D
-	RAMRD         = 0x0013
-	RAMWRT        = 0x0014
-	ALTCHARSETOFF = 0x000E
-	ALTCHARSETON  = 0x000F
-	TEXTOFF       = 0x0050
-	TEXTON        = 0x0051
-	MIXEDOFF      = 0x0052
-	MIXEDON       = 0x0053
-	PAGE2OFF      = 0x0054
-	PAGE2ON       = 0x0055
-	HIRESOFF      = 0x0056
-	HIRESON       = 0x0057
-	AKD           = 0x0010 // SOFT SWITCH STATUS FLAGS (R bit 7)
-	INTCXROM      = 0x0015
-	SLOTC3ROM     = 0x0017
-	ALTZP         = 0x0016
-	TEXT          = 0x001A
-	MIXED         = 0x001B
-	PAGE2         = 0x001C
-	HIRES         = 0x001D
-	ALTCHARSET    = 0x001E
-	_80COL        = 0x001F
-	_80STORE      = 0x0018
-	RDRAM_B2      = 0x0080 // BANK SWITCHING
-	RDROM_WB2     = 0x0081
-	RDROM_2       = 0x0082
-	RWRAM_B2      = 0x0083
-	RDRAM_B1      = 0x0088
-	RDROM_WB1     = 0x0089
-	RDROM_1       = 0x008A
-	RWRAM_B1      = 0x008B
-	SATURN_CTRL1  = 0x0084 // SATURN CARD
-	SATURN_CTRL2  = 0x0085
-	SATURN_CTRL3  = 0x0086
-	SATURN_CTRL4  = 0x0087
-	SATURN1       = 0x008C
-	SATURN2       = 0x008D
-	SATURN3       = 0x008E
-	SATURN4       = 0x008F
-	SPKR          = 0x0030 // OTHER
-	SLOT0_OFFSET  = 0x0090 // SLOTS
-	SLOT1_OFFSET  = 0x0090
-	SLOT2_OFFSET  = 0x00A0
-	SLOT3_OFFSET  = 0x00B0
-	SLOT4_OFFSET  = 0x00C0
-	SLOT5_OFFSET  = 0x00D0
-	SLOT6_OFFSET  = 0x00E0
-	SLOT7_OFFSET  = 0x00F0
+	// _80STOREOFF   = 0x0000 // MEMORY MANAGEMENT SOFT SWITCHES (W)
+	// _80STOREON    = 0x0001
+	// RAMRDON       = 0x0003
+	// RAMRDOFF      = 0x0002
+	// RAMWRTON      = 0x0005
+	// RAMWRTOFF     = 0x0004
+	// INTCXROMOFF   = 0x0006
+	// INTCXROMON    = 0x0007
+	// ALZTPOFF      = 0x0008
+	// ALZTPON       = 0x0009
+	// SLOTC3ROMOFF  = 0x000A
+	// SLOTC3ROMON   = 0x000B
+	// BSRBANK2      = 0x0011
+	// BSRREADRAM    = 0x0012
+	// _80COLOFF     = 0x000C // VIDEO SOFT SWITCHES (W/R)
+	// _80COLON      = 0x000D
+	// RAMRD         = 0x0013
+	// RAMWRT        = 0x0014
+	// ALTCHARSETOFF = 0x000E
+	// ALTCHARSETON  = 0x000F
+	// TEXTOFF       = 0x0050
+	// TEXTON        = 0x0051
+	// MIXEDOFF      = 0x0052
+	// MIXEDON       = 0x0053
+	// PAGE2OFF      = 0x0054
+	// PAGE2ON       = 0x0055
+	// HIRESOFF      = 0x0056
+	// HIRESON       = 0x0057
+	// DISXY         = 0x0058 // Mouse
+	// ENBXY         = 0x0059
+	// DISVBL        = 0x005A
+	// ENVBL         = 0x005B
+	// X0EDGEON      = 0x005C
+	// X0EDGEOFF     = 0x005D
+	// Y0EDGEON      = 0x005E
+	// Y0EDGEOFF     = 0x005F
+	// RDMOUX1       = 0x0066
+	// RDMOUY1       = 0x0067
+	// IOUDISABLE    = 0x0078
+	// IOUENABLE     = 0x0079
+	// IOUDISON      = 0x007E
+	// IOUDISOFF     = 0x007F
+	// KEY4080       = 0x0060 // Keyboard Switch 40/80
+	// RDBTN0        = 0x0061
+	// BUTN1         = 0x0062
+	// AKD           = 0x0010 // SOFT SWITCH STATUS FLAGS (R bit 7)
+	// INTCXROM      = 0x0015
+	// SLOTC3ROM     = 0x0017
+	// ALTZP         = 0x0016
+	// TEXT          = 0x001A
+	// MIXED         = 0x001B
+	// PAGE2         = 0x001C
+	// HIRES         = 0x001D
+	// ALTCHARSET    = 0x001E
+	// _80COL        = 0x001F
+	// _80STORE      = 0x0018
+	// RDRAM_B2      = 0x0080 // BANK SWITCHING
+	// RDROM_WB2     = 0x0081
+	// RDROM_2       = 0x0082
+	// RWRAM_B2      = 0x0083
+	// RDRAM_B1      = 0x0088
+	// RDROM_WB1     = 0x0089
+	// RDROM_1       = 0x008A
+	// RWRAM_B1      = 0x008B
+	// SATURN_CTRL1  = 0x0084 // SATURN CARD
+	// SATURN_CTRL2  = 0x0085
+	// SATURN_CTRL3  = 0x0086
+	// SATURN_CTRL4  = 0x0087
+	// SATURN1       = 0x008C
+	// SATURN2       = 0x008D
+	// SATURN3       = 0x008E
+	// SATURN4       = 0x008F
+	// SPKR          = 0x0030 // OTHER
+	// SLOT0_OFFSET  = 0x0090 // SLOTS
+	// SLOT1_OFFSET  = 0x0090
+	// SLOT2_OFFSET  = 0x00A0
+	// SLOT3_OFFSET  = 0x00B0
+	// SLOT4_OFFSET  = 0x00C0
+	// SLOT5_OFFSET  = 0x00D0
+	// SLOT6_OFFSET  = 0x00E0
+	// SLOT7_OFFSET  = 0x00F0
 
 	// DRIVE OPERATIONS
 	DRVSM0   = 0x00 // Q0
@@ -405,6 +422,44 @@ func (C *SoftSwitch) Read(addr uint16) byte {
 	case SLOT6_OFFSET + DRVWRITE + 1: // Q7 $C0EF
 		// PRINT (PEEK(49391))
 		return C.Disks.SetSequencerMode(SEQ_WRITE_MODE)
+
+	case DISXY:
+		fallthrough
+	case ENBXY:
+		fallthrough
+	case DISVBL:
+		fallthrough
+	case ENVBL:
+		fallthrough
+	case X0EDGEON:
+		fallthrough
+	case X0EDGEOFF:
+		fallthrough
+	case Y0EDGEON:
+		fallthrough
+	case Y0EDGEOFF:
+		fallthrough
+	case RDMOUX1:
+		fallthrough
+	case RDMOUY1:
+		fallthrough
+	case IOUDISABLE:
+		fallthrough
+	case IOUENABLE:
+		fallthrough
+	case IOUDISON:
+		fallthrough
+	case IOUDISOFF:
+		log.Printf("Mouse not supported %04X\n", addr)
+		return 0x00
+
+	case KEY4080:
+		fallthrough
+	case RDBTN0:
+		fallthrough
+	case BUTN1:
+		log.Printf("Keyboard switch not supported %04X\n", addr)
+		return 0x00
 
 	default:
 		log.Printf("Read Unknown: %04X\n", addr)
