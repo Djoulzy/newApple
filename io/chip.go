@@ -24,11 +24,13 @@ type SoftSwitch struct {
 	Video *crtc.CRTC
 }
 
-func InitSoftSwitch(name string, size int, disk *DiskInterface, vid *crtc.CRTC) *SoftSwitch {
+func InitSoftSwitch(name string, size uint, disk *DiskInterface, vid *crtc.CRTC) *SoftSwitch {
 	tmp := SoftSwitch{
 		Disks: disk,
 		Video: vid,
 	}
+
+	tmp.Size = size
 	tmp.Name = name
 	tmp.Buff = make([]byte, size)
 

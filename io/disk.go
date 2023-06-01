@@ -1,7 +1,6 @@
 package io
 
 import (
-	"fmt"
 	"log"
 	"newApple/config"
 	"newApple/disk"
@@ -105,7 +104,7 @@ func (C *DiskInterface) SetPhase(phase int, state bool) {
 func (C *DiskInterface) SetSequencerMode(mode bool) byte {
 	var retVal byte = 0
 	C.SequencerMode = mode
-	if C.SequencerMode == SEQ_READ_MODE {
+	if C.SequencerMode { // SEQ_READ_MODE
 		retVal = C.ProtectCheck
 		C.ProtectCheck = 0
 		// log.Printf("Sequencer read = %02X (%04X)", retVal, cpu.InstStart)
@@ -114,7 +113,7 @@ func (C *DiskInterface) SetSequencerMode(mode bool) byte {
 }
 
 func (C *DiskInterface) ShiftOrRead() byte {
-	if C.SequencerMode == SEQ_READ_MODE {
+	if C.SequencerMode { // SEQ_READ_MODE
 		if C.SelectedDrive != -1 {
 			if C.Disks[C.SelectedDrive].IsRunning {
 				tmp := C.Disks[C.SelectedDrive].GetNextByte()
@@ -126,9 +125,10 @@ func (C *DiskInterface) ShiftOrRead() byte {
 			}
 		}
 		return 0x00
-	} else {
-		// Shift sequencer
 	}
+	// else {
+	// 	Shift sequencer
+	// }
 	return 0
 }
 
@@ -149,50 +149,50 @@ func (C *DiskInterface) LoadOrCheck() byte {
 	return 0
 }
 
-func (C *DiskInterface) drivesStatus() {
-	var D1, D2 string
-	fmt.Printf("==============================================\n")
-	fmt.Printf("                 =Drive 1=           =Drive 2=\n")
-	if C.SelectedDrive == 0 {
-		fmt.Printf("Selected:           X\n")
-	} else {
-		fmt.Printf("Selected:                                X\n")
-	}
+// func (C *DiskInterface) drivesStatus() {
+// 	var D1, D2 string
+// 	fmt.Printf("==============================================\n")
+// 	fmt.Printf("                 =Drive 1=           =Drive 2=\n")
+// 	if C.SelectedDrive == 0 {
+// 		fmt.Printf("Selected:           X\n")
+// 	} else {
+// 		fmt.Printf("Selected:                                X\n")
+// 	}
 
-	if C.Disks[0].IsRunning {
-		D1 = "ON"
-	} else {
-		D1 = "OFF"
-	}
-	if C.Disks[1].IsRunning {
-		D2 = "ON"
-	} else {
-		D2 = "OFF"
-	}
-	fmt.Printf("Motors:             %3s                 %3s\n", D1, D2)
+// 	if C.Disks[0].IsRunning {
+// 		D1 = "ON"
+// 	} else {
+// 		D1 = "OFF"
+// 	}
+// 	if C.Disks[1].IsRunning {
+// 		D2 = "ON"
+// 	} else {
+// 		D2 = "OFF"
+// 	}
+// 	fmt.Printf("Motors:             %3s                 %3s\n", D1, D2)
 
-	// if C.Disks[0].ReadMode {
-	// 	D1 = "RD"
-	// } else {
-	// 	D1 = "WR"
-	// }
-	// if C.Disks[1].ReadMode {
-	// 	D2 = "RD"
-	// } else {
-	// 	D2 = "WR"
-	// }
-	// fmt.Printf("Mode:               %3s                 %3s\n", D1, D2)
+// 	// if C.Disks[0].ReadMode {
+// 	// 	D1 = "RD"
+// 	// } else {
+// 	// 	D1 = "WR"
+// 	// }
+// 	// if C.Disks[1].ReadMode {
+// 	// 	D2 = "RD"
+// 	// } else {
+// 	// 	D2 = "WR"
+// 	// }
+// 	// fmt.Printf("Mode:               %3s                 %3s\n", D1, D2)
 
-	if C.Disks[0].IsWriteProtected {
-		D1 = "ON"
-	} else {
-		D1 = "OFF"
-	}
-	if C.Disks[1].IsWriteProtected {
-		D2 = "ON"
-	} else {
-		D2 = "OFF"
-	}
-	fmt.Printf("WriteProtect:       %3s                 %3s\n", D1, D2)
-	fmt.Printf("==============================================\n")
-}
+// 	if C.Disks[0].IsWriteProtected {
+// 		D1 = "ON"
+// 	} else {
+// 		D1 = "OFF"
+// 	}
+// 	if C.Disks[1].IsWriteProtected {
+// 		D2 = "ON"
+// 	} else {
+// 		D2 = "OFF"
+// 	}
+// 	fmt.Printf("WriteProtect:       %3s                 %3s\n", D1, D2)
+// 	fmt.Printf("==============================================\n")
+// }

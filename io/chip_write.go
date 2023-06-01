@@ -20,42 +20,6 @@ func (C *SoftSwitch) Write(addr uint16, val byte) {
 	case KBDSTRB:
 		Is_Keypressed = false
 		C.Buff[KBD] = 0
-	case SETSTDZP:
-		log.Printf("ALT_ZP Off")
-		is_ALT_ZP = false
-		C.Mmu.Enable("ZP")
-		C.Mmu.Disable("ALT_ZP")
-	case SETALTZP:
-		log.Printf("ALT_ZP On")
-		is_ALT_ZP = true
-		C.Mmu.Enable("ALT_ZP")
-		C.Mmu.Disable("ZP")
-	case SETSLOTCXROM:
-		log.Println("SETSLOTCXROM")
-		is_CX_INT = false
-		C.Mmu.Enable("SLOT1")
-		C.Mmu.Enable("SLOT2")
-		C.Mmu.Enable("SLOT3")
-		C.Mmu.Enable("SLOT4")
-		C.Mmu.Enable("SLOT5")
-		C.Mmu.Enable("SLOT6")
-		C.Mmu.Enable("SLOT7")
-	case SETINTCXROM:
-		log.Println("SETINTCXROM")
-		is_CX_INT = true
-		C.Mmu.Disable("SLOT1")
-		C.Mmu.Disable("SLOT2")
-		C.Mmu.Disable("SLOT3")
-		C.Mmu.Disable("SLOT4")
-		C.Mmu.Disable("SLOT5")
-		C.Mmu.Disable("SLOT6")
-		C.Mmu.Disable("SLOT7")
-	case SETSLOTC3ROM:
-		C.Mmu.Enable("SLOT3")
-		is_C3_INT = false
-	case SETINTC3ROM:
-		C.Mmu.Disable("SLOT3")
-		is_C3_INT = true
 	case TXTCLR:
 		crtc.Is_TEXTMODE = false
 		C.Video.UpdateGraphMode()
@@ -90,6 +54,20 @@ func (C *SoftSwitch) Write(addr uint16, val byte) {
 		} else {
 			C.Video.UpdateVideoRam()
 		}
+
+	case SETSTDZP:
+		fallthrough
+	case SETALTZP:
+		log.Printf("ZP Management: %04X\n", addr+0xC000)
+
+	case SETSLOTCXROM:
+		fallthrough
+	case SETINTCXROM:
+		fallthrough
+	case SETINTC3ROM:
+		fallthrough
+	case SETSLOTC3ROM:
+		log.Printf("Slot Management: %04X\n", addr+0xC000)
 
 	case SLOT6_OFFSET + DRVSM0:
 		C.Disks.SetPhase(0, false)
@@ -136,7 +114,7 @@ func (C *SoftSwitch) Write(addr uint16, val byte) {
 		C.Disks.SetSequencerMode(SEQ_WRITE_MODE)
 
 	default:
-		log.Printf("Write Unknown: %04X\n", addr)
+		log.Printf("IO Write Unknown: %04X\n", addr+0xC000)
 	}
 	// mem[translatedAddr] = val
 }

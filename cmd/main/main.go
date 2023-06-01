@@ -19,15 +19,15 @@ import (
 )
 
 const (
-	ramSize      = 65536
+	lowRamSize   = 49152
+	hiRamSize    = 12288
+	bankSize     = 4096
 	romSize      = 4096
-	softSwitches = 256
+	softSwitches = 4096
 	chargenSize  = 2048
 	keyboardSize = 2048
 	blanckSize   = 12288
 	slot_roms    = 256
-
-	nbMemLayout = 1
 
 	Stopped = 0
 	Paused  = 1
@@ -41,10 +41,16 @@ var (
 	MODEL     int
 	LayoutSel byte
 
-	RAM    *mmu.RAM
-	AUX    *mmu.RAM
-	ROM_D  *mmu.ROM
-	ROM_EF *mmu.ROM
+	MAIN_LOW *mmu.RAM
+	MAIN_HI  *mmu.RAM
+	MAIN_B1  *mmu.RAM
+	MAIN_B2  *mmu.RAM
+	AUX_LOW  *mmu.RAM
+	AUX_HI   *mmu.RAM
+	AUX_B1   *mmu.RAM
+	AUX_B2   *mmu.RAM
+	ROM_D    *mmu.ROM
+	ROM_EF   *mmu.ROM
 
 	IO      *io.SoftSwitch
 	Disks   *io.DiskInterface
@@ -58,7 +64,6 @@ var (
 	CRTC         crtc.CRTC
 	trace        bool
 	stepper      bool
-	lastPC       uint16
 	timeGap      time.Duration // 1Mhz = 1 000 000/s = 1000/ms
 )
 
@@ -70,9 +75,9 @@ func init() {
 
 func apple2_Roms() {
 	ROM_D = mmu.NewROM("ROM_D", romSize, "assets/roms/II/D.bin")
-	MEM.Attach(ROM_D, 0xD0, 16)
+	MEM.Attach(ROM_D, 0xD0, mmu.READONLY)
 	ROM_EF = mmu.NewROM("ROM_EF", romSize*2, "assets/roms/II/EF.bin")
-	MEM.Attach(ROM_EF, 0xE0, 32)
+	MEM.Attach(ROM_EF, 0xE0, mmu.READONLY)
 	CHARGEN = mmu.NewROM("CHARGEN", chargenSize, "assets/roms/II/3410036.bin")
 	// MEM.Attach(ROM_D, 0xD0, 8)
 }
@@ -96,34 +101,57 @@ func loadSlots() {
 	for i := 1; i < 8; i++ {
 		if conf.Slots.Catalog[i] != "" {
 			SLOTS[i] = mmu.NewROM("SLOT_"+strconv.Itoa(i), slot_roms, conf.Slots.Catalog[i])
-			MEM.Attach(SLOTS[i], 0xC0+uint(i), 1)
+			MEM.Attach(SLOTS[i], 0xC0+uint(i), mmu.READWRITE)
 		}
 	}
+}
+
+func initRam() {
+	MAIN_LOW = mmu.NewRAM("MAIN_LOW", lowRamSize)
+	MAIN_HI = mmu.NewRAM("MAIN_HI", hiRamSize)
+	MAIN_B1 = mmu.NewRAM("MAIN_B1", bankSize)
+	MAIN_B2 = mmu.NewRAM("MAIN_B2", bankSize)
+	AUX_LOW = mmu.NewRAM("AUX_LOW", lowRamSize)
+	AUX_HI = mmu.NewRAM("AUX_HI", hiRamSize)
+	AUX_B1 = mmu.NewRAM("AUX_B1", bankSize)
+	AUX_B2 = mmu.NewRAM("AUX_B2", bankSize)
+
+	MAIN_LOW.Clear(0x1000, 0xFF)
+	MAIN_HI.Clear(0x1000, 0xFF)
+	MAIN_B1.Clear(0x1000, 0xFF)
+	MAIN_B2.Clear(0x1000, 0xFF)
+	AUX_LOW.Clear(0x1000, 0xFF)
+	AUX_HI.Clear(0x1000, 0xFF)
+	AUX_B1.Clear(0x1000, 0xFF)
+	AUX_B2.Clear(0x1000, 0xFF)
+
+	MEM.Attach(MAIN_LOW, 0x00, mmu.READWRITE)
+	MEM.Attach(MAIN_HI, 0xD0, mmu.READWRITE)
+	MEM.Attach(MAIN_B1, 0xD0, mmu.READWRITE)
+	MEM.Attach(MAIN_B2, 0xD0, mmu.READWRITE)
 }
 
 func setup() {
 	LayoutSel = 0
 	MEM = mmu.Init(256, 256)
 
-	// Common Setup
-	RAM = mmu.NewRAM("RAM", ramSize, false)
-	RAM.Clear(0x1000, 0xFF)
-
-	AUX = mmu.NewRAM("AUX", ramSize, false)
-	AUX.Clear(0x1000, 0xFF)
+	initRam()
 
 	Disks = io.InitDiskInterface(conf)
 	IO = io.InitSoftSwitch("IO", softSwitches, Disks, &CRTC)
-
-	MEM.Attach(RAM, 0x00, 256)
-	MEM.Attach(IO, 0xC0, 1)
+	MEM.Attach(IO, 0xC0, mmu.READWRITE)
 
 	loadSlots()
 	apple2_Roms()
 
+	MEM.Mount("MAIN_B1", mmu.WRITEONLY)
+	MEM.CheckMapIntegrity()
+	// MEM.DumpMap()
+	// os.Exit(0)
+
 	outputDriver = render.SDL2Driver{}
 	io.InitKeyboard()
-	CRTC.Init(RAM.Buff, AUX.Buff, IO.Buff, CHARGEN.Buff, &outputDriver, conf)
+	CRTC.Init(MAIN_LOW.Buff, AUX_LOW.Buff, IO.Buff, CHARGEN.Buff, &outputDriver, conf)
 	outputDriver.SetKeyboardLine(&InputLine)
 
 	// Throttle setup
@@ -170,7 +198,7 @@ func RunEmulation() {
 		}
 
 		if interCycles >= conf.ThrottleInterval {
-			elapsed = time.Now().Sub(start)
+			elapsed = time.Since(start)
 			if elapsed < timeGap {
 				throttled = true
 			} else {

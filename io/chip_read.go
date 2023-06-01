@@ -113,85 +113,25 @@ func (C *SoftSwitch) Read(addr uint16) byte {
 	// 	}
 	// 	return 0x00
 
-	// case RDRAM_B2:
-	// 	log.Println("RDRAM_B2")
-	// 	C.Mmu.Disable("ROM_D")
-	// 	C.Mmu.Disable("ROM_EF")
-	// 	C.Mmu.Disable("BANK1")
-	// 	C.Mmu.Enable("BANK2")
-	// 	C.Mmu.ReadOnly("BANK2")
-	// 	is_READ_RAM = true
-	// 	is_BANK2 = true
-	// 	return 0x80
-	// case RDROM_WB2:
-	// 	log.Println("RDROM_WB2")
-	// 	C.Mmu.Enable("ROM_D")
-	// 	C.Mmu.Enable("ROM_EF")
-	// 	C.Mmu.Disable("BANK1")
-	// 	C.Mmu.Enable("BANK2")
-	// 	C.Mmu.ReadWrite("BANK2")
-	// 	is_READ_RAM = false
-	// 	is_BANK2 = true
-	// 	return 0x80
-	// case RDROM_2:
-	// 	log.Println("RDROM_2")
-	// 	C.Mmu.Enable("ROM_D")
-	// 	C.Mmu.Enable("ROM_EF")
-	// 	C.Mmu.Disable("BANK1")
-	// 	C.Mmu.Disable("BANK2")
-	// 	is_READ_RAM = false
-	// 	is_BANK2 = false
-	// 	return 0x80
-	// case RWRAM_B2:
-	// 	log.Println("RWRAM_B2")
-	// 	C.Mmu.Disable("ROM_D")
-	// 	C.Mmu.Disable("ROM_EF")
-	// 	C.Mmu.Disable("BANK1")
-	// 	C.Mmu.Enable("BANK2")
-	// 	C.Mmu.ReadWrite("BANK2")
-	// 	is_READ_RAM = true
-	// 	is_BANK2 = true
-	// 	return 0x80
+	case RAMROB2:
+		fallthrough
+	case ROMWB2:
+		fallthrough
+	case ROMROB2:
+		fallthrough
+	case RAMRWB2:
+		log.Printf("Bank2 Switch %04X\n", addr+0xC000)
+		return 0x80
 
-	// case RDROM_1:
-	// 	log.Println("RDROM_1")
-	// 	C.Mmu.Enable("ROM_D")
-	// 	C.Mmu.Enable("ROM_EF")
-	// 	C.Mmu.Disable("BANK1")
-	// 	C.Mmu.Disable("BANK2")
-	// 	is_READ_RAM = false
-	// 	is_BANK2 = false
-	// 	return 0x80
-	// case RDRAM_B1:
-	// 	log.Println("RDRAM_B1")
-	// 	C.Mmu.Disable("ROM_D")
-	// 	C.Mmu.Disable("ROM_EF")
-	// 	C.Mmu.Enable("BANK1")
-	// 	C.Mmu.Disable("BANK2")
-	// 	C.Mmu.ReadOnly("BANK1")
-	// 	is_READ_RAM = true
-	// 	is_BANK2 = false
-	// 	return 0x80
-	// case RDROM_WB1:
-	// 	log.Println("RDROM_WB1")
-	// 	C.Mmu.Enable("ROM_D")
-	// 	C.Mmu.Enable("ROM_EF")
-	// 	C.Mmu.Enable("BANK1")
-	// 	C.Mmu.Disable("BANK2")
-	// 	C.Mmu.ReadWrite("BANK1")
-	// 	is_READ_RAM = false
-	// 	is_BANK2 = false
-	// 	return 0x80
-	// case RWRAM_B1:
-	// 	log.Println("RWRAM_B1")
-	// 	C.Mmu.Disable("ROM_D")
-	// 	C.Mmu.Disable("ROM_EF")
-	// 	C.Mmu.Enable("BANK1")
-	// 	C.Mmu.Disable("BANK2")
-	// 	C.Mmu.ReadWrite("BANK1")
-	// 	is_READ_RAM = true
-	// 	is_BANK2 = false
-	// 	return 0x80
+	case RAMROB1:
+		fallthrough
+	case ROMWB1:
+		fallthrough
+	case ROMROB1:
+		fallthrough
+	case RAMRWB1:
+		log.Printf("Bank1 Switch %04X\n", addr+0xC000)
+		return 0x80
 
 	case 0x0084, 0x0085, 0x0086, 0x0087, 0x008C, 0x008D, 0x008E, 0x008F:
 		log.Println("Saturn Card not implemented")
@@ -268,15 +208,15 @@ func (C *SoftSwitch) Read(addr uint16) byte {
 		return C.Disks.SetSequencerMode(SEQ_WRITE_MODE)
 
 	case 0x0078, 0x0079, 0x007E:
-		log.Printf("Mouse not supported %04X\n", addr)
+		log.Printf("Mouse not supported %04X\n", addr+0xC000)
 		return 0x00
 
 	case 0x0060, 0x0061, 0x0062, 0x0063:
-		log.Printf("Keyboard switch not supported %04X\n", addr)
+		log.Printf("Keyboard switch not supported %04X\n", addr+0xC000)
 		return 0x00
 
 	default:
-		log.Printf("Read Unknown: %04X\n", addr)
+		log.Printf("IO Read Unknown: %04X\n", addr+0xC000)
 		return 0x00
 	}
 }
