@@ -217,6 +217,6 @@ func (C *SoftSwitch) Read(addr uint16) byte {
 
 	default:
 		log.Printf("IO Read Unknown: %04X\n", addr+0xC000)
-		return 0x00
+		return C.Buff[addr]
 	}
 }

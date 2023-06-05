@@ -114,7 +114,8 @@ func (C *SoftSwitch) Write(addr uint16, val byte) {
 		C.Disks.SetSequencerMode(SEQ_WRITE_MODE)
 
 	default:
-		log.Printf("IO Write Unknown: %04X\n", addr+0xC000)
+		// log.Printf("IO Write Unknown: %04X\n", addr+0xC000)
+		C.Buff[addr] = val
 	}
 	// mem[translatedAddr] = val
 }

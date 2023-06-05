@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"newApple/config"
 	"newApple/crtc"
 	"newApple/io"
@@ -242,6 +243,8 @@ func main() {
 		MODEL = 2
 	}
 
+	log.Printf("-%v-\n", conf.Disks.Disk1)
+	log.Printf("-%v-\n", conf.Disks.Disk2)
 	setup()
 
 	trace = conf.Trace
