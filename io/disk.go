@@ -34,15 +34,20 @@ func InitDiskInterface(conf *config.ConfigData) *DiskInterface {
 
 func (C *DiskInterface) loadDisks(conf *config.ConfigData) {
 	if conf.Slots.Slot6 != "" {
-		C.connectedDrive = conf.Disks.Connected
-		for i := 0; i < C.connectedDrive; i++ {
-			C.Disks[i] = disk.Attach(conf.Globals.DebugMode)
-		}
+		C.connectedDrive = 0
 		if conf.Disks.Disk1 != "" {
-			C.Disks[0].LoadDiskImage(conf.Disks.Disk1)
+			C.Disks[0] = disk.Attach(conf.Globals.DebugMode)
+			if conf.Disks.Disk1 != "empty" {
+				C.Disks[0].LoadDiskImage(conf.Disks.Disk1)
+			}
+			C.connectedDrive++
 		}
 		if conf.Disks.Disk2 != "" {
-			C.Disks[1].LoadDiskImage(conf.Disks.Disk2)
+			C.Disks[1] = disk.Attach(conf.Globals.DebugMode)
+			if conf.Disks.Disk2 != "empty" {
+				C.Disks[1].LoadDiskImage(conf.Disks.Disk2)
+			}
+			C.connectedDrive++
 		}
 	}
 }

@@ -27,9 +27,8 @@ type Slots struct {
 }
 
 type Disks struct {
-	Connected int
-	Disk1     string
-	Disk2     string
+	Disk1 string
+	Disk2 string
 }
 
 type DebugMode struct {
