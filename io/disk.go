@@ -3,7 +3,7 @@ package io
 import (
 	"log"
 	"newApple/config"
-	"newApple/disk"
+	"newApple/diskdrive"
 )
 
 const (
@@ -12,9 +12,10 @@ const (
 )
 
 type DiskInterface struct {
-	Disks          []*disk.DRIVE
+	Disks          []*diskdrive.DRIVE
 	connectedDrive int
 
+	MotorIsOn     bool
 	SelectedDrive int
 	SequencerMode bool
 	ProtectCheck  byte
@@ -22,7 +23,7 @@ type DiskInterface struct {
 
 func InitDiskInterface(conf *config.ConfigData) *DiskInterface {
 	tmp := DiskInterface{
-		Disks:          make([]*disk.DRIVE, 2),
+		Disks:          make([]*diskdrive.DRIVE, 2),
 		connectedDrive: 0,
 		SelectedDrive:  0,
 		SequencerMode:  false,
@@ -36,25 +37,29 @@ func (C *DiskInterface) loadDisks(conf *config.ConfigData) {
 	if conf.Slots.Slot6 != "" {
 		C.connectedDrive = 0
 		if conf.Disks.Disk1 != "" {
-			C.Disks[0] = disk.Attach(conf.Globals.DebugMode)
+			C.Disks[0] = diskdrive.Attach(conf.Globals.DebugMode)
 			if conf.Disks.Disk1 != "empty" {
 				C.Disks[0].LoadDiskImage(conf.Disks.Disk1)
 			}
 			C.connectedDrive++
+		} else {
+			C.Disks[0] = nil
 		}
 		if conf.Disks.Disk2 != "" {
-			C.Disks[1] = disk.Attach(conf.Globals.DebugMode)
+			C.Disks[1] = diskdrive.Attach(conf.Globals.DebugMode)
 			if conf.Disks.Disk2 != "empty" {
 				C.Disks[1].LoadDiskImage(conf.Disks.Disk2)
 			}
 			C.connectedDrive++
+		} else {
+			C.Disks[1] = nil
 		}
 	}
 }
 
 func (C *DiskInterface) diskMotorsON() byte {
-	disk.MotorIsOn = true
 	// log.Printf("Start motor drive %d", SelectedDrive)
+	C.MotorIsOn = true
 	C.Disks[C.SelectedDrive].StartMotor()
 	// C.drivesStatus()
 	// clog.FileRaw("\n%s : Start Motor: %04X", time.Now().Format("15:04:05"), cpu.InstStart)
@@ -62,16 +67,12 @@ func (C *DiskInterface) diskMotorsON() byte {
 }
 
 func (C *DiskInterface) diskMotorsOFF() byte {
-	if C.connectedDrive == 0 || !disk.MotorIsOn {
+	if C.connectedDrive == 0 || !C.Disks[C.SelectedDrive].MotorIsOn {
 		return 0
 	}
 
-	C.Disks[0].StopMotor()
-	if C.connectedDrive > 1 {
-		C.Disks[1].StopMotor()
-	}
-
-	disk.MotorIsOn = false
+	C.Disks[C.SelectedDrive].StopMotor()
+	C.MotorIsOn = false
 	// clog.FileRaw("\n%s : Stop Motor: %04X", time.Now().Format("15:04:05"), cpu.InstStart)
 	return 171
 }
@@ -83,19 +84,18 @@ func (C *DiskInterface) driveSelect(driveNum int) byte {
 	if C.connectedDrive == 0 {
 		retVal = 0x80
 	}
+	// On selection le drive déjà selectionné
 	if driveNum == C.SelectedDrive {
 		return retVal
 	}
-	if disk.MotorIsOn {
+	// On switch de drive
+	if C.Disks[driveNum] != nil {
 		C.Disks[C.SelectedDrive].StopMotor()
-		if driveNum+1 <= C.connectedDrive {
-			C.Disks[driveNum].StartMotor()
-			C.SelectedDrive = driveNum
-		} else {
-			C.SelectedDrive = 0
+		C.SelectedDrive = driveNum
+		if C.MotorIsOn {
+			C.Disks[C.SelectedDrive].StartMotor()
 		}
 	}
-
 	return retVal
 }
 
@@ -116,15 +116,13 @@ func (C *DiskInterface) SetSequencerMode(mode bool) byte {
 
 func (C *DiskInterface) ShiftOrRead() byte {
 	if C.SequencerMode { // SEQ_READ_MODE
-		if C.SelectedDrive != -1 {
-			if C.Disks[C.SelectedDrive].IsRunning {
-				tmp := C.Disks[C.SelectedDrive].GetNextByte()
-				// clog.Debug("IO", "disk", "Read : %02X\n", tmp)
-				// fmt.Printf("%02X\n", tmp)
-				// clog.FileRaw("\n%s : => READ DATA => %02X [%04X]", time.Now().Format("15:04:05"), tmp, cpu.InstStart)
-				// clog.FileRaw("\n%s", cpu.FullDebug)
-				return tmp
-			}
+		if C.Disks[C.SelectedDrive].MotorIsOn {
+			tmp := C.Disks[C.SelectedDrive].GetNextByte()
+			// clog.Debug("IO", "disk", "Read : %02X\n", tmp)
+			// fmt.Printf("%02X\n", tmp)
+			// clog.FileRaw("\n%s : => READ DATA => %02X [%04X]", time.Now().Format("15:04:05"), tmp, cpu.InstStart)
+			// clog.FileRaw("\n%s", cpu.FullDebug)
+			return tmp
 		}
 		return 0x00
 	}
