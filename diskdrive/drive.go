@@ -20,6 +20,7 @@ type DiskImage interface {
 	Dump(bool)
 	DumpTrack(float32)
 	DumpTrackRaw(float32)
+	GetStatus() string
 }
 
 type DRIVE struct {
@@ -27,7 +28,7 @@ type DRIVE struct {
 	motorPhases      [4]bool
 	IsWriteProtected bool
 	MotorWillStop    bool
-	MotorIsOn        bool
+	IsSpinning        bool
 	diskImage        DiskImage
 
 	currentPhase   int
@@ -43,7 +44,7 @@ func Attach(debugMode bool) *DRIVE {
 	drive.motorPhases = [4]bool{false, false, false, false}
 	drive.IsWriteProtected = false
 	drive.IsEmpty = true
-	drive.MotorIsOn = false
+	drive.IsSpinning = false
 	drive.MotorWillStop = false
 
 	debug = debugMode
@@ -72,14 +73,14 @@ func (D *DRIVE) LoadDiskImage(fileName string) {
 }
 
 func (D *DRIVE) StartMotor() {
-	D.MotorIsOn = true
+	D.IsSpinning = true
 	D.MotorWillStop = false
 }
 
 func (D *DRIVE) motorStopDelay() {
 	time.Sleep(time.Millisecond * 1000)
 	if D.MotorWillStop {
-		D.MotorIsOn = false
+		D.IsSpinning = false
 		D.MotorWillStop = false
 		fmt.Printf("Stop Motor\n")
 	}
@@ -87,7 +88,7 @@ func (D *DRIVE) motorStopDelay() {
 
 func (D *DRIVE) StopMotor() {
 	// fmt.Printf("Stop Motor\n")
-	if D.MotorIsOn && !D.MotorWillStop {
+	if D.IsSpinning && !D.MotorWillStop {
 		D.MotorWillStop = true
 		go D.motorStopDelay()
 	}
@@ -144,4 +145,11 @@ func (D *DRIVE) DumpMeta() {
 
 func (D *DRIVE) DumpTrack(trk float32) {
 	D.diskImage.DumpTrack(trk)
+}
+
+func (D *DRIVE) GetStatus() string {
+	if D.IsEmpty {
+		return "Empty"
+	}
+	return D.diskImage.GetStatus()
 }

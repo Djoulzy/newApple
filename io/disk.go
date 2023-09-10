@@ -1,6 +1,7 @@
 package io
 
 import (
+	"fmt"
 	"log"
 	"newApple/config"
 	"newApple/diskdrive"
@@ -67,14 +68,18 @@ func (C *DiskInterface) diskMotorsON() byte {
 }
 
 func (C *DiskInterface) diskMotorsOFF() byte {
-	if C.connectedDrive == 0 || !C.Disks[C.SelectedDrive].MotorIsOn {
+	if !C.MotorIsOn {
 		return 0
 	}
-
-	C.Disks[C.SelectedDrive].StopMotor()
+	if C.Disks[0] != nil {
+		C.Disks[0].StopMotor()
+	}
+	if C.Disks[1] != nil {
+		C.Disks[1].StopMotor()
+	}
 	C.MotorIsOn = false
 	// clog.FileRaw("\n%s : Stop Motor: %04X", time.Now().Format("15:04:05"), cpu.InstStart)
-	return 171
+	return 0
 }
 
 // Select drive 0 or 1
@@ -86,16 +91,15 @@ func (C *DiskInterface) driveSelect(driveNum int) byte {
 	}
 	// On selection le drive déjà selectionné
 	if driveNum == C.SelectedDrive {
-		return retVal
+		return 0x80
 	}
 	// On switch de drive
-	if C.Disks[driveNum] != nil {
-		C.Disks[C.SelectedDrive].StopMotor()
-		C.SelectedDrive = driveNum
-		if C.MotorIsOn {
-			C.Disks[C.SelectedDrive].StartMotor()
-		}
+	C.Disks[C.SelectedDrive].IsSpinning = false
+	C.SelectedDrive = driveNum
+	if C.Disks[C.SelectedDrive] != nil && C.MotorIsOn {
+		C.Disks[C.SelectedDrive].IsSpinning = true
 	}
+
 	return retVal
 }
 
@@ -116,7 +120,7 @@ func (C *DiskInterface) SetSequencerMode(mode bool) byte {
 
 func (C *DiskInterface) ShiftOrRead() byte {
 	if C.SequencerMode { // SEQ_READ_MODE
-		if C.Disks[C.SelectedDrive].MotorIsOn {
+		if C.Disks[C.SelectedDrive] != nil && C.Disks[C.SelectedDrive].IsSpinning {
 			tmp := C.Disks[C.SelectedDrive].GetNextByte()
 			// clog.Debug("IO", "disk", "Read : %02X\n", tmp)
 			// fmt.Printf("%02X\n", tmp)
@@ -147,6 +151,54 @@ func (C *DiskInterface) LoadOrCheck() byte {
 	// Load sequencer
 
 	return 0
+}
+
+func (C *DiskInterface) GetStats() []string {
+	sel := ""
+	mtr := ""
+	sts := ""
+	stat := make([]string, 2)
+	tmp := make([]string, 3)
+	tmp[0] = "Motr Drv Stat Selec     " + "    Phy.Trk Dat.Trk Rev  Pos"
+	if C.SelectedDrive == 0 {
+		sel = "*"
+	}
+	if C.MotorIsOn {
+		mtr = "ON"
+	}
+	if C.Disks[0] != nil && C.Disks[0].IsSpinning {
+		sts = "Spin"
+	} else {
+		sts = "Stop"
+	}
+	stat[0] = fmt.Sprintf(" %2s   1  %s   %s       ", mtr, sts, sel)
+	sel = ""
+	mtr = ""
+	sts = ""
+	if !C.MotorIsOn {
+		mtr = "OF"
+	}
+	if C.SelectedDrive == 1 {
+		sel = "*"
+	}
+	if C.Disks[1] != nil && C.Disks[1].IsSpinning {
+		sts = "Spin"
+	} else {
+		sts = "Stop"
+	}
+	stat[1] = fmt.Sprintf(" %2s   2  %s   %s       ", mtr, sts, sel)
+
+	if C.Disks[0] != nil {
+		tmp[1] = stat[0] + C.Disks[0].GetStatus()
+	} else {
+		tmp[1] = stat[0]
+	}
+	if C.Disks[1] != nil {
+		tmp[2] = stat[1] + C.Disks[1].GetStatus()
+	} else {
+		tmp[2] = stat[1]
+	}
+	return tmp
 }
 
 // func (C *DiskInterface) drivesStatus() {

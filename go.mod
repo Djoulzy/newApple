@@ -4,6 +4,9 @@ go 1.21
 
 replace (
 	github.com/Djoulzy/emutools/mos6510 => ../github.com/Djoulzy/emutools/mos6510
+	github.com/Djoulzy/emutools/render => ../github.com/Djoulzy/emutools/render
+	github.com/Djoulzy/godsk => ../github.com/Djoulzy/godsk
+	github.com/Djoulzy/gowoz => ../github.com/Djoulzy/gowoz
 	github.com/Djoulzy/mmu => ../github.com/Djoulzy/mmu
 )
 
@@ -27,7 +30,7 @@ require (
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/veandco/go-sdl2 v0.4.35 // indirect
-	golang.org/x/exp v0.0.0-20230817173708-d852ddb80c63 // indirect
+	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
 	golang.org/x/image v0.12.0 // indirect
 	golang.org/x/sys v0.12.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

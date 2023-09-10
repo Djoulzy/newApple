@@ -215,11 +215,14 @@ func RunEmulation() {
 			stepper = true
 		}
 
-		if cpu.CycleCount == 1 && trace {
-			fmt.Printf("%d -- %s\n", cycles, cpu.Trace())
-			if stepper {
-				if InterractiveMode() {
-					go input()
+		if cpu.CycleCount == 1 {
+			outputDriver.SetDriveStat(Disks.GetStats())
+			if trace {
+				fmt.Printf("%d -- %s\n", cycles, cpu.Trace())
+				if stepper {
+					if InterractiveMode() {
+						go input()
+					}
 				}
 			}
 		}
