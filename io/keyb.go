@@ -13,7 +13,7 @@ const (
 )
 
 var (
-	KeyMap map[uint](map[uint]byte)
+	KeyMap        map[uint](map[uint]byte)
 	Is_Keypressed bool = false
 )
 
@@ -32,13 +32,13 @@ func InitKeyboard() {
 
 	KeyMap[10][KB_NORMAL] = 0x8D // RETURN
 
-	KeyMap[51][KB_NORMAL] = 0x22  // "
-	KeyMap[51][KB_L_SHIFT] = 0x33 // 3
-	KeyMap[51][KB_R_SHIFT] = 0x33 // 3
+	KeyMap[51][KB_NORMAL] = 0x33  // "
+	KeyMap[51][KB_L_SHIFT] = 0x22 // 3
+	KeyMap[51][KB_R_SHIFT] = 0x22 // 3
 
-	KeyMap[53][KB_NORMAL] = 0x28  // (
-	KeyMap[53][KB_L_SHIFT] = 0x35 // 5
-	KeyMap[53][KB_R_SHIFT] = 0x35 // 5
+	KeyMap[53][KB_NORMAL] = 0x35  // (
+	KeyMap[53][KB_L_SHIFT] = 0x28 // 5
+	KeyMap[53][KB_R_SHIFT] = 0x28 // 5
 
 	KeyMap[41][KB_NORMAL] = 0x29 // )
 

@@ -70,8 +70,10 @@ func (C *SoftSwitch) Write(addr uint16, val byte) {
 		log.Printf("Slot Management: %04X\n", addr+0xC000)
 
 	case SLOT6_OFFSET + DRVSM0:
+		log.Println("[WRITE] SetPhase Off")
 		C.Disks.SetPhase(0, false)
 	case SLOT6_OFFSET + DRVSM0 + 1:
+		log.Println("[WRITE] SetPhase On")
 		C.Disks.SetPhase(0, true)
 	case SLOT6_OFFSET + DRVSM1:
 		C.Disks.SetPhase(1, false)
