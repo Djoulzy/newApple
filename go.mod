@@ -13,10 +13,10 @@ replace (
 require (
 	github.com/Djoulzy/Tools/clog v0.0.0-20220609190146-71af779f6ddc
 	github.com/Djoulzy/Tools/confload v0.0.0-20220609190146-71af779f6ddc
-	github.com/Djoulzy/emutools/mos6510 v0.0.0-20230605062134-c8b61bff57b2
-	github.com/Djoulzy/emutools/render v0.0.0-20230605062134-c8b61bff57b2
+	github.com/Djoulzy/emutools/mos6510 v0.0.0-20230911073411-473d153118d9
+	github.com/Djoulzy/emutools/render v0.0.0-20230911073411-473d153118d9
 	github.com/Djoulzy/godsk v0.0.0-20221012182138-3f22e902d449
-	github.com/Djoulzy/gowoz v0.0.0-20221012182153-b80301c0b697
+	github.com/Djoulzy/gowoz v0.0.0-20230911061340-9b51dce53fc2
 	github.com/Djoulzy/mmu v0.0.0-20230605062009-e48b6d54957a
 	github.com/mattn/go-tty v0.0.5
 )
