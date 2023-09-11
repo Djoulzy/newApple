@@ -1,6 +1,7 @@
-package disk
+package diskdrive
 
 import (
+	"fmt"
 	"log"
 	"path/filepath"
 	"time"
@@ -11,8 +12,6 @@ import (
 	"github.com/Djoulzy/Tools/clog"
 )
 
-var MotorIsOn bool = false
-
 type DiskImage interface {
 	IsWriteProtected() bool
 	GetNextByte() byte
@@ -21,13 +20,15 @@ type DiskImage interface {
 	Dump(bool)
 	DumpTrack(float32)
 	DumpTrackRaw(float32)
+	GetStatus() string
 }
 
 type DRIVE struct {
 	IsEmpty          bool
 	motorPhases      [4]bool
 	IsWriteProtected bool
-	IsRunning        bool
+	MotorWillStop    bool
+	IsSpinning        bool
 	diskImage        DiskImage
 
 	currentPhase   int
@@ -43,6 +44,8 @@ func Attach(debugMode bool) *DRIVE {
 	drive.motorPhases = [4]bool{false, false, false, false}
 	drive.IsWriteProtected = false
 	drive.IsEmpty = true
+	drive.IsSpinning = false
+	drive.MotorWillStop = false
 
 	debug = debugMode
 	return &drive
@@ -70,18 +73,25 @@ func (D *DRIVE) LoadDiskImage(fileName string) {
 }
 
 func (D *DRIVE) StartMotor() {
-	D.IsRunning = true
+	D.IsSpinning = true
+	D.MotorWillStop = false
 }
 
 func (D *DRIVE) motorStopDelay() {
 	time.Sleep(time.Millisecond * 1000)
-	if !MotorIsOn {
-		D.IsRunning = false
+	if D.MotorWillStop {
+		D.IsSpinning = false
+		D.MotorWillStop = false
+		fmt.Printf("Stop Motor\n")
 	}
 }
 
 func (D *DRIVE) StopMotor() {
-	go D.motorStopDelay()
+	// fmt.Printf("Stop Motor\n")
+	if D.IsSpinning && !D.MotorWillStop {
+		D.MotorWillStop = true
+		go D.motorStopDelay()
+	}
 }
 
 func (D *DRIVE) GetNextByte() byte {
@@ -135,4 +145,11 @@ func (D *DRIVE) DumpMeta() {
 
 func (D *DRIVE) DumpTrack(trk float32) {
 	D.diskImage.DumpTrack(trk)
+}
+
+func (D *DRIVE) GetStatus() string {
+	if D.IsEmpty {
+		return "Empty"
+	}
+	return D.diskImage.GetStatus()
 }

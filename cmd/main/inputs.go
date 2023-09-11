@@ -40,16 +40,35 @@ func InterractiveMode() bool {
 			stepper = false
 			return true
 		case 'd':
-			fmt.Printf("> ")
+			fmt.Printf("Dump> ")
 			endAddr = false
 			for !endAddr {
 				rr, _ := keyb.ReadRune()
 				switch rr {
 				case 13:
+					fmt.Println("")
 					hx, _ := strconv.ParseInt(addr, 16, 64)
 					MEM.Dump(uint16(hx))
 					addr = ""
 					endAddr = true
+				default:
+					fmt.Printf("%c", rr)
+					addr += string(rr)
+				}
+			}
+		case 'p':
+			fmt.Printf("Disass> ")
+			endAddr = false
+			for !endAddr {
+				rr, _ := keyb.ReadRune()
+				switch rr {
+				case 13:
+					fmt.Println("")
+					hx, _ := strconv.ParseInt(addr, 16, 64)
+					cpu.Disassemble(uint16(hx), 40)
+					addr = ""
+					endAddr = true
+					r = 'p'
 				default:
 					fmt.Printf("%c", rr)
 					addr += string(rr)
