@@ -3,6 +3,7 @@ package io
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"newApple/config"
 	"newApple/diskdrive"
 )
@@ -20,6 +21,10 @@ type DiskInterface struct {
 	SelectedDrive int
 	SequencerMode bool
 	ProtectCheck  byte
+}
+
+func random() byte {
+	return (byte)(rand.Intn(254) + 1)
 }
 
 func InitDiskInterface(conf *config.ConfigData) *DiskInterface {
@@ -61,46 +66,46 @@ func (C *DiskInterface) loadDisks(conf *config.ConfigData) {
 func (C *DiskInterface) diskMotorsON() byte {
 	// log.Printf("Start motor drive %d", SelectedDrive)
 	C.MotorIsOn = true
-	C.Disks[C.SelectedDrive].StartMotor()
+	if C.Disks[C.SelectedDrive] != nil {
+		C.Disks[C.SelectedDrive].StartMotor()
+	}
+
 	// C.drivesStatus()
 	// clog.FileRaw("\n%s : Start Motor: %04X", time.Now().Format("15:04:05"), cpu.InstStart)
 	return 0
 }
 
 func (C *DiskInterface) diskMotorsOFF() byte {
+	var restVal byte = 0x00
 	if !C.MotorIsOn {
-		return 0
+		return restVal
 	}
-	if C.Disks[0] != nil {
+	if C.Disks[C.SelectedDrive] != nil {
 		C.Disks[0].StopMotor()
-	}
-	if C.Disks[1] != nil {
-		C.Disks[1].StopMotor()
+		restVal = random()
 	}
 	C.MotorIsOn = false
 	// clog.FileRaw("\n%s : Stop Motor: %04X", time.Now().Format("15:04:05"), cpu.InstStart)
-	return 0
+	return restVal
 }
 
 // Select drive 0 or 1
 func (C *DiskInterface) driveSelect(driveNum int) byte {
-	var retVal byte = 0
-
-	if C.connectedDrive == 0 {
-		retVal = 0x80
-	}
-	// On selection le drive déjà selectionné
-	if driveNum == C.SelectedDrive {
-		return 0x80
-	}
-	// On switch de drive
-	C.Disks[C.SelectedDrive].IsSpinning = false
-	C.SelectedDrive = driveNum
-	if C.Disks[C.SelectedDrive] != nil && C.MotorIsOn {
-		C.Disks[C.SelectedDrive].IsSpinning = true
+	if driveNum != C.SelectedDrive {
+		if C.Disks[C.SelectedDrive] != nil {
+			C.Disks[C.SelectedDrive].IsSpinning = false
+		}
+		C.SelectedDrive = driveNum
+		if C.Disks[C.SelectedDrive] != nil && C.MotorIsOn {
+			C.Disks[C.SelectedDrive].IsSpinning = true
+		}
+		return 0
 	}
 
-	return retVal
+	if driveNum == 0 && C.MotorIsOn {
+		return random()
+	}
+	return 0
 }
 
 func (C *DiskInterface) SetPhase(phase int, state bool) {
@@ -154,7 +159,7 @@ func (C *DiskInterface) LoadOrCheck() byte {
 }
 
 func (C *DiskInterface) GetStats() []string {
-	sel := ""
+	sel := " "
 	mtr := ""
 	sts := ""
 	stat := make([]string, 2)
@@ -172,7 +177,7 @@ func (C *DiskInterface) GetStats() []string {
 		sts = "Stop"
 	}
 	stat[0] = fmt.Sprintf(" %2s   1  %s   %s       ", mtr, sts, sel)
-	sel = ""
+	sel = " "
 	mtr = ""
 	sts = ""
 	if !C.MotorIsOn {
