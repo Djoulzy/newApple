@@ -9,9 +9,9 @@ func (C *CRTC) Write(addr uint16, val byte) {
 	// }
 }
 
-func (C *CRTC) testBit(reg uint16, mask byte) bool {
-	if C.Reg[reg]&mask == mask {
-		return true
-	}
-	return false
-}
+// func (C *CRTC) testBit(reg uint16, mask byte) bool {
+// 	if C.Reg[reg]&mask == mask {
+// 		return true
+// 	}
+// 	return false
+// }
