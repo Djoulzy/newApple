@@ -128,7 +128,6 @@ func (C *DiskInterface) ShiftOrRead() byte {
 		if C.Disks[C.SelectedDrive] != nil && C.Disks[C.SelectedDrive].IsSpinning {
 			tmp := C.Disks[C.SelectedDrive].GetNextByte()
 			// clog.Debug("IO", "disk", "Read : %02X\n", tmp)
-			// fmt.Printf("%02X\n", tmp)
 			// clog.FileRaw("\n%s : => READ DATA => %02X [%04X]", time.Now().Format("15:04:05"), tmp, cpu.InstStart)
 			// clog.FileRaw("\n%s", cpu.FullDebug)
 			return tmp

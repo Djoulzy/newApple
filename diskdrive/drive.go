@@ -1,7 +1,6 @@
 package diskdrive
 
 import (
-	"fmt"
 	"log"
 	"path/filepath"
 	"time"
@@ -21,6 +20,7 @@ type DiskImage interface {
 	DumpTrack(float32)
 	DumpTrackRaw(float32)
 	GetStatus() string
+	GetCurrentTrack() float32
 }
 
 type DRIVE struct {
@@ -28,7 +28,7 @@ type DRIVE struct {
 	motorPhases      [4]bool
 	IsWriteProtected bool
 	MotorWillStop    bool
-	IsSpinning        bool
+	IsSpinning       bool
 	diskImage        DiskImage
 
 	currentPhase   int
@@ -82,7 +82,7 @@ func (D *DRIVE) motorStopDelay() {
 	if D.MotorWillStop {
 		D.IsSpinning = false
 		D.MotorWillStop = false
-		fmt.Printf("Stop Motor\n")
+		D.DumpTrack(D.diskImage.GetCurrentTrack())
 	}
 }
 
@@ -145,6 +145,10 @@ func (D *DRIVE) DumpMeta() {
 
 func (D *DRIVE) DumpTrack(trk float32) {
 	D.diskImage.DumpTrack(trk)
+}
+
+func (D *DRIVE) DumpTrackRaw(trk float32) {
+	D.diskImage.DumpTrackRaw(trk)
 }
 
 func (D *DRIVE) GetStatus() string {

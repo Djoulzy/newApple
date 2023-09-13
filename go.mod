@@ -15,14 +15,14 @@ require (
 	github.com/Djoulzy/Tools/confload v0.0.0-20220609190146-71af779f6ddc
 	github.com/Djoulzy/emutools/mos6510 v0.0.0-20230911073411-473d153118d9
 	github.com/Djoulzy/emutools/render v0.0.0-20230911073411-473d153118d9
-	github.com/Djoulzy/godsk v0.0.0-20221012182138-3f22e902d449
-	github.com/Djoulzy/gowoz v0.0.0-20230911061340-9b51dce53fc2
+	github.com/Djoulzy/godsk v0.0.0-20230912184023-cc720e3e79d5
+	github.com/Djoulzy/gowoz v0.0.0-20230912174927-2b179db0043b
 	github.com/Djoulzy/mmu v0.0.0-20230605062009-e48b6d54957a
 	github.com/mattn/go-tty v0.0.5
 )
 
 require (
-	github.com/Djoulzy/emutools/charset v0.0.0-20230911061502-038869655947 // indirect
+	github.com/Djoulzy/emutools/charset v0.0.0-20230911073411-473d153118d9 // indirect
 	github.com/albenik/bcd v0.0.0-20170831201648-635201416bc7 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-ini/ini v1.67.0 // indirect
