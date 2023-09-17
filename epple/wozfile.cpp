@@ -18,8 +18,6 @@
 */
 
 #include "wozfile.h"
-// #include "E2wxApp.h"
-// #include "e2filesystem.h"
 
 #include <istream>
 #include <ostream>
@@ -27,6 +25,8 @@
 #include <filesystem>
 #include <cmath>
 #include <cstring>
+
+using namespace std;
 
 #define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
 #define BYTE_TO_BINARY(byte)  \
@@ -112,231 +112,231 @@ void WozFile::dumpTracks() {
     }
 }
 
-// bool WozFile::load(const std::filesystem::path& orig_file) {
-//     printf("Reading WOZ 2.0 file: %s\n", orig_file.c_str());
+bool WozFile::load(const std::filesystem::path& orig_file) {
+    printf("Reading WOZ 2.0 file: %s\n", orig_file.c_str());
 
-//     std::filesystem::path filePath = valid_input_file(orig_file, wxGetApp().GetResDir());
-//     if (filePath.empty()) {
-//         printf("Error opening WOZ file.\n");
-//         return false;
-//     }
-//     std::ifstream *in = new std::ifstream(filePath, std::ios::binary|std::ios::in);
-//     if (!in->is_open()) {
-//         printf("Error opening file: %d\n", errno);
-//         delete in;
-//         return false;
-//     }
-//     if (isLoaded()) {
-//         unload();
-//     }
+    std::filesystem::path filePath = orig_file;
+    if (filePath.empty()) {
+        printf("Error opening WOZ file.\n");
+        return false;
+    }
+    std::ifstream *in = new std::ifstream(filePath, std::ios::binary|std::ios::in);
+    if (!in->is_open()) {
+        printf("Error opening file: %d\n", errno);
+        delete in;
+        return false;
+    }
+    if (isLoaded()) {
+        unload();
+    }
 
-//     std::uint32_t woz2(0);
-//     in->read((char*)&woz2, sizeof(woz2));
-//     if (woz2 != 0x325A4F57u) {
-//         printf("WOZ2 magic bytes missing. Found: %8x\n", woz2);
-//         delete in;
-//         return false;
-//     }
-//     printf("WOZ2 magic bytes present\n");
+    std::uint32_t woz2(0);
+    in->read((char*)&woz2, sizeof(woz2));
+    if (woz2 != 0x325A4F57u) {
+        printf("WOZ2 magic bytes missing. Found: %8x\n", woz2);
+        delete in;
+        return false;
+    }
+    printf("WOZ2 magic bytes present\n");
 
-//     std::uint32_t sanity;
-//     in->read((char*)&sanity, sizeof(sanity));
-//     if (sanity != 0x0A0D0AFFu) {
-//         printf("FF 0A 0D 0A bytes corrupt.\n");
-//         delete in;
-//         return false;
-//     }
+    std::uint32_t sanity;
+    in->read((char*)&sanity, sizeof(sanity));
+    if (sanity != 0x0A0D0AFFu) {
+        printf("FF 0A 0D 0A bytes corrupt.\n");
+        delete in;
+        return false;
+    }
 
-//     std::uint32_t crc_given;
-//     in->read((char*)&crc_given, sizeof(crc_given));
-//     printf("Read given CRC: %08x\n", crc_given);
-//     // TODO verify CRC
+    std::uint32_t crc_given;
+    in->read((char*)&crc_given, sizeof(crc_given));
+    printf("Read given CRC: %08x\n", crc_given);
+    // TODO verify CRC
 
-//     std::uint32_t chunk_id;
-//     std::uint32_t chunk_size;
-//     bool five_25(false);
-//     while (in->read((char*)&chunk_id, sizeof(chunk_id))) {
-//         in->read((char*)&chunk_size, sizeof(chunk_size));
-//         printf("Chunk %.4s of size 0x%08x\n", (char*)&chunk_id, chunk_size);
-//         switch (chunk_id) {
-//             case 0x4F464E49: { // INFO
-//                 std::uint8_t* buf = new std::uint8_t[chunk_size];
-//                 in->read((char*)buf, chunk_size);
-//                 const std::streamsize n_actual = in->gcount();
-//                 printf("read INFO chuck of size: %ld\n", n_actual);
-//                 if (n_actual < chunk_size) {
-//                     printf("WARNING: read less than expected bytes from woz file: %ld < %u\n", n_actual, chunk_size);
-//                 }
-//                 printf("INFO version %d\n", *buf);
-//                 if (*buf != 2) {
-//                     printf("File is not WOZ2 version.\n");
-//                     delete in;
-//                     return false;
-//                 }
-//                 five_25 = (buf[1]==1);
-//                 printf("Disk type: %s\n", five_25 ? "5.25" : buf[1]==2 ? "3.5" : "?");
-//                 if (!five_25) {
-//                     printf("Only 5 1/4\" disk images are supported.\n");
-//                     delete in;
-//                     return false;
-//                 }
-//                 this->writable = !(buf[2]==1);
-//                 printf("Write protected?: %s\n", this->writable ? "No" : "Yes");
-//                 this->sync = buf[3]==1;
-//                 printf("Imaged with cross-track sync?: %s\n", this->sync ? "Yes" : "No");
-//                 this->cleaned = buf[4]==1;
-//                 printf("MC3470 fake bits removed?: %s\n", this->cleaned ? "Yes" : "No");
-//                 this->creator = std::string((char*)buf+5, 32);
-//                 printf("Creator: \"%.32s\"\n", buf+5);
-//                 this->timing = buf[39];
-//                 printf("Timing: %d/8 microseconds per bit\n", this->timing);
-//                 std::uint16_t compat = *((std::uint16_t*)(buf+40));
-//                 printf("Compatible hardware: ");
-//                 if (!compat) {
-//                     printf("unknown\n");
-//                 } else {
-//                     printf("\n");
-//                     print_compat(compat, 0x0001, "][");
-//                     print_compat(compat, 0x0002, "][ plus");
-//                     print_compat(compat, 0x0004, "//e");
-//                     print_compat(compat, 0x0008, "//c");
-//                     print_compat(compat, 0x0010, "//e (enhanced)");
-//                     print_compat(compat, 0x0020, "IIGS");
-//                     print_compat(compat, 0x0040, "IIc Plus");
-//                     print_compat(compat, 0x0080, "///");
-//                     print_compat(compat, 0x0100, "/// plus");
-//                 }
-//                 delete[] buf;
-//             }
-//             break;
-//             case 0x50414D54: { // TMAP
-//                 this->tmap = new std::uint8_t[chunk_size];
-//                 in->read((char*)this->tmap, chunk_size);
+    std::uint32_t chunk_id;
+    std::uint32_t chunk_size;
+    bool five_25(false);
+    while (in->read((char*)&chunk_id, sizeof(chunk_id))) {
+        in->read((char*)&chunk_size, sizeof(chunk_size));
+        printf("Chunk %.4s of size 0x%08x\n", (char*)&chunk_id, chunk_size);
+        switch (chunk_id) {
+            case 0x4F464E49: { // INFO
+                std::uint8_t* buf = new std::uint8_t[chunk_size];
+                in->read((char*)buf, chunk_size);
+                const std::streamsize n_actual = in->gcount();
+                printf("read INFO chuck of size: %ld\n", n_actual);
+                if (n_actual < chunk_size) {
+                    printf("WARNING: read less than expected bytes from woz file: %ld < %u\n", n_actual, chunk_size);
+                }
+                printf("INFO version %d\n", *buf);
+                if (*buf != 2) {
+                    printf("File is not WOZ2 version.\n");
+                    delete in;
+                    return false;
+                }
+                five_25 = (buf[1]==1);
+                printf("Disk type: %s\n", five_25 ? "5.25" : buf[1]==2 ? "3.5" : "?");
+                if (!five_25) {
+                    printf("Only 5 1/4\" disk images are supported.\n");
+                    delete in;
+                    return false;
+                }
+                this->writable = !(buf[2]==1);
+                printf("Write protected?: %s\n", this->writable ? "No" : "Yes");
+                this->sync = buf[3]==1;
+                printf("Imaged with cross-track sync?: %s\n", this->sync ? "Yes" : "No");
+                this->cleaned = buf[4]==1;
+                printf("MC3470 fake bits removed?: %s\n", this->cleaned ? "Yes" : "No");
+                this->creator = std::string((char*)buf+5, 32);
+                printf("Creator: \"%.32s\"\n", buf+5);
+                this->timing = buf[39];
+                printf("Timing: %d/8 microseconds per bit\n", this->timing);
+                std::uint16_t compat = *((std::uint16_t*)(buf+40));
+                printf("Compatible hardware: ");
+                if (!compat) {
+                    printf("unknown\n");
+                } else {
+                    printf("\n");
+                    print_compat(compat, 0x0001, "][");
+                    print_compat(compat, 0x0002, "][ plus");
+                    print_compat(compat, 0x0004, "//e");
+                    print_compat(compat, 0x0008, "//c");
+                    print_compat(compat, 0x0010, "//e (enhanced)");
+                    print_compat(compat, 0x0020, "IIGS");
+                    print_compat(compat, 0x0040, "IIc Plus");
+                    print_compat(compat, 0x0080, "///");
+                    print_compat(compat, 0x0100, "/// plus");
+                }
+                delete[] buf;
+            }
+            break;
+            case 0x50414D54: { // TMAP
+                this->tmap = new std::uint8_t[chunk_size];
+                in->read((char*)this->tmap, chunk_size);
 
-//                 this->initialQtrack = 0;
-//                 while (this->initialQtrack < chunk_size && this->tmap[this->initialQtrack] == 0xFFu) {
-//                     ++this->initialQtrack;
-//                 }
-//                 if (this->initialQtrack == chunk_size) {
-//                     this->initialQtrack = 0xFFu;
-//                     printf("Could not find any initial track (%02X).\n", this->initialQtrack);
-//                 }
+                this->initialQtrack = 0;
+                while (this->initialQtrack < chunk_size && this->tmap[this->initialQtrack] == 0xFFu) {
+                    ++this->initialQtrack;
+                }
+                if (this->initialQtrack == chunk_size) {
+                    this->initialQtrack = 0xFFu;
+                    printf("Could not find any initial track (%02X).\n", this->initialQtrack);
+                }
 
-//                 this->finalQtrack = chunk_size-1;
-//                 while (this->finalQtrack != 0xFFu && this->tmap[this->finalQtrack] == 0xFFu) {
-//                     --this->finalQtrack;
-//                 }
-//                 if (this->finalQtrack == 0xFFu) {
-//                     printf("Could not find any final track (%02X).\n", this->finalQtrack);
-//                 }
+                this->finalQtrack = chunk_size-1;
+                while (this->finalQtrack != 0xFFu && this->tmap[this->finalQtrack] == 0xFFu) {
+                    --this->finalQtrack;
+                }
+                if (this->finalQtrack == 0xFFu) {
+                    printf("Could not find any final track (%02X).\n", this->finalQtrack);
+                }
 
-//                 dumpTmap();
-//             }
-//             break;
-//             case 0x534B5254: { // TRKS
-//                 if (chunk_size < C_QTRACK*8) {
-//                     printf("ERROR: TRKS chunk doesn't have 160 track entries.\n");
-//                     delete in;
-//                     return false;
-//                 }
-//                 std::uint8_t* buf = new std::uint8_t[chunk_size];
-//                 in->read((char*)buf, chunk_size);
-//                 std::uint8_t* te = buf;
-//                 for (std::uint8_t qt(0); qt < C_QTRACK; ++qt) {
-//                     struct trk_t ts;
-//                     ts.blockFirst = *((std::uint16_t*)te)-3;
-//                     te += 2;
-//                     ts.blockCount = *((std::uint16_t*)te);
-//                     te += 2;
-//                     ts.bitCount = *((std::uint32_t*)te);
-//                     te += 4;
-//                     if (ts.blockCount) {
-//                         printf("TRK index %02X: start byte in BITS %08x; %08x bytes; %08x bits ", qt, ts.blockFirst<<9, ts.blockCount<<9, ts.bitCount);
-//                         this->trk_bits[qt] = ts.bitCount;
-//                         this->trk_byts[qt] = ts.blockCount<<9;
-//                         this->trk[qt] = new std::uint8_t[this->trk_byts[qt]];
-//                         memcpy(this->trk[qt], buf+C_QTRACK*8+(ts.blockFirst<<9), this->trk_byts[qt]);
-//                         printf("("
-//                                BYTE_TO_BINARY_PATTERN
-//                                BYTE_TO_BINARY_PATTERN
-//                                BYTE_TO_BINARY_PATTERN
-//                                BYTE_TO_BINARY_PATTERN
-//                                BYTE_TO_BINARY_PATTERN
-//                                BYTE_TO_BINARY_PATTERN
-//                                BYTE_TO_BINARY_PATTERN
-//                                BYTE_TO_BINARY_PATTERN
-//                                "...)\n",
-//                             BYTE_TO_BINARY(this->trk[qt][0]),
-//                             BYTE_TO_BINARY(this->trk[qt][1]),
-//                             BYTE_TO_BINARY(this->trk[qt][2]),
-//                             BYTE_TO_BINARY(this->trk[qt][3]),
-//                             BYTE_TO_BINARY(this->trk[qt][4]),
-//                             BYTE_TO_BINARY(this->trk[qt][5]),
-//                             BYTE_TO_BINARY(this->trk[qt][6]),
-//                             BYTE_TO_BINARY(this->trk[qt][7]));
-//                     }
-//                 }
-//                 delete[] buf;
-//             }
-//             break;
-//             case 0x4154454D: { // META
-//                 std::uint8_t* buf = new std::uint8_t[chunk_size];
-//                 in->read(reinterpret_cast<char*>(buf), chunk_size);
-//                 std::uint32_t i(0);
-//                 char* pc(reinterpret_cast<char*>(buf));
-//                 while (i++ < chunk_size) {
-//                     if (*pc == '\t') {
-//                         printf(": ");
-//                     } else {
-//                         printf("%c", *pc);
-//                     }
-//                     pc++;
-//                 }
-//                 delete[] buf;
-//             }
-//             break;
-//             default: { // unknown type of chunk; safely skip past it and ignore it
-//                 // TODO save all unknown chunks and write out during save (at end of file)
-//                 in->seekg(chunk_size, in->cur);
-//             }
-//             break;
-//         }
-//     }
-
-
+                dumpTmap();
+            }
+            break;
+            case 0x534B5254: { // TRKS
+                if (chunk_size < C_QTRACK*8) {
+                    printf("ERROR: TRKS chunk doesn't have 160 track entries.\n");
+                    delete in;
+                    return false;
+                }
+                std::uint8_t* buf = new std::uint8_t[chunk_size];
+                in->read((char*)buf, chunk_size);
+                std::uint8_t* te = buf;
+                for (std::uint8_t qt(0); qt < C_QTRACK; ++qt) {
+                    struct trk_t ts;
+                    ts.blockFirst = *((std::uint16_t*)te)-3;
+                    te += 2;
+                    ts.blockCount = *((std::uint16_t*)te);
+                    te += 2;
+                    ts.bitCount = *((std::uint32_t*)te);
+                    te += 4;
+                    if (ts.blockCount) {
+                        printf("TRK index %02X: start byte in BITS %08x; %08x bytes; %08x bits ", qt, ts.blockFirst<<9, ts.blockCount<<9, ts.bitCount);
+                        this->trk_bits[qt] = ts.bitCount;
+                        this->trk_byts[qt] = ts.blockCount<<9;
+                        this->trk[qt] = new std::uint8_t[this->trk_byts[qt]];
+                        memcpy(this->trk[qt], buf+C_QTRACK*8+(ts.blockFirst<<9), this->trk_byts[qt]);
+                        printf("("
+                               BYTE_TO_BINARY_PATTERN
+                               BYTE_TO_BINARY_PATTERN
+                               BYTE_TO_BINARY_PATTERN
+                               BYTE_TO_BINARY_PATTERN
+                               BYTE_TO_BINARY_PATTERN
+                               BYTE_TO_BINARY_PATTERN
+                               BYTE_TO_BINARY_PATTERN
+                               BYTE_TO_BINARY_PATTERN
+                               "...)\n",
+                            BYTE_TO_BINARY(this->trk[qt][0]),
+                            BYTE_TO_BINARY(this->trk[qt][1]),
+                            BYTE_TO_BINARY(this->trk[qt][2]),
+                            BYTE_TO_BINARY(this->trk[qt][3]),
+                            BYTE_TO_BINARY(this->trk[qt][4]),
+                            BYTE_TO_BINARY(this->trk[qt][5]),
+                            BYTE_TO_BINARY(this->trk[qt][6]),
+                            BYTE_TO_BINARY(this->trk[qt][7]));
+                    }
+                }
+                delete[] buf;
+            }
+            break;
+            case 0x4154454D: { // META
+                std::uint8_t* buf = new std::uint8_t[chunk_size];
+                in->read(reinterpret_cast<char*>(buf), chunk_size);
+                std::uint32_t i(0);
+                char* pc(reinterpret_cast<char*>(buf));
+                while (i++ < chunk_size) {
+                    if (*pc == '\t') {
+                        printf(": ");
+                    } else {
+                        printf("%c", *pc);
+                    }
+                    pc++;
+                }
+                delete[] buf;
+            }
+            break;
+            default: { // unknown type of chunk; safely skip past it and ignore it
+                // TODO save all unknown chunks and write out during save (at end of file)
+                in->seekg(chunk_size, in->cur);
+            }
+            break;
+        }
+    }
 
 
 
-//     in->close();
-//     delete in;
 
-//     this->filePath = filePath;
 
-//     checkForWriteProtection();
+    in->close();
+    delete in;
 
-//     this->loaded = true;
-//     this->modified = false;
+    this->filePath = filePath;
 
-//     expandTracks();
+    checkForWriteProtection();
 
-//     return true;
-// }
+    this->loaded = true;
+    this->modified = false;
 
-// void WozFile::checkForWriteProtection() {
-//     if (!this->writable) {
-//         return;
-//     }
+    expandTracks();
 
-//     if (!std::filesystem::exists(this->filePath)) {
-//         this->writable = false;
-//     }
+    return true;
+}
 
-//     std::filesystem::path canon = std::filesystem::canonical(this->filePath);
+void WozFile::checkForWriteProtection() {
+    if (!this->writable) {
+        return;
+    }
 
-//     std::ofstream outf(canon, std::ios::binary|std::ios::app);
-//     this->writable = outf.is_open();
-//     outf.close();
-// }
+    if (!std::filesystem::exists(this->filePath)) {
+        this->writable = false;
+    }
+
+    std::filesystem::path canon = std::filesystem::canonical(this->filePath);
+
+    std::ofstream outf(canon, std::ios::binary|std::ios::app);
+    this->writable = outf.is_open();
+    outf.close();
+}
 
 void WozFile::save() {
     if (isWriteProtected() || !isLoaded()) {
@@ -458,7 +458,7 @@ void WozFile::unload() {
     this->byt = 0x00u;
     this->writable = true;
     this->loaded = false;
-    this->filePath = "";
+    this->filePath = (char *)"";
     this->modified = false;
     for (int i(0); i < C_QTRACK; ++i) {
         removeTrack(i);
@@ -765,7 +765,8 @@ std::uint32_t WozFile::calcNewTrackLengthBits(const std::uint8_t qt) {
 }
 
 int main() {
+    WozFile test;
 
-    printf("OK\n");
+    test.load("../imgTest/Intrigue_A.woz");
     return 0;
 }
