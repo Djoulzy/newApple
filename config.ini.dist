@@ -25,10 +25,10 @@ Slot7               =
 ; Disk1               = "imgTest/Wizardry_boot.woz"
 ; Disk1               = "imgTest/DriveAna.woz"
 ; Disk1               = "imgTest/DOS33.woz"
-Disk1               = "imgTest/Intrigue_A.woz"
+; Disk1               = "imgTest/Intrigue_A.woz"
 ; Disk2               = "imgTest/vierge.woz"
-; Disk2               = "imgTest/Choplifter.woz"
-; Disk1               = "imgTest/anti-m.woz"
+Disk2               = "imgTest/Choplifter.woz"
+Disk1               = "imgTest/anti-m.woz"
 ; Disk1               = "imgTest/Choplifter.woz"
 
 [DebugMode]
