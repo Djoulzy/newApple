@@ -104,8 +104,6 @@ class WozFile {
     std::uint32_t calcNewTrackLengthBits(std::uint8_t qt);
     void copyTrack(std::uint8_t qt_dest, std::uint8_t qt_src);
     void createNewTrack(const std::uint8_t qt);
-    void dumpTmap();
-    void dumpTracks();
     void rawSet(std::uint8_t currentQuarterTrack, bool on);
 
 public:
@@ -113,6 +111,8 @@ public:
     ~WozFile();
 
     bool load(const std::filesystem::path& filePath);
+    void dumpTmap();
+    void dumpTracks();
 
     bool isLoaded() const {
         return this->loaded;

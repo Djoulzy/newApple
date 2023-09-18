@@ -18,7 +18,7 @@ type DiskImage interface {
 	GetMeta() map[string]string
 	Dump(bool)
 	DumpTrack(float32)
-	DumpTrackRaw(float32)
+	DumpTracksRaw()
 	GetStatus() string
 	GetCurrentTrack() float32
 }
@@ -106,7 +106,7 @@ func (D *DRIVE) SetPhase(phase int, state bool) {
 	if D.IsEmpty {
 		return
 	}
-	if state == false {
+	if !state {
 		return
 	}
 	if phase == 3 && D.currentPhase == 0 {
@@ -147,8 +147,8 @@ func (D *DRIVE) DumpTrack(trk float32) {
 	D.diskImage.DumpTrack(trk)
 }
 
-func (D *DRIVE) DumpTrackRaw(trk float32) {
-	D.diskImage.DumpTrackRaw(trk)
+func (D *DRIVE) DumpTracksRaw() {
+	D.diskImage.DumpTracksRaw()
 }
 
 func (D *DRIVE) GetStatus() string {
