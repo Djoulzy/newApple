@@ -82,7 +82,6 @@ func (D *DRIVE) motorStopDelay() {
 	if D.MotorWillStop {
 		D.IsSpinning = false
 		D.MotorWillStop = false
-		D.DumpTrack(D.diskImage.GetCurrentTrack())
 	}
 }
 
