@@ -13,8 +13,8 @@ replace (
 require (
 	github.com/Djoulzy/Tools/clog v0.0.0-20220609190146-71af779f6ddc
 	github.com/Djoulzy/Tools/confload v0.0.0-20220609190146-71af779f6ddc
-	github.com/Djoulzy/emutools/mos6510 v0.0.0-20230911073411-473d153118d9
-	github.com/Djoulzy/emutools/render v0.0.0-20230911073411-473d153118d9
+	github.com/Djoulzy/emutools/mos6510 v0.0.0-20240123173627-4140dd715cad
+	github.com/Djoulzy/emutools/render v0.0.0-20240123173627-4140dd715cad
 	github.com/Djoulzy/godsk v0.0.0-20230918100154-614368a3a7c0
 	github.com/Djoulzy/gowoz v0.0.0-20230913121504-97232d4d9c93
 	github.com/Djoulzy/mmu v0.0.0-20230605062009-e48b6d54957a
@@ -22,7 +22,7 @@ require (
 )
 
 require (
-	github.com/Djoulzy/emutools/charset v0.0.0-20230911073411-473d153118d9 // indirect
+	github.com/Djoulzy/emutools/charset v0.0.0-20240123173627-4140dd715cad // indirect
 	github.com/albenik/bcd v0.0.0-20170831201648-635201416bc7 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-ini/ini v1.67.0 // indirect
