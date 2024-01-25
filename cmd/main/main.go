@@ -130,6 +130,10 @@ func initRam() {
 	MEM.Attach(MAIN_HI, 0xD0, mmu.READWRITE)
 	MEM.Attach(MAIN_B1, 0xD0, mmu.READWRITE)
 	MEM.Attach(MAIN_B2, 0xD0, mmu.READWRITE)
+	MEM.Attach(AUX_LOW, 0x00, mmu.READWRITE)
+	MEM.Attach(AUX_HI, 0xD0, mmu.READWRITE)
+	MEM.Attach(AUX_B1, 0xD0, mmu.READWRITE)
+	MEM.Attach(AUX_B2, 0xD0, mmu.READWRITE)
 }
 
 func setup() {
@@ -147,7 +151,7 @@ func setup() {
 
 	MEM.Mount("MAIN_B1", mmu.WRITEONLY)
 	MEM.CheckMapIntegrity()
-	// MEM.DumpMap()
+	MEM.DumpMap()
 	// os.Exit(0)
 
 	outputDriver = render.SDL2Driver{}
