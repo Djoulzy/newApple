@@ -147,7 +147,7 @@ func setup() {
 
 	MEM.Mount("MAIN_B1", mmu.WRITEONLY)
 	MEM.CheckMapIntegrity()
-	// MEM.DumpMap()
+	MEM.DumpMap()
 	// os.Exit(0)
 
 	outputDriver = render.SDL2Driver{}
