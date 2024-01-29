@@ -7,12 +7,37 @@ import (
 	"github.com/Djoulzy/mmu"
 )
 
-// const (
-// 	DISABLED  = true
-// 	ENABLED   = false
-// 	READWRITE = false
-// 	READONLY  = true
-// )
+const (
+	lowRamSize   = 53248
+	hiRamSize    = 8192
+	bankSize     = 4096
+	romSize      = 4096
+	softSwitches = 256
+	chargenSize  = 2048
+	keyboardSize = 2048
+	slot_roms    = 256
+)
+
+var (
+	MAIN_LOW *mmu.RAM
+	MAIN_B1  *mmu.RAM
+	MAIN_B2  *mmu.RAM
+	MAIN_HI  *mmu.RAM
+
+	AUX_LOW *mmu.RAM
+	AUX_B1  *mmu.RAM
+	AUX_B2  *mmu.RAM
+	AUX_HI  *mmu.RAM
+
+	ROM_C  *mmu.ROM
+	ROM_D  *mmu.ROM
+	ROM_EF *mmu.ROM
+
+	IO      *io.SoftSwitch
+	Disks   *io.DiskInterface
+	SLOTS   [8]*mmu.ROM
+	CHARGEN *mmu.ROM
+)
 
 // func memLayouts(model int) {
 
@@ -76,20 +101,20 @@ func loadSlots() {
 	for i := 1; i < 8; i++ {
 		if conf.Slots.Catalog[i] != "" {
 			SLOTS[i] = mmu.NewROM("SLOT_"+strconv.Itoa(i), slot_roms, conf.Slots.Catalog[i])
-			MEM.Attach(SLOTS[i], 0xC0+uint(i), mmu.READWRITE)
-			MEM.Mount("SLOT_"+strconv.Itoa(i), mmu.READWRITE)
+			MEM.Attach(SLOTS[i], 0xC0+uint(i))
+			MEM.Mount("SLOT_"+strconv.Itoa(i), "SLOT_"+strconv.Itoa(i))
 		}
 	}
 }
 
 func apple2_Roms() {
 	ROM_D = mmu.NewROM("ROM_D", romSize, "assets/roms/II/D.bin")
-	MEM.Attach(ROM_D, 0xD0, mmu.READONLY)
+	MEM.Attach(ROM_D, 0xD0)
 	ROM_EF = mmu.NewROM("ROM_EF", romSize*2, "assets/roms/II/EF.bin")
-	MEM.Attach(ROM_EF, 0xE0, mmu.READONLY)
+	MEM.Attach(ROM_EF, 0xE0)
 
-	MEM.Mount("ROM_D", mmu.READONLY)
-	MEM.Mount("ROM_EF", mmu.READONLY)
+	MEM.Mount("ROM_D", "MAIN_B1")
+	MEM.Mount("ROM_EF", "MAIN_HI")
 
 	CHARGEN = mmu.NewROM("CHARGEN", chargenSize, "assets/roms/II/3410036.bin")
 	// MEM.Attach(ROM_D, 0xD0, 8)
@@ -97,15 +122,15 @@ func apple2_Roms() {
 
 func apple2e_Roms() {
 	ROM_C = mmu.NewROM("ROM_C", romSize, "assets/roms/IIe/C.bin")
-	MEM.Attach(ROM_C, 0xC0, mmu.READONLY)
+	MEM.Attach(ROM_C, 0xC0)
 	ROM_D = mmu.NewROM("ROM_D", romSize, "assets/roms/IIe/D.bin")
-	MEM.Attach(ROM_D, 0xD0, mmu.READONLY)
+	MEM.Attach(ROM_D, 0xD0)
 	ROM_EF = mmu.NewROM("ROM_EF", romSize*2, "assets/roms/IIe/EF.bin")
-	MEM.Attach(ROM_EF, 0xE0, mmu.READONLY)
+	MEM.Attach(ROM_EF, 0xE0)
 
-	MEM.Mount("ROM_C", mmu.READONLY)
-	MEM.Mount("ROM_D", mmu.READONLY)
-	MEM.Mount("ROM_EF", mmu.READONLY)
+	MEM.Mount("ROM_C", "MAIN_LOW")
+	MEM.Mount("ROM_D", "MAIN_B1")
+	MEM.Mount("ROM_EF", "MAIN_HI")
 
 	CHARGEN = mmu.NewROM("CHARGEN", chargenSize*2, "assets/roms/IIe/Video_US.bin")
 }
@@ -141,10 +166,13 @@ func apple2e_Roms() {
 func initRam() {
 	MAIN_LOW = mmu.NewRAM("MAIN_LOW", lowRamSize)
 	MAIN_B1 = mmu.NewRAM("MAIN_B1", bankSize)
-	MAIN_B2 = mmu.NewRAM("MAIN_B2", hiRamSize)
+	MAIN_B2 = mmu.NewRAM("MAIN_B2", bankSize)
+	MAIN_HI = mmu.NewRAM("MAIN_HI", hiRamSize)
+
 	AUX_LOW = mmu.NewRAM("AUX_LOW", lowRamSize)
 	AUX_B1 = mmu.NewRAM("AUX_B1", bankSize)
-	AUX_B2 = mmu.NewRAM("AUX_B2", hiRamSize)
+	AUX_B2 = mmu.NewRAM("AUX_B2", bankSize)
+	AUX_HI = mmu.NewRAM("AUX_HI", hiRamSize)
 
 	MAIN_LOW.Clear(0x1000, 0xFF)
 	MAIN_B1.Clear(0x1000, 0xFF)
@@ -153,16 +181,17 @@ func initRam() {
 	AUX_B1.Clear(0x1000, 0xFF)
 	AUX_B2.Clear(0x1000, 0xFF)
 
-	MEM.Attach(MAIN_LOW, 0x00, mmu.READWRITE)
-	MEM.Attach(MAIN_B1, 0xD0, mmu.READWRITE)
-	MEM.Attach(MAIN_B2, 0xC0, mmu.READWRITE)
-	MEM.Attach(AUX_LOW, 0x00, mmu.READWRITE)
-	MEM.Attach(AUX_B1, 0xD0, mmu.READWRITE)
-	MEM.Attach(AUX_B2, 0xC0, mmu.READWRITE)
+	MEM.Attach(MAIN_LOW, 0x00)
+	MEM.Attach(MAIN_B1, 0xD0)
+	MEM.Attach(MAIN_B2, 0xD0)
+	MEM.Attach(MAIN_HI, 0xE0)
 
-	MEM.Mount("MAIN_LOW", mmu.READWRITE)
-	MEM.Mount("MAIN_B2", mmu.READWRITE)
-	MEM.Mount("MAIN_B1", mmu.READWRITE)
+	MEM.Attach(AUX_LOW, 0x00)
+	MEM.Attach(AUX_B1, 0xD0)
+	MEM.Attach(AUX_B2, 0xD0)
+	MEM.Attach(AUX_HI, 0xE0)
+
+	MEM.Mount("MAIN_LOW", "MAIN_LOW")
 }
 
 func setupMemoryLayout() {
@@ -176,8 +205,9 @@ func setupMemoryLayout() {
 
 	Disks = io.InitDiskInterface(conf)
 	IO = io.InitSoftSwitch("IO", softSwitches, Disks, &CRTC)
-	MEM.Attach(IO, 0xC0, mmu.READWRITE)
-	MEM.Mount("IO", mmu.READWRITE)
+	IO.SetMMU(MEM)
+	MEM.Attach(IO, 0xC0)
+	MEM.Mount("IO", "IO")
 
 	loadSlots()
 

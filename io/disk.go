@@ -109,7 +109,9 @@ func (C *DiskInterface) driveSelect(driveNum int) byte {
 }
 
 func (C *DiskInterface) SetPhase(phase int, state bool) {
-	C.Disks[C.SelectedDrive].SetPhase(phase, state)
+	if C.Disks[C.SelectedDrive] != nil {
+		C.Disks[C.SelectedDrive].SetPhase(phase, state)
+	}
 }
 
 func (C *DiskInterface) SetSequencerMode(mode bool) byte {

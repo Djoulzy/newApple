@@ -114,23 +114,53 @@ func (C *SoftSwitch) Read(addr uint16) byte {
 	// 	return 0x00
 
 	case RAMROB2:
-		fallthrough
+		C.Mmu.Mount("MAIN_B2", "")
+		C.Mmu.Mount("MAIN_HI", "")
+		is_BANK2 = true
+		is_READ_RAM = true
+		return 0x80
 	case ROMWB2:
-		fallthrough
+		C.Mmu.Mount("ROM_D", "MAIN_B2")
+		C.Mmu.Mount("ROM_EF", "MAIN_HI")
+		is_BANK2 = true
+		is_READ_RAM = false
+		return 0x80
 	case ROMROB2:
-		fallthrough
+		C.Mmu.Mount("ROM_D", "")
+		C.Mmu.Mount("ROM_EF", "")
+		is_BANK2 = true
+		is_READ_RAM = false
+		return 0x80
 	case RAMRWB2:
-		log.Printf("Bank2 Switch %04X\n", addr+0xC000)
+		C.Mmu.Mount("MAIN_B2", "MAIN_B2")
+		C.Mmu.Mount("MAIN_HI", "MAIN_HI")
+		is_READ_RAM = true
+		is_BANK2 = true
 		return 0x80
 
 	case RAMROB1:
-		fallthrough
+		C.Mmu.Mount("MAIN_B1", "")
+		C.Mmu.Mount("MAIN_HI", "")
+		is_BANK2 = false
+		is_READ_RAM = true
+		return 0x80
 	case ROMWB1:
-		fallthrough
+		C.Mmu.Mount("ROM_D", "MAIN_B1")
+		C.Mmu.Mount("ROM_EF", "MAIN_HI")
+		is_BANK2 = false
+		is_READ_RAM = false
+		return 0x80
 	case ROMROB1:
-		fallthrough
+		C.Mmu.Mount("ROM_D", "")
+		C.Mmu.Mount("ROM_EF", "")
+		is_BANK2 = false
+		is_READ_RAM = false
+		return 0x80
 	case RAMRWB1:
-		log.Printf("Bank1 Switch %04X\n", addr+0xC000)
+		C.Mmu.Mount("MAIN_B2", "MAIN_B1")
+		C.Mmu.Mount("MAIN_HI", "MAIN_HI")
+		is_READ_RAM = true
+		is_BANK2 = false
 		return 0x80
 
 	case 0x0084, 0x0085, 0x0086, 0x0087, 0x008C, 0x008D, 0x008E, 0x008F:

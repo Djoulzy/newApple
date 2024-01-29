@@ -19,16 +19,6 @@ import (
 )
 
 const (
-	lowRamSize   = 49152
-	hiRamSize    = 16384
-	bankSize     = 4096
-	romSize      = 4096
-	softSwitches = 256
-	chargenSize  = 2048
-	keyboardSize = 2048
-	blanckSize   = 12288
-	slot_roms    = 256
-
 	Stopped = 0
 	Paused  = 1
 	Running = 2
@@ -40,21 +30,6 @@ var (
 	cpu       PROC.CPU
 	MODEL     int
 	LayoutSel byte
-
-	MAIN_LOW *mmu.RAM
-	MAIN_B1  *mmu.RAM
-	MAIN_B2  *mmu.RAM
-	AUX_LOW  *mmu.RAM
-	AUX_B1   *mmu.RAM
-	AUX_B2   *mmu.RAM
-	ROM_C    *mmu.ROM
-	ROM_D    *mmu.ROM
-	ROM_EF   *mmu.ROM
-
-	IO      *io.SoftSwitch
-	Disks   *io.DiskInterface
-	SLOTS   [8]*mmu.ROM
-	CHARGEN *mmu.ROM
 
 	MEM *mmu.MMU
 
