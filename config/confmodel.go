@@ -15,6 +15,19 @@ type Globals struct {
 	ThrottleInterval int64
 }
 
+type Rom_Apple2 struct {
+	Rom_D   string
+	Rom_EF  string
+	Chargen string
+}
+
+type Rom_Apple2e struct {
+	Rom_C   string
+	Rom_D   string
+	Rom_EF  string
+	Chargen string
+}
+
 type Slots struct {
 	Slot1   string
 	Slot2   string
@@ -41,6 +54,8 @@ type DebugMode struct {
 // ConfigData : Data structure du fichier de conf
 type ConfigData struct {
 	Globals
+	Rom_Apple2
+	Rom_Apple2e
 	Slots
 	Disks
 	DebugMode

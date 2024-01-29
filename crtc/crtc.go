@@ -63,7 +63,7 @@ func (C *CRTC) Init(ram []byte, aux []byte, io []byte, chargen []byte, video *re
 
 	C.UpdateGraphMode()
 
-	if C.conf.Model == "2" {
+	if C.conf.Model == "Apple2" {
 		go NE5555()
 	}
 }
@@ -80,7 +80,7 @@ func (C *CRTC) ToggleMonitorColor() {
 func (C *CRTC) UpdateGraphMode() {
 	C.UpdateVideoRam()
 	if Is_TEXTMODE {
-		if C.conf.Model == "2" {
+		if C.conf.Model == "Apple2" {
 			C.videoMode = (*CRTC).StandardTextModeA2
 		} else {
 			if Is_80COL {

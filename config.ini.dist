@@ -3,13 +3,24 @@ StartLogging        = true
 LogLevel            = 5
 ; FileLog             = 'go6502.log'
 Display             = true
-Model               = '2'
+Model               = 'Apple2e'
 ColorDisplay        = true
 CPUModel            = '65C02'
 Mhz                 = 1
 ThrottleInterval    = 500
 Trace               = false
 DebugMode           = true
+
+[Roms_Apple2]
+Rom_D               = "assets/roms/II/D.bin"
+Rom_EF              = "assets/roms/II/EF.bin"
+Chargen             = "assets/roms/II/3410036.bin"
+
+[Roms_Apple2e]
+Rom_C               = "assets/roms/IIe/C.bin"
+Rom_D               = "assets/roms/IIe/D.bin"
+Rom_EF              = "assets/roms/IIe/EF.bin"
+Chargen             = "assets/roms/IIe/Video_US.bin"
 
 [Slots]
 Slot1               =
@@ -25,11 +36,14 @@ Slot7               =
 ; Disk1               = "imgTest/Wizardry_boot.woz"
 ; Disk1               = "imgTest/DriveAna.woz"
 ; Disk1               = "imgTest/DOS33.woz"
+; Disk1               = "imgTest/ProDOS.woz"
 ; Disk1               = "imgTest/Intrigue_A.woz"
 ; Disk2               = "imgTest/vierge.woz"
-Disk2               = "imgTest/Choplifter.woz"
-Disk1               = "imgTest/anti-m.woz"
+; Disk2               = "imgTest/Choplifter.woz"
+; Disk1               = "imgTest/anti-m.woz"
 ; Disk1               = "imgTest/Choplifter.woz"
+Disk1               = "imgTest/Apple_Core_ProDOS_RC2.woz"
+; Disk1               = "imgTest/Intrigue_A.woz"
 
 [DebugMode]
 ; Breakpoint          = 0x20F8
