@@ -8,26 +8,30 @@ import (
 )
 
 const (
-	lowRamSize   = 53248
-	hiRamSize    = 8192
-	bankSize     = 4096
 	romSize      = 4096
 	softSwitches = 256
-	chargenSize  = 2048
-	keyboardSize = 2048
 	slot_roms    = 256
+	chargenSize  = 2048
 )
 
 var (
-	MAIN_LOW *mmu.RAM
-	MAIN_B1  *mmu.RAM
-	MAIN_B2  *mmu.RAM
-	MAIN_HI  *mmu.RAM
+	MN_ZPS = mmu.NewRAM("MN_ZPS", 0x0200)
+	MN___1 = mmu.NewRAM("MN___1", 0x0200)
+	MN_TXT = mmu.NewRAM("MN_TXT", 0x0400)
+	MN___2 = mmu.NewRAM("MN___2", 0x1800)
+	MN_HGR = mmu.NewRAM("MN_HGR", 0x2000)
+	MN___3 = mmu.NewRAM("MN___3", 0x9000)
+	MN_SLT = mmu.NewRAM("MN_SLT", 0x0800)
 
-	AUX_LOW *mmu.RAM
-	AUX_B1  *mmu.RAM
-	AUX_B2  *mmu.RAM
-	AUX_HI  *mmu.RAM
+	MN_BK1 = mmu.NewRAM("MN_BK1", 0x1000)
+	MN_BK2 = mmu.NewRAM("MN_BK2", 0x1000)
+	MN___4 = mmu.NewRAM("MN___4", 0x2000)
+
+	// AUX_ZP = mmu.NewRAM("AX_ZP", zpStack)
+	// AUX_LO = mmu.NewRAM("AX_LO", lowRamSize)
+	// AUX_B1 = mmu.NewRAM("AX_B1", bankSize)
+	// AUX_B2 = mmu.NewRAM("AX_B2", bankSize)
+	// AUX_HI = mmu.NewRAM("AX_HI", hiRamSize)
 
 	ROM_C  *mmu.ROM
 	ROM_D  *mmu.ROM
@@ -39,56 +43,6 @@ var (
 	CHARGEN *mmu.ROM
 )
 
-// func memLayouts(model int) {
-
-// 	// Apple 2
-// 	if model == 1 {
-// 		MEM.Attach(0, "RAM", 0x0000, RAM, READWRITE, ENABLED, nil)
-// 		MEM.Attach(0, "BANK2", 0xD000, BANK2, READWRITE, ENABLED, nil)
-// 		MEM.Attach(0, "BANK1", 0xD000, BANK1, READWRITE, ENABLED, nil)
-
-// 		MEM.Attach(0, "IO", 0xC000, IO, READWRITE, ENABLED, IOAccess)
-// 		MEM.Attach(0, "SLOT1", 0xC100, SLOTS[1], READONLY, ENABLED, nil)
-// 		MEM.Attach(0, "SLOT2", 0xC200, SLOTS[2], READONLY, ENABLED, nil)
-// 		MEM.Attach(0, "SLOT3", 0xC300, SLOTS[3], READONLY, ENABLED, nil)
-// 		MEM.Attach(0, "SLOT4", 0xC400, SLOTS[4], READONLY, ENABLED, nil)
-// 		MEM.Attach(0, "SLOT5", 0xC500, SLOTS[5], READONLY, ENABLED, nil)
-// 		MEM.Attach(0, "SLOT6", 0xC600, SLOTS[6], READONLY, ENABLED, nil)
-// 		MEM.Attach(0, "SLOT7", 0xC700, SLOTS[7], READONLY, ENABLED, nil)
-
-// 		MEM.Attach(0, "ROM_D", 0xD000, ROM_D, READONLY, ENABLED, nil)
-// 		MEM.Attach(0, "ROM_EF", 0xE000, ROM_EF, READONLY, ENABLED, nil)
-// 	} else {
-// 		// Apple 2e et 2+
-// 		MEM.Attach(0, "RAM", 0x0000, RAM, READWRITE, ENABLED, nil)
-// 		MEM.Attach(0, "AUX", 0x0000, AUX, READWRITE, DISABLED, nil)
-
-// 		MEM.Attach(0, "BANK2", 0xD000, BANK2, READWRITE, ENABLED, nil)
-// 		MEM.Attach(0, "BANK1", 0xD000, BANK1, READWRITE, ENABLED, nil)
-
-// 		MEM.Attach(0, "ZP", 0x0000, ZP, READWRITE, ENABLED, nil)
-
-// 		MEM.Attach(0, "AUX_BANK2", 0xD000, AUX_BANK2, READWRITE, DISABLED, nil)
-// 		MEM.Attach(0, "AUX_BANK1", 0xD000, AUX_BANK1, READWRITE, DISABLED, nil)
-// 		MEM.Attach(0, "ALT_ZP", 0x0000, ALT_ZP, READWRITE, DISABLED, nil)
-// 		MEM.Attach(0, "ROM_C", 0xC000, ROM_C, READONLY, ENABLED, nil)
-
-// 		MEM.Attach(0, "ROM_D", 0xD000, ROM_D, READONLY, ENABLED, nil)
-// 		MEM.Attach(0, "ROM_EF", 0xE000, ROM_EF, READONLY, ENABLED, nil)
-
-// 		MEM.Attach(0, "IO", 0xC000, IO, READWRITE, ENABLED, IOAccess)
-// 		MEM.Attach(0, "SLOT1", 0xC100, SLOTS[1], READONLY, ENABLED, nil)
-// 		MEM.Attach(0, "SLOT2", 0xC200, SLOTS[2], READONLY, ENABLED, nil)
-// 		MEM.Attach(0, "SLOT3", 0xC300, SLOTS[3], READONLY, ENABLED, nil)
-// 		MEM.Attach(0, "SLOT4", 0xC400, SLOTS[4], READONLY, ENABLED, nil)
-// 		MEM.Attach(0, "SLOT5", 0xC500, SLOTS[5], READONLY, ENABLED, nil)
-// 		MEM.Attach(0, "SLOT6", 0xC600, SLOTS[6], READONLY, ENABLED, nil)
-// 		MEM.Attach(0, "SLOT7", 0xC700, SLOTS[7], READONLY, ENABLED, nil)
-
-// 		// MEM.Layouts[1].Show()
-// 	}
-// }
-
 func loadSlots() {
 	conf.Slots.Catalog[1] = conf.Slots.Slot1
 	conf.Slots.Catalog[2] = conf.Slots.Slot2
@@ -99,11 +53,11 @@ func loadSlots() {
 	conf.Slots.Catalog[7] = conf.Slots.Slot7
 
 	for i := 1; i < 8; i++ {
-		if conf.Slots.Catalog[i] != "" {
-			SLOTS[i] = mmu.NewROM("SLOT_"+strconv.Itoa(i), slot_roms, conf.Slots.Catalog[i])
-			MEM.Attach(SLOTS[i], 0xC0+uint(i))
-			MEM.Mount("SLOT_"+strconv.Itoa(i), "SLOT_"+strconv.Itoa(i))
-		}
+		// if conf.Slots.Catalog[i] != "" {
+		SLOTS[i] = mmu.NewROM("SLOT_"+strconv.Itoa(i), slot_roms, conf.Slots.Catalog[i])
+		MEM.Attach(SLOTS[i], 0xC0+uint(i))
+		MEM.Mount("SLOT_"+strconv.Itoa(i), "")
+		// }
 	}
 }
 
@@ -113,8 +67,8 @@ func apple2_Roms() {
 	ROM_EF = mmu.NewROM("ROM_EF", romSize*2, "assets/roms/II/EF.bin")
 	MEM.Attach(ROM_EF, 0xE0)
 
-	MEM.Mount("ROM_D", "MAIN_B1")
-	MEM.Mount("ROM_EF", "MAIN_HI")
+	MEM.Mount("ROM_D", "MN_BK1")
+	MEM.Mount("ROM_EF", "MN___4")
 
 	CHARGEN = mmu.NewROM("CHARGEN", chargenSize, "assets/roms/II/3410036.bin")
 	// MEM.Attach(ROM_D, 0xD0, 8)
@@ -128,9 +82,9 @@ func apple2e_Roms() {
 	ROM_EF = mmu.NewROM("ROM_EF", romSize*2, "assets/roms/IIe/EF.bin")
 	MEM.Attach(ROM_EF, 0xE0)
 
-	MEM.Mount("ROM_C", "MAIN_LOW")
-	MEM.Mount("ROM_D", "MAIN_B1")
-	MEM.Mount("ROM_EF", "MAIN_HI")
+	MEM.Mount("ROM_C", "MN_SLT")
+	MEM.Mount("ROM_D", "MN_BK1")
+	MEM.Mount("ROM_EF", "MN___4")
 
 	CHARGEN = mmu.NewROM("CHARGEN", chargenSize*2, "assets/roms/IIe/Video_US.bin")
 }
@@ -164,34 +118,44 @@ func apple2e_Roms() {
 // }
 
 func initRam() {
-	MAIN_LOW = mmu.NewRAM("MAIN_LOW", lowRamSize)
-	MAIN_B1 = mmu.NewRAM("MAIN_B1", bankSize)
-	MAIN_B2 = mmu.NewRAM("MAIN_B2", bankSize)
-	MAIN_HI = mmu.NewRAM("MAIN_HI", hiRamSize)
+	MN_ZPS.Clear(0x1000, 0xFF)
+	MN___1.Clear(0x1000, 0xFF)
+	MN_TXT.Clear(0x1000, 0xFF)
+	MN___2.Clear(0x1000, 0xFF)
+	MN_HGR.Clear(0x1000, 0xFF)
+	MN___3.Clear(0x1000, 0xFF)
+	MN_SLT.Clear(0x1000, 0xFF)
+	MN_BK1.Clear(0x1000, 0xFF)
+	MN_BK2.Clear(0x1000, 0xFF)
+	MN___4.Clear(0x1000, 0xFF)
 
-	AUX_LOW = mmu.NewRAM("AUX_LOW", lowRamSize)
-	AUX_B1 = mmu.NewRAM("AUX_B1", bankSize)
-	AUX_B2 = mmu.NewRAM("AUX_B2", bankSize)
-	AUX_HI = mmu.NewRAM("AUX_HI", hiRamSize)
+	// AUX_LO.Clear(0x1000, 0xFF)
+	// AUX_B1.Clear(0x1000, 0xFF)
+	// AUX_B2.Clear(0x1000, 0xFF)
 
-	MAIN_LOW.Clear(0x1000, 0xFF)
-	MAIN_B1.Clear(0x1000, 0xFF)
-	MAIN_B2.Clear(0x1000, 0xFF)
-	AUX_LOW.Clear(0x1000, 0xFF)
-	AUX_B1.Clear(0x1000, 0xFF)
-	AUX_B2.Clear(0x1000, 0xFF)
+	MEM.Attach(MN_ZPS, 0x00)
+	MEM.Attach(MN___1, 0x02)
+	MEM.Attach(MN_TXT, 0x04)
+	MEM.Attach(MN___2, 0x08)
+	MEM.Attach(MN_HGR, 0x20)
+	MEM.Attach(MN___3, 0x40)
+	MEM.Attach(MN_SLT, 0xC8)
+	MEM.Attach(MN_BK1, 0xD0)
+	MEM.Attach(MN_BK2, 0xD0)
+	MEM.Attach(MN___4, 0xE0)
 
-	MEM.Attach(MAIN_LOW, 0x00)
-	MEM.Attach(MAIN_B1, 0xD0)
-	MEM.Attach(MAIN_B2, 0xD0)
-	MEM.Attach(MAIN_HI, 0xE0)
+	// MEM.Attach(AUX_LO, 0x00)
+	// MEM.Attach(AUX_B1, 0xD0)
+	// MEM.Attach(AUX_B2, 0xD0)
+	// MEM.Attach(AUX_HI, 0xE0)
 
-	MEM.Attach(AUX_LOW, 0x00)
-	MEM.Attach(AUX_B1, 0xD0)
-	MEM.Attach(AUX_B2, 0xD0)
-	MEM.Attach(AUX_HI, 0xE0)
-
-	MEM.Mount("MAIN_LOW", "MAIN_LOW")
+	MEM.Mount("MN_ZPS", "MN_ZPS")
+	MEM.Mount("MN___1", "MN___1")
+	MEM.Mount("MN_TXT", "MN_TXT")
+	MEM.Mount("MN___2", "MN___2")
+	MEM.Mount("MN_HGR", "MN_HGR")
+	MEM.Mount("MN___3", "MN___3")
+	MEM.Mount("MN_SLT", "MN_SLT")
 }
 
 func setupMemoryLayout() {

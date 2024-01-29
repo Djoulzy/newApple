@@ -3,6 +3,7 @@ package io
 import (
 	"log"
 	"newApple/crtc"
+	"strconv"
 )
 
 func (C *SoftSwitch) Write(addr uint16, val byte) {
@@ -61,13 +62,20 @@ func (C *SoftSwitch) Write(addr uint16, val byte) {
 		log.Printf("ZP Management: %04X\n", addr+0xC000)
 
 	case SETSLOTCXROM:
-		fallthrough
+		for i := 1; i < 8; i++ {
+			C.Mmu.Mount("SLOT_"+strconv.Itoa(i), "")
+		}
+		is_CX_INT = false
 	case SETINTCXROM:
-		fallthrough
+		C.Mmu.Mount("ROM_C", "")
+		C.Mmu.Mount("IO", "IO")
+		is_CX_INT = true
 	case SETINTC3ROM:
-		fallthrough
+		C.Mmu.SwapRom("SLOT_3", "ROM_C")
+		is_C3_INT = true
 	case SETSLOTC3ROM:
-		log.Printf("Slot Management: %04X\n", addr+0xC000)
+		C.Mmu.Mount("SLOT_3", "")
+		is_C3_INT = false
 
 	case SLOT6_OFFSET + DRVSM0:
 		log.Println("[WRITE] SetPhase Off")

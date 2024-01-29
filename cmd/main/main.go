@@ -117,8 +117,8 @@ func setup() {
 
 	outputDriver = render.SDL2Driver{}
 	io.InitKeyboard()
-	CRTC.Init(MAIN_LOW.Buff, AUX_LOW.Buff, IO.Buff, CHARGEN.Buff, &outputDriver, conf)
-	outputDriver.SetKeyboardLine(&InputLine)
+	// CRTC.Init(MAIN_LO.Buff, AUX_LO.Buff, IO.Buff, CHARGEN.Buff, &outputDriver, conf)
+	// outputDriver.SetKeyboardLine(&InputLine)
 
 	// Throttle setup
 	if conf.Mhz == 0 {
