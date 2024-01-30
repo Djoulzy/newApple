@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/Djoulzy/emutools/render"
+	"github.com/Djoulzy/mmu"
 )
 
 var blink bool = false
@@ -22,7 +23,7 @@ func NE5555() {
 	}
 }
 
-func (C *CRTC) Init(ram []byte, aux []byte, io []byte, chargen []byte, video *render.SDL2Driver, conf *config.ConfigData) {
+func (C *CRTC) Init(mem *mmu.MMU, io []byte, video *render.SDL2Driver, conf *config.ConfigData) {
 	C.Reg[R0] = 63 // 126
 	C.Reg[R1] = 40 // 80 colonnes
 	C.Reg[R2] = 50
@@ -35,8 +36,6 @@ func (C *CRTC) Init(ram []byte, aux []byte, io []byte, chargen []byte, video *re
 	C.Reg[R12] = 0
 	C.Reg[R13] = 0
 
-	C.RAM = ram
-	C.AUX = aux
 	C.screenWidth = int(C.Reg[R1]) * 7
 	C.screenHeight = int(C.Reg[R6]) * 8 // * 2
 
@@ -47,7 +46,7 @@ func (C *CRTC) Init(ram []byte, aux []byte, io []byte, chargen []byte, video *re
 	C.VideoPages[1] = [2]uint16{0x0400, 0x2000}
 	C.VideoPages[2] = [2]uint16{0x0800, 0x4000}
 
-	C.charRom = chargen
+	C.charRom = mem.GetChipMem("CHARGEN")
 
 	C.BeamX = 0
 	C.BeamY = 0

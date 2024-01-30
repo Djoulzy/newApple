@@ -66,8 +66,6 @@ var Colors [16]color.Color = [16]color.Color{
 // VIC :
 type CRTC struct {
 	Reg          [18]byte
-	RAM          []byte
-	AUX          []byte
 	screenWidth  int
 	screenHeight int
 
