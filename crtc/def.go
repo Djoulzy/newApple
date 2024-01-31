@@ -78,6 +78,7 @@ type CRTC struct {
 	TextColor   color.Color
 
 	VideoPages [3][2]uint16
+	VideoMEM   [2][2][2][]byte
 	videoBase  uint16
 	pageSize   uint16
 
@@ -119,10 +120,28 @@ const (
 	R17
 )
 
+const (
+// TEXT
+// MIXED
+// HIRES
+// LORES
+// PAGE1
+// PAGE2
+)
+
 var (
-	Is_TEXTMODE  bool = true
-	Is_MIXEDMODE bool = true
+	set_MEM  byte = 0
+	set_MODE byte = 0
+	set_PAGE byte = 0
+
 	Is_HIRESMODE bool = false
 	Is_PAGE2     bool = false
 	Is_80COL     bool = false
+)
+
+type TOGGLE byte
+
+const (
+	OFF TOGGLE = 0
+	ON  TOGGLE = 1
 )

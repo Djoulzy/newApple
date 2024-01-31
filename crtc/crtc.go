@@ -48,6 +48,16 @@ func (C *CRTC) Init(mem *mmu.MMU, io []byte, video *render.SDL2Driver, conf *con
 
 	C.charRom = mem.GetChipMem("CHARGEN")
 
+	C.VideoMEM[0][0][0] = mem.GetChipMem("MN_TXT")          // [main][textmode][page1]
+	C.VideoMEM[0][0][1] = C.VideoMEM[0][0][0][0x0400:0x800] // [main][textmode][page2]
+	C.VideoMEM[0][1][0] = mem.GetChipMem("MN_HGR")          // [main][hires][page1]
+	C.VideoMEM[0][1][1] = mem.GetChipMem("MN___3")          // [main][hires][page2]
+
+	C.VideoMEM[1][0][0] = mem.GetChipMem("AX_TXT")          // [aux][textmode][page1]
+	C.VideoMEM[1][0][1] = C.VideoMEM[0][0][0][0x0400:0x800] // [aux][textmode][page2]
+	C.VideoMEM[1][1][0] = mem.GetChipMem("AX_HGR")          // [aux][hires][page1]
+	C.VideoMEM[1][1][1] = mem.GetChipMem("AX___3")          // [aux][hires][page2]
+
 	C.BeamX = 0
 	C.BeamY = 0
 	C.RasterLine = 0
@@ -65,6 +75,24 @@ func (C *CRTC) Init(mem *mmu.MMU, io []byte, video *render.SDL2Driver, conf *con
 	if C.conf.Model == "Apple2" {
 		go NE5555()
 	}
+}
+
+func (C *CRTC) SetTexMode(value TOGGLE) {
+	if value == 1 {
+		set_MODE = 0
+	} else {
+		set_MODE = 1
+	}
+	C.videoRam = C.VideoMEM[set_MEM][set_MODE][set_PAGE]
+}
+
+func (C *CRTC) SetMixedMode(set_MODE TOGGLE) {
+}
+
+func (C *CRTC) SetHiResMode(value TOGGLE) {
+	set_MODE = byte(value)
+	C.videoRam = C.VideoMEM[set_MEM][set_MODE][set_PAGE]
+	C.videoMode = (*CRTC).HiResMode
 }
 
 func (C *CRTC) ToggleMonitorColor() {
