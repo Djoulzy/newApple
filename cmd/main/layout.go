@@ -27,11 +27,17 @@ var (
 	MN_BK2 = mmu.NewRAM("MN_BK2", 0x1000)
 	MN___4 = mmu.NewRAM("MN___4", 0x2000)
 
-	// AUX_ZP = mmu.NewRAM("AX_ZP", zpStack)
-	// AUX_LO = mmu.NewRAM("AX_LO", lowRamSize)
-	// AUX_B1 = mmu.NewRAM("AX_B1", bankSize)
-	// AUX_B2 = mmu.NewRAM("AX_B2", bankSize)
-	// AUX_HI = mmu.NewRAM("AX_HI", hiRamSize)
+	AX_ZPS = mmu.NewRAM("AX_ZPS", 0x0200)
+	AX___1 = mmu.NewRAM("AX___1", 0x0200)
+	AX_TXT = mmu.NewRAM("AX_TXT", 0x0400)
+	AX___2 = mmu.NewRAM("AX___2", 0x1800)
+	AX_HGR = mmu.NewRAM("AX_HGR", 0x2000)
+	AX___3 = mmu.NewRAM("AX___3", 0x9000)
+	AX_SLT = mmu.NewRAM("AX_SLT", 0x0800)
+
+	AX_BK1 = mmu.NewRAM("AX_BK1", 0x1000)
+	AX_BK2 = mmu.NewRAM("AX_BK2", 0x1000)
+	AX___4 = mmu.NewRAM("AX___4", 0x2000)
 
 	ROM_C  *mmu.ROM
 	ROM_D  *mmu.ROM
@@ -129,9 +135,16 @@ func initRam() {
 	MN_BK2.Clear(0x1000, 0xFF)
 	MN___4.Clear(0x1000, 0xFF)
 
-	// AUX_LO.Clear(0x1000, 0xFF)
-	// AUX_B1.Clear(0x1000, 0xFF)
-	// AUX_B2.Clear(0x1000, 0xFF)
+	AX_ZPS.Clear(0x1000, 0xFF)
+	AX___1.Clear(0x1000, 0xFF)
+	AX_TXT.Clear(0x1000, 0xFF)
+	AX___2.Clear(0x1000, 0xFF)
+	AX_HGR.Clear(0x1000, 0xFF)
+	AX___3.Clear(0x1000, 0xFF)
+	AX_SLT.Clear(0x1000, 0xFF)
+	AX_BK1.Clear(0x1000, 0xFF)
+	AX_BK2.Clear(0x1000, 0xFF)
+	AX___4.Clear(0x1000, 0xFF)
 
 	MEM.Attach(MN_ZPS, 0x00)
 	MEM.Attach(MN___1, 0x02)
@@ -144,10 +157,16 @@ func initRam() {
 	MEM.Attach(MN_BK2, 0xD0)
 	MEM.Attach(MN___4, 0xE0)
 
-	// MEM.Attach(AUX_LO, 0x00)
-	// MEM.Attach(AUX_B1, 0xD0)
-	// MEM.Attach(AUX_B2, 0xD0)
-	// MEM.Attach(AUX_HI, 0xE0)
+	MEM.Attach(AX_ZPS, 0x00)
+	MEM.Attach(AX___1, 0x02)
+	MEM.Attach(AX_TXT, 0x04)
+	MEM.Attach(AX___2, 0x08)
+	MEM.Attach(AX_HGR, 0x20)
+	MEM.Attach(AX___3, 0x40)
+	MEM.Attach(AX_SLT, 0xC8)
+	MEM.Attach(AX_BK1, 0xD0)
+	MEM.Attach(AX_BK2, 0xD0)
+	MEM.Attach(AX___4, 0xE0)
 
 	MEM.Mount("MN_ZPS", "MN_ZPS")
 	MEM.Mount("MN___1", "MN___1")

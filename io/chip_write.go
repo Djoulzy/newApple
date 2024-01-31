@@ -2,18 +2,15 @@ package io
 
 import (
 	"log"
-	"newApple/crtc"
 	"strconv"
 )
 
 func (C *SoftSwitch) Write(addr uint16, val byte) {
 	switch addr {
 	case CLR80VID:
-		crtc.Is_80COL = false
-		C.Video.UpdateGraphMode()
+		C.Video.Set40Cols()
 	case SET80VID:
-		crtc.Is_80COL = true
-		C.Video.UpdateGraphMode()
+		C.Video.Set80Cols()
 	case STOREOFF:
 		is_80Store = false
 	case STOREON:
@@ -21,40 +18,52 @@ func (C *SoftSwitch) Write(addr uint16, val byte) {
 	case KBDSTRB:
 		Is_Keypressed = false
 		C.Buff[KBD] = 0
+
 	case TXTCLR:
-		crtc.Is_TEXTMODE = false
-		C.Video.UpdateGraphMode()
+		C.Video.SetGraphMode()
 	case TXTSET:
-		crtc.Is_TEXTMODE = true
-		C.Video.UpdateGraphMode()
+		C.Video.SetTexMode()
 	case MIXCLR:
-		crtc.Is_MIXEDMODE = false
-		C.Video.UpdateGraphMode()
+		C.Video.SetFullMode()
 	case MIXSET:
-		crtc.Is_MIXEDMODE = true
-		C.Video.UpdateGraphMode()
+		C.Video.SetMixedMode()
 	case LORES:
-		log.Printf("HIRES OFF")
-		crtc.Is_HIRESMODE = false
-		C.Video.UpdateGraphMode()
+		C.Video.SetLoResMode()
 	case HIRES:
-		log.Printf("HIRES ON")
-		crtc.Is_HIRESMODE = true
-		C.Video.UpdateGraphMode()
+		C.Video.SetHiResMode()
 	case TXTPAGE1:
-		crtc.Is_PAGE2 = false
-		if is_80Store {
-			// C.Mmu.Disable("AUX")
-		} else {
-			C.Video.UpdateVideoRam()
-		}
+		C.Video.SetPage1()
 	case TXTPAGE2:
-		crtc.Is_PAGE2 = true
-		if is_80Store {
-			// C.Mmu.Enable("AUX")
-		} else {
-			C.Video.UpdateVideoRam()
-		}
+		C.Video.SetPage2()
+
+	case RDMAINRAM:
+		C.Mmu.MountReader("MN_ZPS")
+		C.Mmu.MountReader("MN___1")
+		C.Mmu.MountReader("MN_TXT")
+		C.Mmu.MountReader("MN___2")
+		C.Mmu.MountReader("MN_HGR")
+		C.Mmu.MountReader("MN___3")
+	case RDCARDRAM:
+		C.Mmu.MountReader("AX_ZPS")
+		C.Mmu.MountReader("AX___1")
+		C.Mmu.MountReader("AX_TXT")
+		C.Mmu.MountReader("AX___2")
+		C.Mmu.MountReader("AX_HGR")
+		C.Mmu.MountReader("AX___3")
+	case WRMAINRAM:
+		C.Mmu.MountWriter("MN_ZPS")
+		C.Mmu.MountWriter("MN___1")
+		C.Mmu.MountWriter("MN_TXT")
+		C.Mmu.MountWriter("MN___2")
+		C.Mmu.MountWriter("MN_HGR")
+		C.Mmu.MountWriter("MN___3")
+	case WRCARDRAM:
+		C.Mmu.MountWriter("AX_ZPS")
+		C.Mmu.MountWriter("AX___1")
+		C.Mmu.MountWriter("AX_TXT")
+		C.Mmu.MountWriter("AX___2")
+		C.Mmu.MountWriter("AX_HGR")
+		C.Mmu.MountWriter("AX___3")
 
 	case SETSTDZP:
 		fallthrough

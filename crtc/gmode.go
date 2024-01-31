@@ -99,7 +99,7 @@ func (C *CRTC) StandardTextModeA2E(X int, Y int) {
 func (C *CRTC) LoResMode(X int, Y int) {
 	var color byte
 
-	if Is_MIXEDMODE && C.RasterLine >= 20 {
+	if Set_MIXED == 1 && C.RasterLine >= 20 {
 		if C.conf.Model == "Apple2" {
 			C.StandardTextModeA2(X, Y)
 		} else {
@@ -126,16 +126,14 @@ var hiresColor [2][4]color.Color = [2][4]color.Color{
 
 func (C *CRTC) HiResMode(X int, Y int) {
 
-	if Is_MIXEDMODE && C.RasterLine >= 20 {
-		Is_HIRESMODE = false
-		C.UpdateVideoRam()
+	if Set_MIXED == 1 && C.RasterLine >= 20 {
+		C.videoRam = C.VideoMEM[Set_MEM][0][Set_PAGE]
 		if C.conf.Model == "Apple2" {
 			C.StandardTextModeA2(X, Y)
 		} else {
 			C.StandardTextModeA2E(X, Y)
 		}
-		Is_HIRESMODE = true
-		C.UpdateVideoRam()
+		C.videoRam = C.VideoMEM[Set_MEM][1][Set_PAGE]
 	} else {
 		if C.conf.ColorDisplay {
 			if C.CCLK%2 == 0 {

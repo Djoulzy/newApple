@@ -10,7 +10,7 @@ func (C *SoftSwitch) Read(addr uint16) byte {
 	switch addr {
 	case RD80VID:
 		// PRINT (PEEK(49183))
-		if crtc.Is_80COL {
+		if crtc.Set_80COL == 1 {
 			return 0x8D
 		}
 		return 0x00
@@ -58,70 +58,60 @@ func (C *SoftSwitch) Read(addr uint16) byte {
 			return 0x00
 		}
 	case TXTCLR:
-		crtc.Is_TEXTMODE = false
-		C.Video.UpdateGraphMode()
+		C.Video.SetGraphMode()
 		return 0
 	case TXTSET:
-		crtc.Is_TEXTMODE = true
-		C.Video.UpdateGraphMode()
+		C.Video.SetTexMode()
 		return 0
 	case MIXCLR:
-		crtc.Is_MIXEDMODE = false
-		C.Video.UpdateGraphMode()
+		C.Video.SetFullMode()
 		return 0
 	case MIXSET:
-		crtc.Is_MIXEDMODE = true
-		C.Video.UpdateGraphMode()
+		C.Video.SetMixedMode()
 		return 0
 	case LORES:
-		// log.Printf("HIRES OFF %04X", cpu.PC)
-		crtc.Is_HIRESMODE = false
-		C.Video.UpdateGraphMode()
+		C.Video.SetLoResMode()
 		return 0
 	case HIRES:
-		// log.Printf("HIRES ON %04X", cpu.PC)
-		crtc.Is_HIRESMODE = true
-		C.Video.UpdateGraphMode()
+		C.Video.SetHiResMode()
 		return 0
 	case TXTPAGE1:
-		crtc.Is_PAGE2 = false
-		C.Video.UpdateVideoRam()
+		C.Video.SetPage1()
 		return 0
 	case TXTPAGE2:
-		crtc.Is_PAGE2 = true
-		C.Video.UpdateVideoRam()
+		C.Video.SetPage2()
 		return 0
 
 	case RDTEXT:
-		if crtc.Is_TEXTMODE {
+		if crtc.Set_MODE == 0 {
 			return 0x80
 		}
 		return 0x00
-	// case MIXED:
-	// 	if crtc.Is_MIXEDMODE {
-	// 		return 0x80
-	// 	}
-	// 	return 0x00
-	// case PAGE2:
-	// 	if crtc.Is_PAGE2 {
-	// 		return 0x80
-	// 	}
-	// 	return 0x00
-	// case HIRES:
-	// 	if crtc.Is_HIRESMODE {
-	// 		return 0x80
-	// 	}
-	// 	return 0x00
+	case RDMIXED:
+		if crtc.Set_MIXED == 1 {
+			return 0x80
+		}
+		return 0x00
+	case RDPAGE2:
+		if crtc.Set_PAGE == 1 {
+			return 0x80
+		}
+		return 0x00
+	case RDHIRES:
+		if crtc.Set_HIRES == 1 {
+			return 0x80
+		}
+		return 0x00
 
 	case RAMROB2:
-		C.Mmu.Mount("MAIN_B2", "")
-		C.Mmu.Mount("MAIN_HI", "")
+		C.Mmu.Mount("MN_BK2", "")
+		C.Mmu.Mount("MN___4", "")
 		is_BANK2 = true
 		is_READ_RAM = true
 		return 0x80
 	case ROMWB2:
-		C.Mmu.Mount("ROM_D", "MAIN_B2")
-		C.Mmu.Mount("ROM_EF", "MAIN_HI")
+		C.Mmu.Mount("ROM_D", "MN_BK2")
+		C.Mmu.Mount("ROM_EF", "MN___4")
 		is_BANK2 = true
 		is_READ_RAM = false
 		return 0x80
@@ -132,21 +122,21 @@ func (C *SoftSwitch) Read(addr uint16) byte {
 		is_READ_RAM = false
 		return 0x80
 	case RAMRWB2:
-		C.Mmu.Mount("MAIN_B2", "MAIN_B2")
-		C.Mmu.Mount("MAIN_HI", "MAIN_HI")
+		C.Mmu.Mount("MN_BK2", "MN_BK2")
+		C.Mmu.Mount("MN___4", "MN___4")
 		is_READ_RAM = true
 		is_BANK2 = true
 		return 0x80
 
 	case RAMROB1:
-		C.Mmu.Mount("MAIN_B1", "")
-		C.Mmu.Mount("MAIN_HI", "")
+		C.Mmu.Mount("MN_BK1", "")
+		C.Mmu.Mount("MN___4", "")
 		is_BANK2 = false
 		is_READ_RAM = true
 		return 0x80
 	case ROMWB1:
-		C.Mmu.Mount("ROM_D", "MAIN_B1")
-		C.Mmu.Mount("ROM_EF", "MAIN_HI")
+		C.Mmu.Mount("ROM_D", "MN_BK1")
+		C.Mmu.Mount("ROM_EF", "MN___4")
 		is_BANK2 = false
 		is_READ_RAM = false
 		return 0x80
@@ -157,8 +147,8 @@ func (C *SoftSwitch) Read(addr uint16) byte {
 		is_READ_RAM = false
 		return 0x80
 	case RAMRWB1:
-		C.Mmu.Mount("MAIN_B2", "MAIN_B1")
-		C.Mmu.Mount("MAIN_HI", "MAIN_HI")
+		C.Mmu.Mount("MN_BK1", "MN_BK1")
+		C.Mmu.Mount("MN___4", "MN___4")
 		is_READ_RAM = true
 		is_BANK2 = false
 		return 0x80
@@ -238,15 +228,15 @@ func (C *SoftSwitch) Read(addr uint16) byte {
 		return C.Disks.SetSequencerMode(SEQ_WRITE_MODE)
 
 	case 0x0078, 0x0079, 0x007E:
-		log.Printf("Mouse not supported %04X\n", addr+0xC000)
+		// log.Printf("Mouse not supported %04X\n", addr+0xC000)
 		return 0x00
 
 	case 0x0060, 0x0061, 0x0062, 0x0063:
-		log.Printf("Keyboard switch not supported %04X\n", addr+0xC000)
+		// log.Printf("Keyboard switch not supported %04X\n", addr+0xC000)
 		return 0x00
 
 	default:
-		log.Printf("IO Read Unknown: %04X\n", addr+0xC000)
+		// log.Printf("IO Read Unknown: %04X\n", addr+0xC000)
 		return C.Buff[addr]
 	}
 }

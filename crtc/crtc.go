@@ -23,7 +23,7 @@ func NE5555() {
 	}
 }
 
-func (C *CRTC) Init(mem *mmu.MMU, io []byte, video *render.SDL2Driver, conf *config.ConfigData) {
+func (C *CRTC) Init(mem *mmu.MMU, chargen *mmu.ROM, video *render.SDL2Driver, conf *config.ConfigData) {
 	C.Reg[R0] = 63 // 126
 	C.Reg[R1] = 40 // 80 colonnes
 	C.Reg[R2] = 50
@@ -46,17 +46,17 @@ func (C *CRTC) Init(mem *mmu.MMU, io []byte, video *render.SDL2Driver, conf *con
 	C.VideoPages[1] = [2]uint16{0x0400, 0x2000}
 	C.VideoPages[2] = [2]uint16{0x0800, 0x4000}
 
-	C.charRom = mem.GetChipMem("CHARGEN")
+	C.charRom = chargen.Buff
 
-	C.VideoMEM[0][0][0] = mem.GetChipMem("MN_TXT")          // [main][textmode][page1]
-	C.VideoMEM[0][0][1] = C.VideoMEM[0][0][0][0x0400:0x800] // [main][textmode][page2]
-	C.VideoMEM[0][1][0] = mem.GetChipMem("MN_HGR")          // [main][hires][page1]
-	C.VideoMEM[0][1][1] = mem.GetChipMem("MN___3")          // [main][hires][page2]
+	C.VideoMEM[0][0][0] = mem.GetChipMem("MN_TXT") // [main][textmode][page1]
+	C.VideoMEM[0][0][1] = mem.GetChipMem("MN___2") // [main][textmode][page2]
+	C.VideoMEM[0][1][0] = mem.GetChipMem("MN_HGR") // [main][hires][page1]
+	C.VideoMEM[0][1][1] = mem.GetChipMem("MN___3") // [main][hires][page2]
 
-	C.VideoMEM[1][0][0] = mem.GetChipMem("AX_TXT")          // [aux][textmode][page1]
-	C.VideoMEM[1][0][1] = C.VideoMEM[0][0][0][0x0400:0x800] // [aux][textmode][page2]
-	C.VideoMEM[1][1][0] = mem.GetChipMem("AX_HGR")          // [aux][hires][page1]
-	C.VideoMEM[1][1][1] = mem.GetChipMem("AX___3")          // [aux][hires][page2]
+	// C.VideoMEM[1][0][0] = mem.GetChipMem("AX_TXT") // [aux][textmode][page1]
+	// C.VideoMEM[1][0][1] = mem.GetChipMem("AX___2") // [aux][textmode][page2]
+	// C.VideoMEM[1][1][0] = mem.GetChipMem("AX_HGR") // [aux][hires][page1]
+	// C.VideoMEM[1][1][1] = mem.GetChipMem("AX___3") // [aux][hires][page2]
 
 	C.BeamX = 0
 	C.BeamY = 0
@@ -70,29 +70,85 @@ func (C *CRTC) Init(mem *mmu.MMU, io []byte, video *render.SDL2Driver, conf *con
 		C.TextColor = Colors[LightGreen]
 	}
 
-	C.UpdateGraphMode()
+	C.SetTexMode()
 
 	if C.conf.Model == "Apple2" {
 		go NE5555()
 	}
 }
 
-func (C *CRTC) SetTexMode(value TOGGLE) {
-	if value == 1 {
-		set_MODE = 0
+func (C *CRTC) SetTexMode() {
+	Set_MODE = 0
+	C.videoRam = C.VideoMEM[Set_MEM][Set_MODE][Set_PAGE]
+	if C.conf.Model == "Apple2" {
+		C.videoMode = (*CRTC).StandardTextModeA2
 	} else {
-		set_MODE = 1
+		if Set_80COL == 1 {
+			C.videoMode = (*CRTC).Standard80ColTextMode
+		} else {
+			C.videoMode = (*CRTC).StandardTextModeA2E
+		}
 	}
-	C.videoRam = C.VideoMEM[set_MEM][set_MODE][set_PAGE]
 }
 
-func (C *CRTC) SetMixedMode(set_MODE TOGGLE) {
+func (C *CRTC) Set40Cols() {
+	Set_80COL = 0
+	C.videoRam = C.VideoMEM[Set_MEM][Set_MODE][Set_PAGE]
+	if C.conf.Model == "Apple2" {
+		C.videoMode = (*CRTC).StandardTextModeA2
+	} else {
+		C.videoMode = (*CRTC).StandardTextModeA2E
+	}
 }
 
-func (C *CRTC) SetHiResMode(value TOGGLE) {
-	set_MODE = byte(value)
-	C.videoRam = C.VideoMEM[set_MEM][set_MODE][set_PAGE]
-	C.videoMode = (*CRTC).HiResMode
+func (C *CRTC) Set80Cols() {
+	Set_80COL = 1
+	C.videoRam = C.VideoMEM[Set_MEM][Set_MODE][Set_PAGE]
+	if C.conf.Model == "Apple2e" {
+		C.videoMode = (*CRTC).Standard80ColTextMode
+	}
+}
+
+func (C *CRTC) SetGraphMode() {
+	Set_MODE = 1
+	C.videoRam = C.VideoMEM[Set_MEM][Set_MODE][Set_PAGE]
+	if Set_HIRES == 1 {
+		C.videoMode = (*CRTC).HiResMode
+	} else {
+		C.videoMode = (*CRTC).LoResMode
+	}
+}
+
+func (C *CRTC) SetMixedMode() {
+}
+
+func (C *CRTC) SetFullMode() {
+}
+
+func (C *CRTC) SetLoResMode() {
+	Set_HIRES = 0
+	C.videoRam = C.VideoMEM[Set_MEM][Set_MODE][Set_PAGE]
+	if Set_MODE == 1 {
+		C.videoMode = (*CRTC).LoResMode
+	}
+}
+
+func (C *CRTC) SetHiResMode() {
+	Set_HIRES = 1
+	C.videoRam = C.VideoMEM[Set_MEM][Set_MODE][Set_PAGE]
+	if Set_MODE == 1 {
+		C.videoMode = (*CRTC).HiResMode
+	}
+}
+
+func (C *CRTC) SetPage1() {
+	Set_PAGE = 0
+	C.videoRam = C.VideoMEM[Set_MEM][Set_MODE][Set_PAGE]
+}
+
+func (C *CRTC) SetPage2() {
+	Set_PAGE = 1
+	C.videoRam = C.VideoMEM[Set_MEM][Set_MODE][Set_PAGE]
 }
 
 func (C *CRTC) ToggleMonitorColor() {
@@ -104,51 +160,51 @@ func (C *CRTC) ToggleMonitorColor() {
 	}
 }
 
-func (C *CRTC) UpdateGraphMode() {
-	C.UpdateVideoRam()
-	if Is_TEXTMODE {
-		if C.conf.Model == "Apple2" {
-			C.videoMode = (*CRTC).StandardTextModeA2
-		} else {
-			if Is_80COL {
-				C.videoMode = (*CRTC).Standard80ColTextMode
-			} else {
-				C.videoMode = (*CRTC).StandardTextModeA2E
-			}
-		}
-	} else {
-		if Is_HIRESMODE {
-			C.videoMode = (*CRTC).HiResMode
-		} else {
-			C.videoMode = (*CRTC).LoResMode
-		}
-	}
-}
+// func (C *CRTC) UpdateGraphMode() {
+// 	C.UpdateVideoRam()
+// 	if Is_TEXTMODE {
+// 		if C.conf.Model == "Apple2" {
+// 			C.videoMode = (*CRTC).StandardTextModeA2
+// 		} else {
+// 			if Is_80COL {
+// 				C.videoMode = (*CRTC).Standard80ColTextMode
+// 			} else {
+// 				C.videoMode = (*CRTC).StandardTextModeA2E
+// 			}
+// 		}
+// 	} else {
+// 		if Is_HIRESMODE {
+// 			C.videoMode = (*CRTC).HiResMode
+// 		} else {
+// 			C.videoMode = (*CRTC).LoResMode
+// 		}
+// 	}
+// }
 
-func (C *CRTC) UpdateVideoRam() {
-	var page byte
-	if Is_PAGE2 {
-		page = 2
-	} else {
-		page = 1
-	}
-	if Is_TEXTMODE {
-		C.videoBase = C.VideoPages[page][0]
-		C.pageSize = C.VideoPages[0][0]
-		C.videoRam = C.RAM[C.videoBase : C.videoBase+C.pageSize]
-		// C.videoAux = C.AUX[C.videoBase : C.videoBase+C.pageSize]
-	} else {
-		C.videoBase = C.VideoPages[page][1]
-		C.pageSize = C.VideoPages[0][1]
-		C.videoRam = C.RAM[C.videoBase : C.videoBase+C.pageSize]
-		// C.videoAux = C.AUX[C.videoBase : C.videoBase+C.pageSize]
-	}
-}
+// func (C *CRTC) UpdateVideoRam() {
+// 	var page byte
+// 	if Is_PAGE2 {
+// 		page = 2
+// 	} else {
+// 		page = 1
+// 	}
+// 	if Is_TEXTMODE {
+// 		C.videoBase = C.VideoPages[page][0]
+// 		C.pageSize = C.VideoPages[0][0]
+// 		C.videoRam = C.RAM[C.videoBase : C.videoBase+C.pageSize]
+// 		// C.videoAux = C.AUX[C.videoBase : C.videoBase+C.pageSize]
+// 	} else {
+// 		C.videoBase = C.VideoPages[page][1]
+// 		C.pageSize = C.VideoPages[0][1]
+// 		C.videoRam = C.RAM[C.videoBase : C.videoBase+C.pageSize]
+// 		// C.videoAux = C.AUX[C.videoBase : C.videoBase+C.pageSize]
+// 	}
+// }
 
 func (C *CRTC) DumpMode() {
-	if Is_TEXTMODE {
+	if Set_MODE == 0 {
 		fmt.Printf("TEXT ")
-	} else if Is_HIRESMODE {
+	} else if Set_HIRES == 1 {
 		fmt.Printf("HIRES ")
 	} else {
 		fmt.Printf("LORES ")
