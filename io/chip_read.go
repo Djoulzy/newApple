@@ -36,7 +36,7 @@ func (C *SoftSwitch) Read(addr uint16) byte {
 		}
 		return 0x00
 	case RDLCRAM:
-		if is_READ_RAM {
+		if is_BS_RAM {
 			return 0x8D
 		}
 		return 0x00
@@ -57,6 +57,19 @@ func (C *SoftSwitch) Read(addr uint16) byte {
 		} else {
 			return 0x00
 		}
+	case RDRAMRD:
+		if is_RAMRD {
+			return 0x8D
+		} else {
+			return 0x00
+		}
+	case RDRAMWRT:
+		if is_RAMWRT {
+			return 0x8D
+		} else {
+			return 0x00
+		}
+
 	case TXTCLR:
 		C.Video.SetGraphMode()
 		return 0
@@ -70,15 +83,19 @@ func (C *SoftSwitch) Read(addr uint16) byte {
 		C.Video.SetMixedMode()
 		return 0
 	case LORES:
+		is_HIRES = false
 		C.Video.SetLoResMode()
 		return 0
 	case HIRES:
+		is_HIRES = true
 		C.Video.SetHiResMode()
 		return 0
 	case TXTPAGE1:
+		is_PAGE2 = false
 		C.Video.SetPage1()
 		return 0
 	case TXTPAGE2:
+		is_PAGE2 = true
 		C.Video.SetPage2()
 		return 0
 
@@ -104,52 +121,82 @@ func (C *SoftSwitch) Read(addr uint16) byte {
 		return 0x00
 
 	case RAMROB2:
-		C.Mmu.Mount("MN_BK2", "")
-		C.Mmu.Mount("MN___4", "")
+		if is_ALT_ZP {
+			C.Mmu.Mount("AX_BK2", "")
+			C.Mmu.Mount("AX___4", "")
+		} else {
+			C.Mmu.Mount("MN_BK2", "")
+			C.Mmu.Mount("MN___4", "")
+		}
 		is_BANK2 = true
-		is_READ_RAM = true
+		is_BS_RAM = true
 		return 0x80
 	case ROMWB2:
-		C.Mmu.Mount("ROM_D", "MN_BK2")
-		C.Mmu.Mount("ROM_EF", "MN___4")
+		if is_ALT_ZP {
+			C.Mmu.Mount("ROM_D", "AX_BK2")
+			C.Mmu.Mount("ROM_EF", "AX___4")
+		} else {
+			C.Mmu.Mount("ROM_D", "MN_BK2")
+			C.Mmu.Mount("ROM_EF", "MN___4")
+		}
 		is_BANK2 = true
-		is_READ_RAM = false
+		is_BS_RAM = false
 		return 0x80
 	case ROMROB2:
 		C.Mmu.Mount("ROM_D", "")
 		C.Mmu.Mount("ROM_EF", "")
 		is_BANK2 = true
-		is_READ_RAM = false
+		is_BS_RAM = false
 		return 0x80
 	case RAMRWB2:
-		C.Mmu.Mount("MN_BK2", "MN_BK2")
-		C.Mmu.Mount("MN___4", "MN___4")
-		is_READ_RAM = true
+		if is_ALT_ZP {
+			C.Mmu.Mount("AX_BK2", "AX_BK2")
+			C.Mmu.Mount("AX___4", "AX___4")
+		} else {
+			C.Mmu.Mount("MN_BK2", "MN_BK2")
+			C.Mmu.Mount("MN___4", "MN___4")
+		}
+		is_BS_RAM = true
 		is_BANK2 = true
 		return 0x80
 
 	case RAMROB1:
-		C.Mmu.Mount("MN_BK1", "")
-		C.Mmu.Mount("MN___4", "")
+		if is_ALT_ZP {
+			C.Mmu.Mount("AX_BK1", "")
+			C.Mmu.Mount("AX___4", "")
+		} else {
+			C.Mmu.Mount("MN_BK1", "")
+			C.Mmu.Mount("MN___4", "")
+		}
 		is_BANK2 = false
-		is_READ_RAM = true
+		is_BS_RAM = true
 		return 0x80
 	case ROMWB1:
-		C.Mmu.Mount("ROM_D", "MN_BK1")
-		C.Mmu.Mount("ROM_EF", "MN___4")
+		if is_ALT_ZP {
+			C.Mmu.Mount("ROM_D", "AX_BK1")
+			C.Mmu.Mount("ROM_EF", "AX___4")
+		} else {
+			C.Mmu.Mount("ROM_D", "MN_BK1")
+			C.Mmu.Mount("ROM_EF", "MN___4")
+		}
 		is_BANK2 = false
-		is_READ_RAM = false
+		is_BS_RAM = false
 		return 0x80
 	case ROMROB1:
 		C.Mmu.Mount("ROM_D", "")
 		C.Mmu.Mount("ROM_EF", "")
 		is_BANK2 = false
-		is_READ_RAM = false
+		is_BS_RAM = false
 		return 0x80
 	case RAMRWB1:
-		C.Mmu.Mount("MN_BK1", "MN_BK1")
-		C.Mmu.Mount("MN___4", "MN___4")
-		is_READ_RAM = true
+		if is_ALT_ZP {
+			C.Mmu.Mount("AX_BK1", "AX_BK1")
+			C.Mmu.Mount("AX___4", "AX___4")
+		} else {
+			C.Mmu.Mount("MN_BK1", "MN_BK1")
+			C.Mmu.Mount("MN___4", "MN___4")
+		}
+		is_BS_RAM = true
 		is_BANK2 = false
 		return 0x80
 

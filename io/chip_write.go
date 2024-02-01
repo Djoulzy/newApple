@@ -28,47 +28,83 @@ func (C *SoftSwitch) Write(addr uint16, val byte) {
 	case MIXSET:
 		C.Video.SetMixedMode()
 	case LORES:
+		is_HIRES = false
 		C.Video.SetLoResMode()
 	case HIRES:
+		is_HIRES = true
 		C.Video.SetHiResMode()
 	case TXTPAGE1:
+		is_PAGE2 = false
 		C.Video.SetPage1()
 	case TXTPAGE2:
+		is_PAGE2 = true
 		C.Video.SetPage2()
 
 	case RDMAINRAM:
-		C.Mmu.MountReader("MN_ZPS")
-		C.Mmu.MountReader("MN___1")
-		C.Mmu.MountReader("MN_TXT")
-		C.Mmu.MountReader("MN___2")
-		C.Mmu.MountReader("MN_HGR")
-		C.Mmu.MountReader("MN___3")
+		if is_80Store {
+			C.Mmu.MountReader("MN___1")
+			C.Mmu.MountReader("MN___2")
+			C.Mmu.MountReader("MN___3")
+		} else {
+			C.Mmu.MountReader("MN___1")
+			C.Mmu.MountReader("MN_TXT")
+			C.Mmu.MountReader("MN___2")
+			C.Mmu.MountReader("MN_HGR")
+			C.Mmu.MountReader("MN___3")
+		}
+		is_RAMRD = false
 	case RDCARDRAM:
-		C.Mmu.MountReader("AX_ZPS")
-		C.Mmu.MountReader("AX___1")
-		C.Mmu.MountReader("AX_TXT")
-		C.Mmu.MountReader("AX___2")
-		C.Mmu.MountReader("AX_HGR")
-		C.Mmu.MountReader("AX___3")
+		if is_80Store {
+			C.Mmu.MountReader("AX___1")
+			C.Mmu.MountReader("AX___2")
+			C.Mmu.MountReader("AX___3")
+		} else {
+			C.Mmu.MountReader("AX___1")
+			C.Mmu.MountReader("AX_TXT")
+			C.Mmu.MountReader("AX___2")
+			C.Mmu.MountReader("AX_HGR")
+			C.Mmu.MountReader("AX___3")
+		}
+		is_RAMRD = true
 	case WRMAINRAM:
-		C.Mmu.MountWriter("MN_ZPS")
-		C.Mmu.MountWriter("MN___1")
-		C.Mmu.MountWriter("MN_TXT")
-		C.Mmu.MountWriter("MN___2")
-		C.Mmu.MountWriter("MN_HGR")
-		C.Mmu.MountWriter("MN___3")
+		if is_80Store {
+			C.Mmu.MountWriter("MN___1")
+			C.Mmu.MountWriter("MN___2")
+			C.Mmu.MountWriter("MN___3")
+		} else {
+			C.Mmu.MountWriter("MN___1")
+			C.Mmu.MountWriter("MN_TXT")
+			C.Mmu.MountWriter("MN___2")
+			C.Mmu.MountWriter("MN_HGR")
+			C.Mmu.MountWriter("MN___3")
+		}
+		is_RAMWRT = false
 	case WRCARDRAM:
-		C.Mmu.MountWriter("AX_ZPS")
-		C.Mmu.MountWriter("AX___1")
-		C.Mmu.MountWriter("AX_TXT")
-		C.Mmu.MountWriter("AX___2")
-		C.Mmu.MountWriter("AX_HGR")
-		C.Mmu.MountWriter("AX___3")
+		if is_80Store {
+			C.Mmu.MountWriter("AX___1")
+			C.Mmu.MountWriter("AX___2")
+			C.Mmu.MountWriter("AX___3")
+		} else {
+			C.Mmu.MountWriter("AX___1")
+			C.Mmu.MountWriter("AX_TXT")
+			C.Mmu.MountWriter("AX___2")
+			C.Mmu.MountWriter("AX_HGR")
+			C.Mmu.MountWriter("AX___3")
+		}
+		is_RAMWRT = true
 
 	case SETSTDZP:
-		fallthrough
+		is_ALT_ZP = false
+		C.Mmu.SwapChip("AX_ZPS", "MN_ZPS")
+		C.Mmu.SwapChip("AX_BK1", "MN_BK1")
+		C.Mmu.SwapChip("AX_BK2", "MN_BK2")
+		C.Mmu.SwapChip("AX___4", "MN___4")
 	case SETALTZP:
-		log.Printf("ZP Management: %04X\n", addr+0xC000)
+		is_ALT_ZP = true
+		C.Mmu.SwapChip("MN_ZPS", "AX_ZPS")
+		C.Mmu.SwapChip("MN_BK1", "AX_BK1")
+		C.Mmu.SwapChip("MN_BK2", "AX_BK2")
+		C.Mmu.SwapChip("MN___4", "AX___4")
 
 	case SETSLOTCXROM:
 		for i := 1; i < 8; i++ {
@@ -80,7 +116,7 @@ func (C *SoftSwitch) Write(addr uint16, val byte) {
 		C.Mmu.Mount("IO", "IO")
 		is_CX_INT = true
 	case SETINTC3ROM:
-		C.Mmu.SwapRom("SLOT_3", "ROM_C")
+		C.Mmu.SwapChip("SLOT_3", "ROM_C")
 		is_C3_INT = true
 	case SETSLOTC3ROM:
 		C.Mmu.Mount("SLOT_3", "")

@@ -9,12 +9,16 @@ import (
 // PRINT PEEK(49173)
 
 var (
-	is_READ_RAM bool = false
-	is_BANK2    bool = false
-	is_C3_INT   bool = true
-	is_CX_INT   bool = false
-	is_80Store  bool = false
-	is_ALT_ZP   bool = false
+	is_BS_RAM  bool = false
+	is_RAMRD   bool = false
+	is_RAMWRT  bool = false
+	is_BANK2   bool = false
+	is_C3_INT  bool = true
+	is_CX_INT  bool = false
+	is_80Store bool = false
+	is_ALT_ZP  bool = false
+	is_HIRES   bool = false
+	is_PAGE2   bool = false
 )
 
 type SoftSwitch struct {
