@@ -47,6 +47,9 @@ var (
 	Disks   *io.DiskInterface
 	SLOTS   [8]*mmu.ROM
 	CHARGEN *mmu.ROM
+
+	is_slots_empty bool = true
+	is_slot3_empty bool = true
 )
 
 func loadSlots() {
@@ -59,11 +62,15 @@ func loadSlots() {
 	conf.Slots.Catalog[7] = conf.Slots.Slot7
 
 	for i := 1; i < 8; i++ {
-		// if conf.Slots.Catalog[i] != "" {
 		SLOTS[i] = mmu.NewROM("SLOT_"+strconv.Itoa(i), slot_roms, conf.Slots.Catalog[i])
 		MEM.Attach(SLOTS[i], 0xC0+uint(i))
 		MEM.Mount("SLOT_"+strconv.Itoa(i), "")
-		// }
+		if conf.Slots.Catalog[i] != "" {
+			is_slots_empty = false
+			if i == 3 {
+				is_slot3_empty = false
+			}
+		}
 	}
 }
 
@@ -193,6 +200,16 @@ func setupMemoryLayout() {
 	MEM.Mount("IO", "IO")
 
 	loadSlots()
+
+	if MODEL == 2 {
+		if is_slots_empty {
+			IO.Write(0x0007, 0)
+		} else {
+			if is_slot3_empty {
+				IO.Write(0x000A, 0)
+			}
+		}
+	}
 
 	MEM.CheckMapIntegrity()
 	MEM.DumpMap()

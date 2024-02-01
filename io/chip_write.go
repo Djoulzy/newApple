@@ -37,14 +37,21 @@ func (C *SoftSwitch) Write(addr uint16, val byte) {
 		is_PAGE2 = false
 		C.Video.SetPage1()
 	case TXTPAGE2:
-		is_PAGE2 = true
-		C.Video.SetPage2()
+		if is_80Store {
+			// TODO
+		} else {
+			is_PAGE2 = true
+			C.Video.SetPage2()
+		}
 
 	case RDMAINRAM:
 		if is_80Store {
 			C.Mmu.MountReader("MN___1")
 			C.Mmu.MountReader("MN___2")
 			C.Mmu.MountReader("MN___3")
+			if !is_HIRES {
+				C.Mmu.MountReader("MN_HGR")
+			}
 		} else {
 			C.Mmu.MountReader("MN___1")
 			C.Mmu.MountReader("MN_TXT")
@@ -58,6 +65,9 @@ func (C *SoftSwitch) Write(addr uint16, val byte) {
 			C.Mmu.MountReader("AX___1")
 			C.Mmu.MountReader("AX___2")
 			C.Mmu.MountReader("AX___3")
+			if !is_HIRES {
+				C.Mmu.MountReader("AX_HGR")
+			}
 		} else {
 			C.Mmu.MountReader("AX___1")
 			C.Mmu.MountReader("AX_TXT")
@@ -71,6 +81,9 @@ func (C *SoftSwitch) Write(addr uint16, val byte) {
 			C.Mmu.MountWriter("MN___1")
 			C.Mmu.MountWriter("MN___2")
 			C.Mmu.MountWriter("MN___3")
+			if !is_HIRES {
+				C.Mmu.MountWriter("MN_HGR")
+			}
 		} else {
 			C.Mmu.MountWriter("MN___1")
 			C.Mmu.MountWriter("MN_TXT")
@@ -84,6 +97,9 @@ func (C *SoftSwitch) Write(addr uint16, val byte) {
 			C.Mmu.MountWriter("AX___1")
 			C.Mmu.MountWriter("AX___2")
 			C.Mmu.MountWriter("AX___3")
+			if !is_HIRES {
+				C.Mmu.MountWriter("AX_HGR")
+			}
 		} else {
 			C.Mmu.MountWriter("AX___1")
 			C.Mmu.MountWriter("AX_TXT")
@@ -169,7 +185,7 @@ func (C *SoftSwitch) Write(addr uint16, val byte) {
 		C.Disks.SetSequencerMode(SEQ_WRITE_MODE)
 
 	default:
-		// log.Printf("IO Write Unknown: %04X\n", addr+0xC000)
+		log.Printf("IO Write Unknown: %04X (value: %02X)\n", addr+0xC000, val)
 		C.Buff[addr] = val
 	}
 	// mem[translatedAddr] = val

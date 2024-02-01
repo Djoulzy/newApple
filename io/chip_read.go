@@ -17,6 +17,9 @@ func (C *SoftSwitch) Read(addr uint16) byte {
 	case KBD:
 		return C.Buff[KBD]
 	case STOREON:
+		is_80Store = true
+		return 0x8D
+	case RD80STORE:
 		if is_80Store {
 			return 0x8D
 		}
@@ -70,6 +73,9 @@ func (C *SoftSwitch) Read(addr uint16) byte {
 			return 0x00
 		}
 
+	case CLR80VID:
+		C.Video.Set40Cols()
+		return 0
 	case TXTCLR:
 		C.Video.SetGraphMode()
 		return 0
@@ -95,8 +101,12 @@ func (C *SoftSwitch) Read(addr uint16) byte {
 		C.Video.SetPage1()
 		return 0
 	case TXTPAGE2:
-		is_PAGE2 = true
-		C.Video.SetPage2()
+		if is_80Store {
+			// TODO
+		} else {
+			is_PAGE2 = true
+			C.Video.SetPage2()
+		}
 		return 0
 
 	case RDTEXT:
@@ -110,15 +120,19 @@ func (C *SoftSwitch) Read(addr uint16) byte {
 		}
 		return 0x00
 	case RDPAGE2:
-		if crtc.Set_PAGE == 1 {
+		if is_PAGE2 {
 			return 0x80
 		}
 		return 0x00
 	case RDHIRES:
-		if crtc.Set_HIRES == 1 {
+		if is_HIRES {
 			return 0x80
 		}
 		return 0x00
+	case RDALTCHAR:
+		return 13
+	case RSTVBL:
+		return 0
 
 	case RAMROB2:
 		if is_ALT_ZP {
@@ -283,7 +297,7 @@ func (C *SoftSwitch) Read(addr uint16) byte {
 		return 0x00
 
 	default:
-		// log.Printf("IO Read Unknown: %04X\n", addr+0xC000)
+		log.Printf("IO Read Unknown: %04X\n", addr+0xC000)
 		return C.Buff[addr]
 	}
 }

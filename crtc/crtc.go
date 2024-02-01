@@ -53,10 +53,12 @@ func (C *CRTC) Init(mem *mmu.MMU, chargen *mmu.ROM, video *render.SDL2Driver, co
 	C.VideoMEM[0][1][0] = mem.GetChipMem("MN_HGR") // [main][hires][page1]
 	C.VideoMEM[0][1][1] = mem.GetChipMem("MN___3") // [main][hires][page2]
 
-	// C.VideoMEM[1][0][0] = mem.GetChipMem("AX_TXT") // [aux][textmode][page1]
-	// C.VideoMEM[1][0][1] = mem.GetChipMem("AX___2") // [aux][textmode][page2]
-	// C.VideoMEM[1][1][0] = mem.GetChipMem("AX_HGR") // [aux][hires][page1]
-	// C.VideoMEM[1][1][1] = mem.GetChipMem("AX___3") // [aux][hires][page2]
+	if C.conf.Model == "Apple2e" {
+		C.VideoMEM[1][0][0] = mem.GetChipMem("AX_TXT") // [aux][textmode][page1]
+		C.VideoMEM[1][0][1] = mem.GetChipMem("AX___2") // [aux][textmode][page2]
+		C.VideoMEM[1][1][0] = mem.GetChipMem("AX_HGR") // [aux][hires][page1]
+		C.VideoMEM[1][1][1] = mem.GetChipMem("AX___3") // [aux][hires][page2]
+	}
 
 	C.BeamX = 0
 	C.BeamY = 0
@@ -84,6 +86,7 @@ func (C *CRTC) SetTexMode() {
 		C.videoMode = (*CRTC).StandardTextModeA2
 	} else {
 		if Set_80COL == 1 {
+			C.videoAux = C.VideoMEM[1][Set_MODE][Set_PAGE]
 			C.videoMode = (*CRTC).Standard80ColTextMode
 		} else {
 			C.videoMode = (*CRTC).StandardTextModeA2E
@@ -93,20 +96,21 @@ func (C *CRTC) SetTexMode() {
 
 func (C *CRTC) Set40Cols() {
 	Set_80COL = 0
-	C.videoRam = C.VideoMEM[Set_MEM][Set_MODE][Set_PAGE]
-	if C.conf.Model == "Apple2" {
-		C.videoMode = (*CRTC).StandardTextModeA2
-	} else {
-		C.videoMode = (*CRTC).StandardTextModeA2E
-	}
+	// C.videoRam = C.VideoMEM[Set_MEM][Set_MODE][Set_PAGE]
+	// if C.conf.Model == "Apple2" {
+	// 	C.videoMode = (*CRTC).StandardTextModeA2
+	// } else {
+	// 	C.videoMode = (*CRTC).StandardTextModeA2E
+	// }
 }
 
 func (C *CRTC) Set80Cols() {
 	Set_80COL = 1
-	C.videoRam = C.VideoMEM[Set_MEM][Set_MODE][Set_PAGE]
-	if C.conf.Model == "Apple2e" {
-		C.videoMode = (*CRTC).Standard80ColTextMode
-	}
+	// C.videoRam = C.VideoMEM[Set_MEM][Set_MODE][Set_PAGE]
+	// if C.conf.Model == "Apple2e" {
+	// 	C.videoAux = C.VideoMEM[1][Set_MODE][Set_PAGE]
+	// 	C.videoMode = (*CRTC).Standard80ColTextMode
+	// }
 }
 
 func (C *CRTC) SetGraphMode() {
@@ -120,9 +124,11 @@ func (C *CRTC) SetGraphMode() {
 }
 
 func (C *CRTC) SetMixedMode() {
+	Set_MIXED = 1
 }
 
 func (C *CRTC) SetFullMode() {
+	Set_MIXED = 0
 }
 
 func (C *CRTC) SetLoResMode() {
@@ -144,11 +150,13 @@ func (C *CRTC) SetHiResMode() {
 func (C *CRTC) SetPage1() {
 	Set_PAGE = 0
 	C.videoRam = C.VideoMEM[Set_MEM][Set_MODE][Set_PAGE]
+	C.videoAux = C.VideoMEM[1][Set_MODE][Set_PAGE]
 }
 
 func (C *CRTC) SetPage2() {
 	Set_PAGE = 1
 	C.videoRam = C.VideoMEM[Set_MEM][Set_MODE][Set_PAGE]
+	C.videoAux = C.VideoMEM[1][Set_MODE][Set_PAGE]
 }
 
 func (C *CRTC) ToggleMonitorColor() {
@@ -202,14 +210,20 @@ func (C *CRTC) ToggleMonitorColor() {
 // }
 
 func (C *CRTC) DumpMode() {
+	var mode string
 	if Set_MODE == 0 {
-		fmt.Printf("TEXT ")
-	} else if Set_HIRES == 1 {
-		fmt.Printf("HIRES ")
+		mode = "TEXT"
 	} else {
-		fmt.Printf("LORES ")
+		if Set_HIRES == 1 {
+			mode = "HiRES"
+		} else {
+			mode = "LoRES"
+		}
+		if Set_MIXED == 1 {
+			mode = mode + " Mixed"
+		}
 	}
-	fmt.Printf("VideoRam: %04X Size: %04X\n", C.videoBase, C.pageSize)
+	fmt.Printf("Mode: %s - Page: %d - 80Cols: %d - Mem: %d\n", mode, Set_PAGE, Set_80COL, Set_MEM)
 }
 
 func (C *CRTC) drawChar(X int, Y int) {
@@ -227,9 +241,11 @@ func (C *CRTC) Run() bool {
 	}
 
 	C.CCLK++ // += 2
+	// C.CCLK += 2
 	if C.CCLK == C.Reg[R0] {
 		C.CCLK = 0
 		C.BeamY++ // += 2
+		// C.BeamY += 2
 		if C.BeamY >= C.screenHeight {
 			C.BeamY = 0
 			C.RasterCount = 0

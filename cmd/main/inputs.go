@@ -36,8 +36,13 @@ func InterractiveMode() bool {
 		switch r {
 		case ' ':
 			return false
+		case 'm':
+			MEM.DumpMap()
+		case 'g':
+			CRTC.DumpMode()
 		case 'r':
 			stepper = false
+			trace = false
 			return true
 		case 'd':
 			fmt.Printf("Dump> ")
