@@ -226,18 +226,13 @@ func (C *CRTC) DumpMode() {
 	fmt.Printf("Mode: %s - Page: %d - 80Cols: %d - Mem: %d\n", mode, Set_PAGE, Set_80COL, Set_MEM)
 }
 
-func (C *CRTC) drawChar(X int, Y int) {
-	// if C.drawArea && (C.Reg[REG_CTRL1]&DEN > 0) {
-	C.videoMode(C, X, Y)
-}
-
 func (C *CRTC) Run() bool {
 	C.BeamX = int(C.CCLK) * 7
 
 	// log.Printf("BeamX: %d - BeamY: %d - CCLK: %02d - RasterLine: %02d", C.BeamX, C.BeamY, C.CCLK, C.RasterLine)
 
 	if C.CCLK < (C.Reg[R1]) {
-		C.drawChar(C.BeamX, C.BeamY)
+		C.videoMode(C, C.BeamX, C.BeamY)
 	}
 
 	C.CCLK++ // += 2
