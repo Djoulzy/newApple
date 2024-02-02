@@ -20,7 +20,7 @@ var (
 	MN_TXT = mmu.NewRAM("MN_TXT", 0x0400)
 	MN___2 = mmu.NewRAM("MN___2", 0x1800)
 	MN_HGR = mmu.NewRAM("MN_HGR", 0x2000)
-	MN___3 = mmu.NewRAM("MN___3", 0x9000)
+	MN___3 = mmu.NewRAM("MN___3", 0x8000)
 	MN_SLT = mmu.NewRAM("MN_SLT", 0x0800)
 
 	MN_BK1 = mmu.NewRAM("MN_BK1", 0x1000)
@@ -32,7 +32,7 @@ var (
 	AX_TXT = mmu.NewRAM("AX_TXT", 0x0400)
 	AX___2 = mmu.NewRAM("AX___2", 0x1800)
 	AX_HGR = mmu.NewRAM("AX_HGR", 0x2000)
-	AX___3 = mmu.NewRAM("AX___3", 0x9000)
+	AX___3 = mmu.NewRAM("AX___3", 0x8000)
 	AX_SLT = mmu.NewRAM("AX_SLT", 0x0800)
 
 	AX_BK1 = mmu.NewRAM("AX_BK1", 0x1000)
