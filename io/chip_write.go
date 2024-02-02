@@ -34,78 +34,72 @@ func (C *SoftSwitch) Write(addr uint16, val byte) {
 		is_HIRES = true
 		C.Video.SetHiResMode()
 	case TXTPAGE1:
-		is_PAGE2 = false
-		C.Video.SetPage1()
-	case TXTPAGE2:
-		if is_80Store {
-			// TODO
+		if !is_80Store {
+			C.Video.SetPage1()
 		} else {
-			is_PAGE2 = true
-			C.Video.SetPage2()
+			C.Mmu.Mount("MN_TXT", "MN_TXT")
+			if is_HIRES {
+				C.Mmu.Mount("MN_HGR", "MN_HGR")
+			}
 		}
+		is_PAGE2 = false
+	case TXTPAGE2:
+		if !is_80Store {
+			C.Video.SetPage2()
+		} else {
+			C.Mmu.Mount("AX_TXT", "AX_TXT")
+			if is_HIRES {
+				C.Mmu.Mount("AX_HGR", "AX_HGR")
+			}
+		}
+		is_PAGE2 = true
 
 	case RDMAINRAM:
+		C.Mmu.MountReader("MN___1")
+		C.Mmu.MountReader("MN___2")
+		C.Mmu.MountReader("MN___3")
 		if is_80Store {
-			C.Mmu.MountReader("MN___1")
-			C.Mmu.MountReader("MN___2")
-			C.Mmu.MountReader("MN___3")
 			if !is_HIRES {
 				C.Mmu.MountReader("MN_HGR")
 			}
 		} else {
-			C.Mmu.MountReader("MN___1")
 			C.Mmu.MountReader("MN_TXT")
-			C.Mmu.MountReader("MN___2")
-			C.Mmu.MountReader("MN_HGR")
-			C.Mmu.MountReader("MN___3")
 		}
 		is_RAMRD = false
 	case RDCARDRAM:
+		C.Mmu.MountReader("AX___1")
+		C.Mmu.MountReader("AX___2")
+		C.Mmu.MountReader("AX___3")
 		if is_80Store {
-			C.Mmu.MountReader("AX___1")
-			C.Mmu.MountReader("AX___2")
-			C.Mmu.MountReader("AX___3")
 			if !is_HIRES {
 				C.Mmu.MountReader("AX_HGR")
 			}
 		} else {
-			C.Mmu.MountReader("AX___1")
 			C.Mmu.MountReader("AX_TXT")
-			C.Mmu.MountReader("AX___2")
-			C.Mmu.MountReader("AX_HGR")
-			C.Mmu.MountReader("AX___3")
 		}
 		is_RAMRD = true
 	case WRMAINRAM:
+		C.Mmu.MountWriter("MN___1")
+		C.Mmu.MountWriter("MN___2")
+		C.Mmu.MountWriter("MN___3")
 		if is_80Store {
-			C.Mmu.MountWriter("MN___1")
-			C.Mmu.MountWriter("MN___2")
-			C.Mmu.MountWriter("MN___3")
 			if !is_HIRES {
 				C.Mmu.MountWriter("MN_HGR")
 			}
 		} else {
-			C.Mmu.MountWriter("MN___1")
 			C.Mmu.MountWriter("MN_TXT")
-			C.Mmu.MountWriter("MN___2")
-			C.Mmu.MountWriter("MN_HGR")
-			C.Mmu.MountWriter("MN___3")
 		}
 		is_RAMWRT = false
 	case WRCARDRAM:
+		C.Mmu.MountWriter("AX___1")
+		C.Mmu.MountWriter("AX___2")
+		C.Mmu.MountWriter("AX___3")
 		if is_80Store {
-			C.Mmu.MountWriter("AX___1")
-			C.Mmu.MountWriter("AX___2")
-			C.Mmu.MountWriter("AX___3")
 			if !is_HIRES {
 				C.Mmu.MountWriter("AX_HGR")
 			}
 		} else {
-			C.Mmu.MountWriter("AX___1")
 			C.Mmu.MountWriter("AX_TXT")
-			C.Mmu.MountWriter("AX___2")
-			C.Mmu.MountWriter("AX_HGR")
-			C.Mmu.MountWriter("AX___3")
 		}
 		is_RAMWRT = true
 

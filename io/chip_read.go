@@ -97,16 +97,26 @@ func (C *SoftSwitch) Read(addr uint16) byte {
 		C.Video.SetHiResMode()
 		return 0
 	case TXTPAGE1:
+		if !is_80Store {
+			C.Video.SetPage1()
+		} else {
+			C.Mmu.Mount("MN_TXT", "MN_TXT")
+			if is_HIRES {
+				C.Mmu.Mount("MN_HGR", "MN_HGR")
+			}
+		}
 		is_PAGE2 = false
-		C.Video.SetPage1()
 		return 0
 	case TXTPAGE2:
-		if is_80Store {
-			// TODO
-		} else {
-			is_PAGE2 = true
+		if !is_80Store {
 			C.Video.SetPage2()
+		} else {
+			C.Mmu.Mount("AX_TXT", "AX_TXT")
+			if is_HIRES {
+				C.Mmu.Mount("AX_HGR", "AX_HGR")
+			}
 		}
+		is_PAGE2 = true
 		return 0
 
 	case RDTEXT:

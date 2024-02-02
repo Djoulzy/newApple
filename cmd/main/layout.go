@@ -192,6 +192,7 @@ func setupMemoryLayout() {
 	} else {
 		apple2e_Roms()
 	}
+	MEM.Mount("MN_SLT", "MN_SLT")
 
 	Disks = io.InitDiskInterface(conf)
 	IO = io.InitSoftSwitch("IO", softSwitches, Disks, &CRTC)
