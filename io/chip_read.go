@@ -141,8 +141,8 @@ func (C *SoftSwitch) Read(addr uint16) byte {
 		return 0x00
 	case RDALTCHAR:
 		return 13
-	case RSTVBL:
-		return 0
+	case RDVBL:
+		return C.Video.VBL
 
 	case RAMROB2:
 		if is_ALT_ZP {

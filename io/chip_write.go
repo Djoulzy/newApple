@@ -190,6 +190,9 @@ func (C *SoftSwitch) Write(addr uint16, val byte) {
 
 	case SETSLOTCXROM:
 		for i := 1; i < 8; i++ {
+			if i == 3 {
+				continue
+			}
 			C.Mmu.Mount("SLOT_"+strconv.Itoa(i), "")
 		}
 		is_CX_INT = false

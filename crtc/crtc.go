@@ -251,12 +251,15 @@ func (C *CRTC) Run() bool {
 			C.RasterCount = 0
 			C.RasterLine = 0
 			// C.graph.UpdateFrame()
+			// Vertical blanking
+			C.VBL = 0x00
 		} else {
 			C.RasterCount++
 			if C.RasterCount == C.Reg[R9] {
 				C.RasterLine++
 				C.RasterCount = 0
 			}
+			C.VBL = 0x80
 		}
 	}
 	return true
