@@ -103,6 +103,78 @@ func (C *SoftSwitch) Write(addr uint16, val byte) {
 		}
 		is_RAMWRT = true
 
+	case RAMROB2:
+		if is_ALT_ZP {
+			C.Mmu.Mount("AX_BK2", "")
+			C.Mmu.Mount("AX___4", "")
+		} else {
+			C.Mmu.Mount("MN_BK2", "")
+			C.Mmu.Mount("MN___4", "")
+		}
+		is_BANK2 = true
+		is_BS_RAM = true
+	case ROMWB2:
+		if is_ALT_ZP {
+			C.Mmu.Mount("ROM_D", "AX_BK2")
+			C.Mmu.Mount("ROM_EF", "AX___4")
+		} else {
+			C.Mmu.Mount("ROM_D", "MN_BK2")
+			C.Mmu.Mount("ROM_EF", "MN___4")
+		}
+		is_BANK2 = true
+		is_BS_RAM = false
+	case ROMROB2:
+		C.Mmu.Mount("ROM_D", "")
+		C.Mmu.Mount("ROM_EF", "")
+		is_BANK2 = true
+		is_BS_RAM = false
+	case RAMRWB2:
+		if is_ALT_ZP {
+			C.Mmu.Mount("AX_BK2", "AX_BK2")
+			C.Mmu.Mount("AX___4", "AX___4")
+		} else {
+			C.Mmu.Mount("MN_BK2", "MN_BK2")
+			C.Mmu.Mount("MN___4", "MN___4")
+		}
+		is_BS_RAM = true
+		is_BANK2 = true
+
+	case RAMROB1:
+		if is_ALT_ZP {
+			C.Mmu.Mount("AX_BK1", "")
+			C.Mmu.Mount("AX___4", "")
+		} else {
+			C.Mmu.Mount("MN_BK1", "")
+			C.Mmu.Mount("MN___4", "")
+		}
+		is_BANK2 = false
+		is_BS_RAM = true
+	case ROMWB1:
+		if is_ALT_ZP {
+			C.Mmu.Mount("ROM_D", "AX_BK1")
+			C.Mmu.Mount("ROM_EF", "AX___4")
+		} else {
+			C.Mmu.Mount("ROM_D", "MN_BK1")
+			C.Mmu.Mount("ROM_EF", "MN___4")
+		}
+		is_BANK2 = false
+		is_BS_RAM = false
+	case ROMROB1:
+		C.Mmu.Mount("ROM_D", "")
+		C.Mmu.Mount("ROM_EF", "")
+		is_BANK2 = false
+		is_BS_RAM = false
+	case RAMRWB1:
+		if is_ALT_ZP {
+			C.Mmu.Mount("AX_BK1", "AX_BK1")
+			C.Mmu.Mount("AX___4", "AX___4")
+		} else {
+			C.Mmu.Mount("MN_BK1", "MN_BK1")
+			C.Mmu.Mount("MN___4", "MN___4")
+		}
+		is_BS_RAM = true
+		is_BANK2 = false
+
 	case SETSTDZP:
 		is_ALT_ZP = false
 		C.Mmu.SwapChip("AX_ZPS", "MN_ZPS")
