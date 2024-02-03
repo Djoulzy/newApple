@@ -24,6 +24,7 @@ var boxLine = [8]uint16{0x0000, 0x0400, 0x0800, 0x0C00, 0x1000, 0x1400, 0x1800, 
 //
 // ////////////////////////////////////////////////////////////////////
 func (C *CRTC) StandardTextModeA2(X int, Y int) {
+	C.videoRam = C.VideoMEM[Set_MEM][0][Set_PAGE]
 	screenChar = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK)]
 	pixelData = C.charRom[uint16(screenChar)<<3+uint16(C.RasterCount)]
 	switch screenChar & 0b11000000 {
@@ -82,6 +83,7 @@ func (C *CRTC) Standard80ColTextMode(X int, Y int) {
 }
 
 func (C *CRTC) StandardTextModeA2E(X int, Y int) {
+	C.videoRam = C.VideoMEM[Set_MEM][0][Set_PAGE]
 	screenChar = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK)]
 	pixelData = C.charRom[uint16(screenChar)<<3+uint16(C.RasterCount)]
 	pixelData = ^pixelData
@@ -106,12 +108,16 @@ func (C *CRTC) LoResMode(X int, Y int) {
 			C.StandardTextModeA2E(X, Y)
 		}
 	} else {
+		C.videoRam = C.VideoMEM[Set_MEM][0][Set_PAGE]
 		screenChar = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK)]
-		if C.RasterCount < 5 {
+		// fmt.Printf("%d ", C.RasterCount)
+		if C.RasterCount < 4 {
+			// if screenLine[C.RasterLine]&0x01 == 0x01 {
+			color = screenChar & 0b00001111
+			// color = screenChar >> 4
+		} else {
 			// color = screenChar & 0b00001111
 			color = screenChar >> 4
-		} else {
-			color = screenChar & 0b00001111
 		}
 		for column := 0; column < 7; column++ {
 			C.graph.DrawPixel(X+column, Y, Colors[color])
@@ -127,14 +133,13 @@ var hiresColor [2][4]color.Color = [2][4]color.Color{
 func (C *CRTC) HiResMode(X int, Y int) {
 
 	if Set_MIXED == 1 && C.RasterLine >= 20 {
-		C.videoRam = C.VideoMEM[Set_MEM][0][Set_PAGE]
 		if C.conf.Model == "Apple2" {
 			C.StandardTextModeA2(X, Y)
 		} else {
 			C.StandardTextModeA2E(X, Y)
 		}
-		C.videoRam = C.VideoMEM[Set_MEM][1][Set_PAGE]
 	} else {
+		C.videoRam = C.VideoMEM[Set_MEM][Set_MODE][Set_PAGE]
 		if C.conf.ColorDisplay {
 			if C.CCLK%2 == 0 {
 				line := boxLine[Y%8]

@@ -42,9 +42,9 @@ func (C *CRTC) Init(mem *mmu.MMU, chargen *mmu.ROM, video *render.SDL2Driver, co
 	C.graph = video
 	C.graph.Init(C.screenWidth, C.screenHeight, 2, "Go Apple II", true, false)
 	C.conf = conf
-	C.VideoPages[0] = [2]uint16{0x0400, 0x2000}
-	C.VideoPages[1] = [2]uint16{0x0400, 0x2000}
-	C.VideoPages[2] = [2]uint16{0x0800, 0x4000}
+	// C.VideoPages[0] = [2]uint16{0x0400, 0x2000}
+	// C.VideoPages[1] = [2]uint16{0x0400, 0x2000}
+	// C.VideoPages[2] = [2]uint16{0x0800, 0x4000}
 
 	C.charRom = chargen.Buff
 
@@ -81,12 +81,10 @@ func (C *CRTC) Init(mem *mmu.MMU, chargen *mmu.ROM, video *render.SDL2Driver, co
 
 func (C *CRTC) SetTexMode() {
 	Set_MODE = 0
-	C.videoRam = C.VideoMEM[Set_MEM][Set_MODE][Set_PAGE]
 	if C.conf.Model == "Apple2" {
 		C.videoMode = (*CRTC).StandardTextModeA2
 	} else {
 		if Set_80COL == 1 {
-			C.videoAux = C.VideoMEM[1][Set_MODE][Set_PAGE]
 			C.videoMode = (*CRTC).Standard80ColTextMode
 		} else {
 			C.videoMode = (*CRTC).StandardTextModeA2E
@@ -115,7 +113,6 @@ func (C *CRTC) Set80Cols() {
 
 func (C *CRTC) SetGraphMode() {
 	Set_MODE = 1
-	C.videoRam = C.VideoMEM[Set_MEM][Set_MODE][Set_PAGE]
 	if Set_HIRES == 1 {
 		C.videoMode = (*CRTC).HiResMode
 	} else {
@@ -133,7 +130,6 @@ func (C *CRTC) SetFullMode() {
 
 func (C *CRTC) SetLoResMode() {
 	Set_HIRES = 0
-	C.videoRam = C.VideoMEM[Set_MEM][Set_MODE][Set_PAGE]
 	if Set_MODE == 1 {
 		C.videoMode = (*CRTC).LoResMode
 	}
@@ -141,7 +137,6 @@ func (C *CRTC) SetLoResMode() {
 
 func (C *CRTC) SetHiResMode() {
 	Set_HIRES = 1
-	C.videoRam = C.VideoMEM[Set_MEM][Set_MODE][Set_PAGE]
 	if Set_MODE == 1 {
 		C.videoMode = (*CRTC).HiResMode
 	}
@@ -149,14 +144,10 @@ func (C *CRTC) SetHiResMode() {
 
 func (C *CRTC) SetPage1() {
 	Set_PAGE = 0
-	C.videoRam = C.VideoMEM[Set_MEM][Set_MODE][Set_PAGE]
-	C.videoAux = C.VideoMEM[1][Set_MODE][Set_PAGE]
 }
 
 func (C *CRTC) SetPage2() {
 	Set_PAGE = 1
-	C.videoRam = C.VideoMEM[Set_MEM][Set_MODE][Set_PAGE]
-	C.videoAux = C.VideoMEM[1][Set_MODE][Set_PAGE]
 }
 
 func (C *CRTC) ToggleMonitorColor() {

@@ -73,6 +73,9 @@ func (C *SoftSwitch) Read(addr uint16) byte {
 			return 0x00
 		}
 
+	case SET80VID:
+		C.Video.Set80Cols()
+		return 0
 	case CLR80VID:
 		C.Video.Set40Cols()
 		return 0
@@ -140,7 +143,10 @@ func (C *SoftSwitch) Read(addr uint16) byte {
 		}
 		return 0x00
 	case RDALTCHAR:
-		return 13
+		if is_ALTCHAR {
+			return 0x80
+		}
+		return 0x00
 	case RDVBL:
 		return C.Video.VBL
 

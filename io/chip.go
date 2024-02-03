@@ -19,6 +19,7 @@ var (
 	is_ALT_ZP  bool = false
 	is_HIRES   bool = false
 	is_PAGE2   bool = false
+	is_ALTCHAR bool = false
 )
 
 type SoftSwitch struct {
