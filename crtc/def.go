@@ -78,7 +78,6 @@ type CRTC struct {
 	TextColor   color.Color
 	VBL         byte
 
-	VideoPages [3][2]uint16
 	VideoMEM   [2][2][2][]byte
 	// videoBase  uint16
 	// pageSize   uint16

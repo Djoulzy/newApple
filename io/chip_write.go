@@ -19,6 +19,10 @@ func (C *SoftSwitch) Write(addr uint16, val byte) {
 		Is_Keypressed = false
 		C.Buff[KBD] = 0
 
+	case CLRALTCHAR:
+		is_ALTCHAR = false
+	case SETALTCHAR:
+		is_ALTCHAR = true
 	case TXTCLR:
 		C.Video.SetGraphMode()
 	case TXTSET:
