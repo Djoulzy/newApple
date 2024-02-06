@@ -39,9 +39,9 @@ func (C *CRTC) StandardTextModeA2(X int, Y int) {
 	for column := 0; column < 7; column++ {
 		bit := byte(0b01000000 >> column)
 		if pixelData&bit == bit {
-			C.graph.DrawPixel(X+column, Y, C.TextColor)
+			C.graph.DrawSquarePixel(X+column, Y, C.TextColor)
 		} else {
-			C.graph.DrawPixel(X+column, Y, Colors[Black])
+			C.graph.DrawSquarePixel(X+column, Y, Colors[Black])
 		}
 	}
 }
@@ -51,33 +51,37 @@ func (C *CRTC) StandardTextModeA2(X int, Y int) {
 //////////////////////////////////////////////////////////////////////
 
 func (C *CRTC) Standard80ColTextMode(X int, Y int) {
-	screenChar = C.videoAux[screenLine[C.RasterLine]+uint16(C.CCLK/2)]
+	// AUX Mem
+	C.videoRam = C.VideoMEM[1][0][Set_PAGE]
+	screenChar = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK>>1)]
 	pixelData = C.charRom[uint16(screenChar)<<3+uint16(C.RasterCount)]
 	pixelData = ^pixelData
 
 	for column := 0; column < 7; column++ {
 		bit := byte(0b00000001 << column)
 		if pixelData&bit == bit {
-			C.graph.DrawPixel(X+column, Y, C.TextColor)
-			C.graph.DrawPixel(X+column, Y+1, C.TextColor)
+			C.graph.DrawDoubleHeightPixel(X+column, Y, C.TextColor)
+			// C.graph.DrawPixel(X+column, Y+1, C.TextColor)
 		} else {
-			C.graph.DrawPixel(X+column, Y, Colors[Black])
-			C.graph.DrawPixel(X+column, Y+1, Colors[Black])
+			C.graph.DrawDoubleHeightPixel(X+column, Y, Colors[Black])
+			// C.graph.DrawPixel(X+column, Y+1, Colors[Black])
 		}
 	}
 
-	screenChar = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK/2)]
+	// MAIN Mem
+	C.videoRam = C.VideoMEM[0][0][Set_PAGE]
+	screenChar = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK>>1)]
 	pixelData = C.charRom[uint16(screenChar)<<3+uint16(C.RasterCount)]
 	pixelData = ^pixelData
 
 	for column := 0; column < 7; column++ {
 		bit := byte(0b00000001 << column)
 		if pixelData&bit == bit {
-			C.graph.DrawPixel(X+7+column, Y, C.TextColor)
-			C.graph.DrawPixel(X+7+column, Y+1, C.TextColor)
+			C.graph.DrawDoubleHeightPixel(X+7+column, Y, C.TextColor)
+			// C.graph.DrawPixel(X+7+column, Y+1, C.TextColor)
 		} else {
-			C.graph.DrawPixel(X+7+column, Y, Colors[Black])
-			C.graph.DrawPixel(X+7+column, Y+1, Colors[Black])
+			C.graph.DrawDoubleHeightPixel(X+7+column, Y, Colors[Black])
+			// C.graph.DrawPixel(X+7+column, Y+1, Colors[Black])
 		}
 	}
 }
@@ -91,9 +95,9 @@ func (C *CRTC) StandardTextModeA2E(X int, Y int) {
 	for column := 0; column < 7; column++ {
 		bit := byte(0b00000001 << column)
 		if pixelData&bit == bit {
-			C.graph.DrawPixel(X+column, Y, C.TextColor)
+			C.graph.DrawSquarePixel(X+column, Y, C.TextColor)
 		} else {
-			C.graph.DrawPixel(X+column, Y, Colors[Black])
+			C.graph.DrawSquarePixel(X+column, Y, Colors[Black])
 		}
 	}
 }
@@ -120,7 +124,7 @@ func (C *CRTC) LoResMode(X int, Y int) {
 			color = screenChar >> 4
 		}
 		for column := 0; column < 7; column++ {
-			C.graph.DrawPixel(X+column, Y, Colors[color])
+			C.graph.DrawSquarePixel(X+column, Y, Colors[color])
 		}
 	}
 }
@@ -154,12 +158,12 @@ func (C *CRTC) HiResMode(X int, Y int) {
 				hiresPixels[5] = (pixelData & 0b01100000) >> 5
 				hiresPixels[6] = (pixelData & 0b01000000) >> 6
 				for i := 0; i < 3; i++ {
-					C.graph.DrawPixel(X+i*2, Y, hiresColor[colMode][hiresPixels[i*2]])
+					C.graph.DrawSquarePixel(X+i*2, Y, hiresColor[colMode][hiresPixels[i*2]])
 					// C.graph.DrawPixel(X+i*2+1, Y, hiresColor[colMode][hiresPixels[i*2+1]])
 					if (hiresPixels[i*2+1] != 0x00) && (hiresPixels[i*2+1] != 0b00000011) {
-						C.graph.DrawPixel(X+(i*2)+1, Y, hiresColor[colMode][hiresPixels[i*2]])
+						C.graph.DrawSquarePixel(X+(i*2)+1, Y, hiresColor[colMode][hiresPixels[i*2]])
 					} else {
-						C.graph.DrawPixel(X+(i*2)+1, Y, hiresColor[colMode][hiresPixels[i*2+1]])
+						C.graph.DrawSquarePixel(X+(i*2)+1, Y, hiresColor[colMode][hiresPixels[i*2+1]])
 					}
 				}
 
@@ -175,12 +179,12 @@ func (C *CRTC) HiResMode(X int, Y int) {
 				hiresPixels[13] = (pixelData & 0b01100000) >> 5
 
 				for i := 3; i < 7; i++ {
-					C.graph.DrawPixel(X+i*2, Y, hiresColor[colMode][hiresPixels[i*2]])
+					C.graph.DrawSquarePixel(X+i*2, Y, hiresColor[colMode][hiresPixels[i*2]])
 					// C.graph.DrawPixel(X+i*2+1, Y, hiresColor[colMode][hiresPixels[i*2+1]])
 					if (hiresPixels[i*2+1] != 0x00) && (hiresPixels[i*2+1] != 0b00000011) {
-						C.graph.DrawPixel(X+(i*2)+1, Y, hiresColor[colMode][hiresPixels[i*2]])
+						C.graph.DrawSquarePixel(X+(i*2)+1, Y, hiresColor[colMode][hiresPixels[i*2]])
 					} else {
-						C.graph.DrawPixel(X+(i*2)+1, Y, hiresColor[colMode][hiresPixels[i*2+1]])
+						C.graph.DrawSquarePixel(X+(i*2)+1, Y, hiresColor[colMode][hiresPixels[i*2+1]])
 					}
 				}
 			}
@@ -190,9 +194,9 @@ func (C *CRTC) HiResMode(X int, Y int) {
 			for column := 0; column < 7; column++ {
 				bit := byte(0b00000001 << column)
 				if pixelData&bit == bit {
-					C.graph.DrawPixel(X+column, Y, C.TextColor)
+					C.graph.DrawSquarePixel(X+column, Y, C.TextColor)
 				} else {
-					C.graph.DrawPixel(X+column, Y, Colors[Black])
+					C.graph.DrawSquarePixel(X+column, Y, Colors[Black])
 				}
 			}
 		}

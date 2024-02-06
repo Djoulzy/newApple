@@ -36,11 +36,12 @@ func (C *CRTC) Init(mem *mmu.MMU, chargen *mmu.ROM, video *render.SDL2Driver, co
 	C.Reg[R12] = 0
 	C.Reg[R13] = 0
 
+	C.pixelSize = 1
 	C.screenWidth = int(C.Reg[R1]) * 7
 	C.screenHeight = int(C.Reg[R6]) * 8 // * 2
 
 	C.graph = video
-	C.graph.Init(C.screenWidth, C.screenHeight, 2, "Go Apple II", true, false)
+	C.graph.Init(520, 384, 1, "Go Apple II", true, false)
 	C.conf = conf
 	// C.VideoPages[0] = [2]uint16{0x0400, 0x2000}
 	// C.VideoPages[1] = [2]uint16{0x0400, 0x2000}
@@ -85,8 +86,14 @@ func (C *CRTC) SetTexMode() {
 		C.videoMode = (*CRTC).StandardTextModeA2
 	} else {
 		if Set_80COL == 1 {
+			C.Reg[R0] = 126
+			C.Reg[R1] = 80
+			C.pixelSize = 2
 			C.videoMode = (*CRTC).Standard80ColTextMode
 		} else {
+			C.Reg[R0] = 63
+			C.Reg[R1] = 40
+			C.pixelSize = 1
 			C.videoMode = (*CRTC).StandardTextModeA2E
 		}
 	}
@@ -94,21 +101,26 @@ func (C *CRTC) SetTexMode() {
 
 func (C *CRTC) Set40Cols() {
 	Set_80COL = 0
-	// C.videoRam = C.VideoMEM[Set_MEM][Set_MODE][Set_PAGE]
-	// if C.conf.Model == "Apple2" {
-	// 	C.videoMode = (*CRTC).StandardTextModeA2
-	// } else {
-	// 	C.videoMode = (*CRTC).StandardTextModeA2E
-	// }
+	C.Reg[R0] = 63
+	C.Reg[R1] = 40
+	C.pixelSize = 1
+	if C.conf.Model == "Apple2" {
+		C.videoMode = (*CRTC).StandardTextModeA2
+	} else {
+		C.videoMode = (*CRTC).StandardTextModeA2E
+	}
 }
 
 func (C *CRTC) Set80Cols() {
 	Set_80COL = 1
+
 	// C.videoRam = C.VideoMEM[Set_MEM][Set_MODE][Set_PAGE]
-	// if C.conf.Model == "Apple2e" {
-	// 	C.videoAux = C.VideoMEM[1][Set_MODE][Set_PAGE]
-	// 	C.videoMode = (*CRTC).Standard80ColTextMode
-	// }
+	if Set_MODE == 0 && C.conf.Model == "Apple2e" {
+		C.Reg[R0] = 126
+		C.Reg[R1] = 80
+		C.pixelSize = 2
+		C.videoMode = (*CRTC).Standard80ColTextMode
+	}
 }
 
 func (C *CRTC) SetGraphMode() {
@@ -226,11 +238,11 @@ func (C *CRTC) Run() bool {
 		C.videoMode(C, C.BeamX, C.BeamY)
 	}
 
-	C.CCLK++ // += 2
+	C.CCLK += C.pixelSize
 	// C.CCLK += 2
 	if C.CCLK == C.Reg[R0] {
 		C.CCLK = 0
-		C.BeamY++ // += 2
+		C.BeamY++
 		// C.BeamY += 2
 		if C.BeamY >= C.screenHeight {
 			C.BeamY = 0

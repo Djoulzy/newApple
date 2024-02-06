@@ -68,6 +68,7 @@ type CRTC struct {
 	Reg          [18]byte
 	screenWidth  int
 	screenHeight int
+	pixelSize    byte
 
 	conf        *config.ConfigData
 	BeamX       int
@@ -78,7 +79,7 @@ type CRTC struct {
 	TextColor   color.Color
 	VBL         byte
 
-	VideoMEM   [2][2][2][]byte
+	VideoMEM [2][2][2][]byte
 	// videoBase  uint16
 	// pageSize   uint16
 
