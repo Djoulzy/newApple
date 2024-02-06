@@ -41,7 +41,7 @@ func (C *CRTC) Init(mem *mmu.MMU, chargen *mmu.ROM, video *render.SDL2Driver, co
 	C.screenHeight = int(C.Reg[R6]) * 8 // * 2
 
 	C.graph = video
-	C.graph.Init(520, 384, 1, "Go Apple II", true, false)
+	C.graph.Init(560, 384, 1, "Go Apple II", true, false)
 	C.conf = conf
 	// C.VideoPages[0] = [2]uint16{0x0400, 0x2000}
 	// C.VideoPages[1] = [2]uint16{0x0400, 0x2000}
@@ -86,14 +86,8 @@ func (C *CRTC) SetTexMode() {
 		C.videoMode = (*CRTC).StandardTextModeA2
 	} else {
 		if Set_80COL == 1 {
-			C.Reg[R0] = 126
-			C.Reg[R1] = 80
-			C.pixelSize = 2
 			C.videoMode = (*CRTC).Standard80ColTextMode
 		} else {
-			C.Reg[R0] = 63
-			C.Reg[R1] = 40
-			C.pixelSize = 1
 			C.videoMode = (*CRTC).StandardTextModeA2E
 		}
 	}
@@ -104,31 +98,31 @@ func (C *CRTC) Set40Cols() {
 	C.Reg[R0] = 63
 	C.Reg[R1] = 40
 	C.pixelSize = 1
-	if C.conf.Model == "Apple2" {
-		C.videoMode = (*CRTC).StandardTextModeA2
+	if Set_MODE == 0 {
+		C.SetTexMode()
 	} else {
-		C.videoMode = (*CRTC).StandardTextModeA2E
+		C.SetGraphMode()
 	}
 }
 
 func (C *CRTC) Set80Cols() {
 	Set_80COL = 1
-
-	// C.videoRam = C.VideoMEM[Set_MEM][Set_MODE][Set_PAGE]
-	if Set_MODE == 0 && C.conf.Model == "Apple2e" {
-		C.Reg[R0] = 126
-		C.Reg[R1] = 80
-		C.pixelSize = 2
-		C.videoMode = (*CRTC).Standard80ColTextMode
+	C.Reg[R0] = 126
+	C.Reg[R1] = 80
+	C.pixelSize = 2
+	if Set_MODE == 0 {
+		C.SetTexMode()
+	} else {
+		C.SetGraphMode()
 	}
 }
 
 func (C *CRTC) SetGraphMode() {
 	Set_MODE = 1
 	if Set_HIRES == 1 {
-		C.videoMode = (*CRTC).HiResMode
+		C.SetHiResMode()
 	} else {
-		C.videoMode = (*CRTC).LoResMode
+		C.SetLoResMode()
 	}
 }
 
@@ -143,14 +137,22 @@ func (C *CRTC) SetFullMode() {
 func (C *CRTC) SetLoResMode() {
 	Set_HIRES = 0
 	if Set_MODE == 1 {
-		C.videoMode = (*CRTC).LoResMode
+		if Set_80COL == 1 {
+			// TODO
+		} else {
+			C.videoMode = (*CRTC).LoResMode
+		}
 	}
 }
 
 func (C *CRTC) SetHiResMode() {
 	Set_HIRES = 1
 	if Set_MODE == 1 {
-		C.videoMode = (*CRTC).HiResMode
+		if Set_80COL == 1 {
+			// TODO
+		} else {
+			C.videoMode = (*CRTC).HiResMode
+		}
 	}
 }
 
