@@ -2,8 +2,8 @@ github.com/Djoulzy/Tools/clog v0.0.0-20220609190146-71af779f6ddc h1:csq0zYn1hpV+
 github.com/Djoulzy/Tools/clog v0.0.0-20220609190146-71af779f6ddc/go.mod h1:vpiS+fdl4f0KXBYgS8fT/bDBQc2L3XpFEroPKdL5WNA=
 github.com/Djoulzy/Tools/confload v0.0.0-20220609190146-71af779f6ddc h1:0bKH2dFrrsCyTNqtXPe3KMGx55K5EkS5XiXYRbRM6sI=
 github.com/Djoulzy/Tools/confload v0.0.0-20220609190146-71af779f6ddc/go.mod h1:V1tjgiskN5pmqi06uqzCKXj6NoH9J+rLb6gccUOPh7A=
-github.com/Djoulzy/emutools/charset v0.0.0-20240123173627-4140dd715cad h1:s0Blqx74x1+OvDuBgxr0EUSQai7/e6zQGYYQDYgpf9o=
-github.com/Djoulzy/emutools/charset v0.0.0-20240123173627-4140dd715cad/go.mod h1:nHh/Oz8MYyMM1G6/QcjV+m/5fmzwHNLDom7PrgBqsQo=
+github.com/Djoulzy/emutools/charset v0.0.0-20240201175417-590543867037 h1:4eZRnPXJoZYsQzdWOgG04glw85v7oTInrSkXwFBEkYM=
+github.com/Djoulzy/emutools/charset v0.0.0-20240201175417-590543867037/go.mod h1:nHh/Oz8MYyMM1G6/QcjV+m/5fmzwHNLDom7PrgBqsQo=
 github.com/albenik/bcd v0.0.0-20170831201648-635201416bc7 h1:m3Ayfs5OcAlIMEdLIQKubBsVLGee4YMUr14+d1256WE=
 github.com/albenik/bcd v0.0.0-20170831201648-635201416bc7/go.mod h1:QIAMbrwsnQZ2ES3G26RubSrDB5SPyzsp9Hts5NJdTrI=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
@@ -26,8 +26,8 @@ github.com/stretchr/testify v1.8.3 h1:RP3t2pwF7cMEbC1dqtB6poj3niw/9gnV4Cjg5oW5gt
 github.com/stretchr/testify v1.8.3/go.mod h1:sz/lmYIOXD/1dqDmKjjqLyZ2RngseejIcXlSw2iwfAo=
 github.com/veandco/go-sdl2 v0.4.38 h1:lx8syOA2ccXlgViYkQe2Kn/4xt+p9mdd1Qc/yYMrmSo=
 github.com/veandco/go-sdl2 v0.4.38/go.mod h1:OROqMhHD43nT4/i9crJukyVecjPNYYuCofep6SNiAjY=
-golang.org/x/exp v0.0.0-20240119083558-1b970713d09a h1:Q8/wZp0KX97QFTc2ywcOE0YRjZPVIx+MXInMzdvQqcA=
-golang.org/x/exp v0.0.0-20240119083558-1b970713d09a/go.mod h1:idGWGoKP1toJGkd5/ig9ZLuPcZBC3ewk7SzmH0uou08=
+golang.org/x/exp v0.0.0-20240205201215-2c58cdc269a3 h1:/RIbNt/Zr7rVhIkQhooTxCxFcdWLGIKnZA4IXNFSrvo=
+golang.org/x/exp v0.0.0-20240205201215-2c58cdc269a3/go.mod h1:idGWGoKP1toJGkd5/ig9ZLuPcZBC3ewk7SzmH0uou08=
 golang.org/x/image v0.15.0 h1:kOELfmgrmJlw4Cdb7g/QGuB3CvDrXbqEIww/pNtNBm8=
 golang.org/x/image v0.15.0/go.mod h1:HUYqC05R2ZcZ3ejNQsIHQDQiwWM4JBqmm6MKANTp4LE=
 golang.org/x/sys v0.0.0-20190222072716-a9d3bda3a223/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=
