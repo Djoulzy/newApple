@@ -61,10 +61,8 @@ func (C *CRTC) Standard80ColTextMode(X int, Y int) {
 		bit := byte(0b00000001 << column)
 		if pixelData&bit == bit {
 			C.graph.DrawDoubleHeightPixel(X+column, Y, C.TextColor)
-			// C.graph.DrawPixel(X+column, Y+1, C.TextColor)
 		} else {
 			C.graph.DrawDoubleHeightPixel(X+column, Y, Colors[Black])
-			// C.graph.DrawPixel(X+column, Y+1, Colors[Black])
 		}
 	}
 
@@ -78,10 +76,8 @@ func (C *CRTC) Standard80ColTextMode(X int, Y int) {
 		bit := byte(0b00000001 << column)
 		if pixelData&bit == bit {
 			C.graph.DrawDoubleHeightPixel(X+7+column, Y, C.TextColor)
-			// C.graph.DrawPixel(X+7+column, Y+1, C.TextColor)
 		} else {
 			C.graph.DrawDoubleHeightPixel(X+7+column, Y, Colors[Black])
-			// C.graph.DrawPixel(X+7+column, Y+1, Colors[Black])
 		}
 	}
 }
@@ -114,17 +110,47 @@ func (C *CRTC) LoResMode(X int, Y int) {
 	} else {
 		C.videoRam = C.VideoMEM[Set_MEM][0][Set_PAGE]
 		screenChar = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK)]
-		// fmt.Printf("%d ", C.RasterCount)
 		if C.RasterCount < 4 {
-			// if screenLine[C.RasterLine]&0x01 == 0x01 {
 			color = screenChar & 0b00001111
-			// color = screenChar >> 4
 		} else {
-			// color = screenChar & 0b00001111
 			color = screenChar >> 4
 		}
 		for column := 0; column < 7; column++ {
 			C.graph.DrawSquarePixel(X+column, Y, Colors[color])
+		}
+	}
+}
+
+func (C *CRTC) LoRes80ColMode(X int, Y int) {
+	var color byte
+
+	if Set_MIXED == 1 && C.RasterLine >= 20 {
+		C.Standard80ColTextMode(X, Y)
+	} else {
+		// AUX Mem
+		C.videoRam = C.VideoMEM[1][0][Set_PAGE]
+		screenChar = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK>>1)]
+
+		if C.RasterCount < 4 {
+			color = screenChar & 0b00001111
+		} else {
+			color = screenChar >> 4
+		}
+		for column := 0; column < 7; column++ {
+			C.graph.DrawDoubleHeightPixel(X+column, Y, Colors[color])
+		}
+
+		// MAIN Mem
+		C.videoRam = C.VideoMEM[0][0][Set_PAGE]
+		screenChar = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK>>1)]
+
+		if C.RasterCount < 4 {
+			color = screenChar & 0b00001111
+		} else {
+			color = screenChar >> 4
+		}
+		for column := 0; column < 7; column++ {
+			C.graph.DrawDoubleHeightPixel(X+7+column, Y, Colors[color])
 		}
 	}
 }

@@ -138,7 +138,7 @@ func (C *CRTC) SetLoResMode() {
 	Set_HIRES = 0
 	if Set_MODE == 1 {
 		if Set_80COL == 1 {
-			// TODO
+			C.videoMode = (*CRTC).LoRes80ColMode
 		} else {
 			C.videoMode = (*CRTC).LoResMode
 		}
