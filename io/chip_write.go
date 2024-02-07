@@ -9,12 +9,14 @@ func (C *SoftSwitch) Write(addr uint16, val byte) {
 	switch addr {
 	case CLR80VID:
 		C.Video.Set40Cols()
+		is_80COL = false
 	case SET80VID:
 		C.Video.Set80Cols()
+		is_80COL = true
 	case STOREOFF:
-		is_80Store = false
+		is_STORE = false
 	case STOREON:
-		is_80Store = true
+		is_STORE = true
 	case KBDSTRB:
 		Is_Keypressed = false
 		C.Buff[KBD] = 0
@@ -38,7 +40,7 @@ func (C *SoftSwitch) Write(addr uint16, val byte) {
 		is_HIRES = true
 		C.Video.SetHiResMode()
 	case TXTPAGE1:
-		if !is_80Store {
+		if !is_STORE {
 			C.Video.SetPage1()
 		} else {
 			C.Mmu.Mount("MN_TXT", "MN_TXT")
@@ -48,7 +50,7 @@ func (C *SoftSwitch) Write(addr uint16, val byte) {
 		}
 		is_PAGE2 = false
 	case TXTPAGE2:
-		if !is_80Store {
+		if !is_STORE {
 			C.Video.SetPage2()
 		} else {
 			C.Mmu.Mount("AX_TXT", "AX_TXT")
@@ -62,7 +64,7 @@ func (C *SoftSwitch) Write(addr uint16, val byte) {
 		C.Mmu.MountReader("MN___1")
 		C.Mmu.MountReader("MN___2")
 		C.Mmu.MountReader("MN___3")
-		if is_80Store {
+		if is_STORE {
 			if !is_HIRES {
 				C.Mmu.MountReader("MN_HGR")
 			}
@@ -74,7 +76,7 @@ func (C *SoftSwitch) Write(addr uint16, val byte) {
 		C.Mmu.MountReader("AX___1")
 		C.Mmu.MountReader("AX___2")
 		C.Mmu.MountReader("AX___3")
-		if is_80Store {
+		if is_STORE {
 			if !is_HIRES {
 				C.Mmu.MountReader("AX_HGR")
 			}
@@ -86,7 +88,7 @@ func (C *SoftSwitch) Write(addr uint16, val byte) {
 		C.Mmu.MountWriter("MN___1")
 		C.Mmu.MountWriter("MN___2")
 		C.Mmu.MountWriter("MN___3")
-		if is_80Store {
+		if is_STORE {
 			if !is_HIRES {
 				C.Mmu.MountWriter("MN_HGR")
 			}
@@ -98,7 +100,7 @@ func (C *SoftSwitch) Write(addr uint16, val byte) {
 		C.Mmu.MountWriter("AX___1")
 		C.Mmu.MountWriter("AX___2")
 		C.Mmu.MountWriter("AX___3")
-		if is_80Store {
+		if is_STORE {
 			if !is_HIRES {
 				C.Mmu.MountWriter("AX_HGR")
 			}

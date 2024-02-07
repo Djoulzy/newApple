@@ -15,11 +15,12 @@ var (
 	is_BANK2   bool = false
 	is_C3_INT  bool = true
 	is_CX_INT  bool = false
-	is_80Store bool = false
+	is_STORE   bool = false
 	is_ALT_ZP  bool = false
 	is_HIRES   bool = false
 	is_PAGE2   bool = false
 	is_ALTCHAR bool = false
+	is_80COL   bool = false
 )
 
 type SoftSwitch struct {

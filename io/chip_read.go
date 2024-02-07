@@ -10,17 +10,17 @@ func (C *SoftSwitch) Read(addr uint16) byte {
 	switch addr {
 	case RD80VID:
 		// PRINT (PEEK(49183))
-		if crtc.Set_80COL == 1 {
+		if is_80COL {
 			return 0x8D
 		}
 		return 0x00
 	case KBD:
 		return C.Buff[KBD]
 	case STOREON:
-		is_80Store = true
+		is_STORE = true
 		return 0x8D
 	case RD80STORE:
-		if is_80Store {
+		if is_STORE {
 			return 0x8D
 		}
 		return 0x00
@@ -75,9 +75,11 @@ func (C *SoftSwitch) Read(addr uint16) byte {
 
 	case SET80VID:
 		C.Video.Set80Cols()
+		is_80COL = true
 		return 0
 	case CLR80VID:
 		C.Video.Set40Cols()
+		is_80COL = false
 		return 0
 	case TXTCLR:
 		C.Video.SetGraphMode()
@@ -100,7 +102,7 @@ func (C *SoftSwitch) Read(addr uint16) byte {
 		C.Video.SetHiResMode()
 		return 0
 	case TXTPAGE1:
-		if !is_80Store {
+		if !is_STORE {
 			C.Video.SetPage1()
 		} else {
 			C.Mmu.Mount("MN_TXT", "MN_TXT")
@@ -111,7 +113,7 @@ func (C *SoftSwitch) Read(addr uint16) byte {
 		is_PAGE2 = false
 		return 0
 	case TXTPAGE2:
-		if !is_80Store {
+		if !is_STORE {
 			C.Video.SetPage2()
 		} else {
 			C.Mmu.Mount("AX_TXT", "AX_TXT")
