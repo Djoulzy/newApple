@@ -24,8 +24,7 @@ var boxLine = [8]uint16{0x0000, 0x0400, 0x0800, 0x0C00, 0x1000, 0x1400, 0x1800, 
 //
 // ////////////////////////////////////////////////////////////////////
 func (C *CRTC) StandardTextModeA2(X int, Y int) {
-	C.videoRam = C.VideoMEM[Set_MEM][0][Set_PAGE]
-	screenChar = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK)]
+	screenChar = C.videoMainMem[screenLine[C.RasterLine]+uint16(C.CCLK)]
 	pixelData = C.charRom[uint16(screenChar)<<3+uint16(C.RasterCount)]
 	switch screenChar & 0b11000000 {
 	case 0:
@@ -52,8 +51,7 @@ func (C *CRTC) StandardTextModeA2(X int, Y int) {
 
 func (C *CRTC) Standard80ColTextMode(X int, Y int) {
 	// AUX Mem
-	C.videoRam = C.VideoMEM[1][0][Set_PAGE]
-	screenChar = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK>>1)]
+	screenChar = C.videoAuxMem[screenLine[C.RasterLine]+uint16(C.CCLK>>1)]
 	pixelData = C.charRom[uint16(screenChar)<<3+uint16(C.RasterCount)]
 	pixelData = ^pixelData
 
@@ -67,8 +65,7 @@ func (C *CRTC) Standard80ColTextMode(X int, Y int) {
 	}
 
 	// MAIN Mem
-	C.videoRam = C.VideoMEM[0][0][Set_PAGE]
-	screenChar = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK>>1)]
+	screenChar = C.videoMainMem[screenLine[C.RasterLine]+uint16(C.CCLK>>1)]
 	pixelData = C.charRom[uint16(screenChar)<<3+uint16(C.RasterCount)]
 	pixelData = ^pixelData
 
@@ -83,8 +80,7 @@ func (C *CRTC) Standard80ColTextMode(X int, Y int) {
 }
 
 func (C *CRTC) StandardTextModeA2E(X int, Y int) {
-	C.videoRam = C.VideoMEM[Set_MEM][0][Set_PAGE]
-	screenChar = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK)]
+	screenChar = C.videoMainMem[screenLine[C.RasterLine]+uint16(C.CCLK)]
 	pixelData = C.charRom[uint16(screenChar)<<3+uint16(C.RasterCount)]
 	pixelData = ^pixelData
 
@@ -108,8 +104,7 @@ func (C *CRTC) LoResMode(X int, Y int) {
 			C.StandardTextModeA2E(X, Y)
 		}
 	} else {
-		C.videoRam = C.VideoMEM[Set_MEM][0][Set_PAGE]
-		screenChar = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK)]
+		screenChar = C.videoMainMem[screenLine[C.RasterLine]+uint16(C.CCLK)]
 		if C.RasterCount < 4 {
 			color = screenChar & 0b00001111
 		} else {
@@ -128,9 +123,7 @@ func (C *CRTC) LoRes80ColMode(X int, Y int) {
 		C.Standard80ColTextMode(X, Y)
 	} else {
 		// AUX Mem
-		C.videoRam = C.VideoMEM[1][0][Set_PAGE]
-		screenChar = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK>>1)]
-
+		screenChar = C.videoAuxMem[screenLine[C.RasterLine]+uint16(C.CCLK>>1)]
 		if C.RasterCount < 4 {
 			color = screenChar & 0b00001111
 		} else {
@@ -141,9 +134,7 @@ func (C *CRTC) LoRes80ColMode(X int, Y int) {
 		}
 
 		// MAIN Mem
-		C.videoRam = C.VideoMEM[0][0][Set_PAGE]
-		screenChar = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK>>1)]
-
+		screenChar = C.videoMainMem[screenLine[C.RasterLine]+uint16(C.CCLK>>1)]
 		if C.RasterCount < 4 {
 			color = screenChar & 0b00001111
 		} else {
@@ -169,11 +160,10 @@ func (C *CRTC) HiResMode(X int, Y int) {
 			C.StandardTextModeA2E(X, Y)
 		}
 	} else {
-		C.videoRam = C.VideoMEM[Set_MEM][Set_MODE][Set_PAGE]
 		if C.conf.ColorDisplay {
 			if C.CCLK%2 == 0 {
 				line := boxLine[Y%8]
-				pixelData = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK)+line]
+				pixelData = C.videoMainMem[screenLine[C.RasterLine]+uint16(C.CCLK)+line]
 
 				colMode := (pixelData & 0b10000000) >> 7
 				hiresPixels[0] = (pixelData & 0b00000011)
@@ -193,7 +183,7 @@ func (C *CRTC) HiResMode(X int, Y int) {
 					}
 				}
 
-				pixelData = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK+1)+line]
+				pixelData = C.videoMainMem[screenLine[C.RasterLine]+uint16(C.CCLK+1)+line]
 				colMode = (pixelData & 0b10000000) >> 7
 				hiresPixels[6] += (pixelData & 0b00000001) << 1
 				hiresPixels[7] = (pixelData & 0b00000011)
@@ -216,7 +206,7 @@ func (C *CRTC) HiResMode(X int, Y int) {
 			}
 		} else {
 			line := boxLine[Y%8]
-			pixelData = C.videoRam[screenLine[C.RasterLine]+uint16(C.CCLK)+line]
+			pixelData = C.videoMainMem[screenLine[C.RasterLine]+uint16(C.CCLK)+line]
 			for column := 0; column < 7; column++ {
 				bit := byte(0b00000001 << column)
 				if pixelData&bit == bit {

@@ -80,17 +80,49 @@ func (C *CRTC) Init(mem *mmu.MMU, chargen *mmu.ROM, video *render.SDL2Driver, co
 	}
 }
 
-func (C *CRTC) SetTexMode() {
-	Set_MODE = 0
+func (C *CRTC) UpdateDisplayMode() {
+	C.videoMainMem = C.VideoMEM[0][Set_MODE][Set_PAGE]
 	if C.conf.Model == "Apple2" {
-		C.videoMode = (*CRTC).StandardTextModeA2
-	} else {
-		if Set_80COL == 1 {
-			C.videoMode = (*CRTC).Standard80ColTextMode
+		if Set_MODE == 0 {
+			C.videoMode = (*CRTC).StandardTextModeA2
 		} else {
-			C.videoMode = (*CRTC).StandardTextModeA2E
+			if Set_HIRES == 0 {
+				C.videoMode = (*CRTC).LoResMode
+			} else {
+				C.videoMode = (*CRTC).HiResMode
+			}
+		}
+	} else {
+		C.videoAuxMem = C.VideoMEM[1][Set_MODE][Set_PAGE]
+		if Set_MODE == 0 {
+			if Set_80COL == 0 {
+				C.videoMode = (*CRTC).StandardTextModeA2E
+			} else {
+				C.videoMode = (*CRTC).Standard80ColTextMode
+			}
+		} else {
+			if Set_HIRES == 0 {
+				if Set_80COL == 0 {
+					fmt.Println("LoResMode")
+					C.videoMode = (*CRTC).LoResMode
+				} else {
+					fmt.Println("LoRes80ColMode")
+					C.videoMode = (*CRTC).LoRes80ColMode
+				}
+			} else {
+				if Set_80COL == 0 {
+					C.videoMode = (*CRTC).HiResMode
+				} else {
+					// TODO: C.videoMode = (*CRTC).DoubleHiResMode
+				}
+			}
 		}
 	}
+}
+
+func (C *CRTC) SetTexMode() {
+	Set_MODE = 0
+	C.UpdateDisplayMode()
 }
 
 func (C *CRTC) Set40Cols() {
@@ -98,11 +130,7 @@ func (C *CRTC) Set40Cols() {
 	C.Reg[R0] = 63
 	C.Reg[R1] = 40
 	C.pixelSize = 1
-	if Set_MODE == 0 {
-		C.SetTexMode()
-	} else {
-		C.SetGraphMode()
-	}
+	C.UpdateDisplayMode()
 }
 
 func (C *CRTC) Set80Cols() {
@@ -110,20 +138,12 @@ func (C *CRTC) Set80Cols() {
 	C.Reg[R0] = 126
 	C.Reg[R1] = 80
 	C.pixelSize = 2
-	if Set_MODE == 0 {
-		C.SetTexMode()
-	} else {
-		C.SetGraphMode()
-	}
+	C.UpdateDisplayMode()
 }
 
 func (C *CRTC) SetGraphMode() {
 	Set_MODE = 1
-	if Set_HIRES == 1 {
-		C.SetHiResMode()
-	} else {
-		C.SetLoResMode()
-	}
+	C.UpdateDisplayMode()
 }
 
 func (C *CRTC) SetMixedMode() {
@@ -136,32 +156,24 @@ func (C *CRTC) SetFullMode() {
 
 func (C *CRTC) SetLoResMode() {
 	Set_HIRES = 0
-	if Set_MODE == 1 {
-		if Set_80COL == 1 {
-			C.videoMode = (*CRTC).LoRes80ColMode
-		} else {
-			C.videoMode = (*CRTC).LoResMode
-		}
-	}
+	C.UpdateDisplayMode()
 }
 
 func (C *CRTC) SetHiResMode() {
 	Set_HIRES = 1
-	if Set_MODE == 1 {
-		if Set_80COL == 1 {
-			// TODO
-		} else {
-			C.videoMode = (*CRTC).HiResMode
-		}
-	}
+	C.UpdateDisplayMode()
 }
 
 func (C *CRTC) SetPage1() {
 	Set_PAGE = 0
+	fmt.Println("Page 1")
+	C.UpdateDisplayMode()
 }
 
 func (C *CRTC) SetPage2() {
 	Set_PAGE = 1
+	fmt.Println("Page 2")
+	C.UpdateDisplayMode()
 }
 
 func (C *CRTC) ToggleMonitorColor() {
