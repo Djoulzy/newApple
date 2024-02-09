@@ -32,6 +32,6 @@ require (
 	github.com/veandco/go-sdl2 v0.4.38 // indirect
 	golang.org/x/exp v0.0.0-20240205201215-2c58cdc269a3 // indirect
 	golang.org/x/image v0.15.0 // indirect
-	golang.org/x/sys v0.16.0 // indirect
+	golang.org/x/sys v0.17.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

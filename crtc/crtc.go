@@ -81,38 +81,46 @@ func (C *CRTC) Init(mem *mmu.MMU, chargen *mmu.ROM, video *render.SDL2Driver, co
 }
 
 func (C *CRTC) UpdateDisplayMode() {
-	C.videoMainMem = C.VideoMEM[0][Set_MODE][Set_PAGE]
+
 	if C.conf.Model == "Apple2" {
 		if Set_MODE == 0 {
+			C.videoMainMem = C.VideoMEM[0][0][Set_PAGE]
 			C.videoMode = (*CRTC).StandardTextModeA2
 		} else {
 			if Set_HIRES == 0 {
+				C.videoMainMem = C.VideoMEM[0][0][Set_PAGE]
 				C.videoMode = (*CRTC).LoResMode
 			} else {
+				C.videoMainMem = C.VideoMEM[0][1][Set_PAGE]
 				C.videoMode = (*CRTC).HiResMode
 			}
 		}
 	} else {
-		C.videoAuxMem = C.VideoMEM[1][Set_MODE][Set_PAGE]
 		if Set_MODE == 0 {
+			C.videoMainMem = C.VideoMEM[0][0][Set_PAGE]
 			if Set_80COL == 0 {
 				C.videoMode = (*CRTC).StandardTextModeA2E
 			} else {
+				C.videoAuxMem = C.VideoMEM[1][0][Set_PAGE]
 				C.videoMode = (*CRTC).Standard80ColTextMode
 			}
 		} else {
 			if Set_HIRES == 0 {
+				C.videoMainMem = C.VideoMEM[0][0][Set_PAGE]
 				if Set_80COL == 0 {
 					fmt.Println("LoResMode")
 					C.videoMode = (*CRTC).LoResMode
 				} else {
 					fmt.Println("LoRes80ColMode")
+					C.videoAuxMem = C.VideoMEM[1][0][Set_PAGE]
 					C.videoMode = (*CRTC).LoRes80ColMode
 				}
 			} else {
+				C.videoMainMem = C.VideoMEM[0][1][Set_PAGE]
 				if Set_80COL == 0 {
 					C.videoMode = (*CRTC).HiResMode
 				} else {
+					C.videoAuxMem = C.VideoMEM[1][1][Set_PAGE]
 					// TODO: C.videoMode = (*CRTC).DoubleHiResMode
 				}
 			}
