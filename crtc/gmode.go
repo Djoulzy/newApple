@@ -218,3 +218,7 @@ func (C *CRTC) HiResMode(X int, Y int) {
 		}
 	}
 }
+
+func (C *CRTC) DoubleHiResMode(X int, Y int) {
+	// TODO
+}

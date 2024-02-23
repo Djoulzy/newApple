@@ -121,7 +121,7 @@ func (C *CRTC) UpdateDisplayMode() {
 					C.videoMode = (*CRTC).HiResMode
 				} else {
 					C.videoAuxMem = C.VideoMEM[1][1][Set_PAGE]
-					// TODO: C.videoMode = (*CRTC).DoubleHiResMode
+					C.videoMode = (*CRTC).DoubleHiResMode
 				}
 			}
 		}
