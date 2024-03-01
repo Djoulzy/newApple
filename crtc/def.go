@@ -5,6 +5,7 @@ import (
 	"newApple/config"
 
 	"github.com/Djoulzy/emutools/render"
+	"github.com/Djoulzy/mmu"
 )
 
 var (
@@ -27,22 +28,41 @@ var (
 )
 
 var Colors [16]color.Color = [16]color.Color{
-	color.RGBA{R: 0, G: 0, B: 0, A: 255},       //black
-	color.RGBA{R: 72, G: 58, B: 211, A: 255},   //red
-	color.RGBA{R: 163, G: 30, B: 9, A: 255},    //dk blue
-	color.RGBA{R: 221, G: 84, B: 213, A: 255},  //purple
-	color.RGBA{R: 57, G: 133, B: 54, A: 255},   //dk green
-	color.RGBA{R: 104, G: 104, B: 104, A: 255}, //gray
-	color.RGBA{R: 246, G: 68, B: 51, A: 255},   //med blue
-	color.RGBA{R: 249, G: 185, B: 134, A: 255}, //lt blue
-	color.RGBA{R: 33, G: 106, B: 147, A: 255},  //brown
-	color.RGBA{R: 49, G: 131, B: 240, A: 255},  //orange
-	color.RGBA{R: 184, G: 184, B: 184, A: 255}, //grey
-	color.RGBA{R: 157, G: 175, B: 244, A: 255}, //pink
-	color.RGBA{R: 64, G: 219, B: 97, A: 255},   //lt green
-	color.RGBA{R: 82, G: 251, B: 254, A: 255},  //yellow
-	color.RGBA{R: 210, G: 247, B: 134, A: 255}, //aqua
-	color.RGBA{R: 255, G: 255, B: 255, A: 255}, //white
+	color.RGBA{R: 0, G: 0, B: 0, A: 255},       //0  black
+	color.RGBA{R: 72, G: 58, B: 211, A: 255},   //1  red magenta
+	color.RGBA{R: 163, G: 30, B: 9, A: 255},    //2  dk blue
+	color.RGBA{R: 221, G: 84, B: 213, A: 255},  //3  purple
+	color.RGBA{R: 57, G: 133, B: 54, A: 255},   //4  dk green
+	color.RGBA{R: 104, G: 104, B: 104, A: 255}, //5  gray
+	color.RGBA{R: 246, G: 68, B: 51, A: 255},   //6  med blue
+	color.RGBA{R: 249, G: 185, B: 134, A: 255}, //7  lt blue
+	color.RGBA{R: 33, G: 106, B: 147, A: 255},  //8  brown
+	color.RGBA{R: 49, G: 131, B: 240, A: 255},  //9  orange
+	color.RGBA{R: 184, G: 184, B: 184, A: 255}, //10 grey2
+	color.RGBA{R: 157, G: 175, B: 244, A: 255}, //11 pink
+	color.RGBA{R: 64, G: 219, B: 97, A: 255},   //12 lt green
+	color.RGBA{R: 82, G: 251, B: 254, A: 255},  //13 yellow
+	color.RGBA{R: 210, G: 247, B: 134, A: 255}, //14 aqua
+	color.RGBA{R: 255, G: 255, B: 255, A: 255}, //15 white
+}
+
+var ColorsAux [16]color.Color = [16]color.Color{
+	color.RGBA{R: 0, G: 0, B: 0, A: 255},       //0  black
+	color.RGBA{R: 163, G: 30, B: 9, A: 255},    //1  dk blue
+	color.RGBA{R: 57, G: 133, B: 54, A: 255},   //2  dk green
+	color.RGBA{R: 246, G: 68, B: 51, A: 255},   //3  med blue
+	color.RGBA{R: 33, G: 106, B: 147, A: 255},  //4  brown
+	color.RGBA{R: 184, G: 184, B: 184, A: 255}, //5  grey2
+	color.RGBA{R: 64, G: 219, B: 97, A: 255},   //6  lt green
+	color.RGBA{R: 210, G: 247, B: 134, A: 255}, //7  aqua
+	color.RGBA{R: 72, G: 58, B: 211, A: 255},   //8  red magenta
+	color.RGBA{R: 221, G: 84, B: 213, A: 255},  //9  purple
+	color.RGBA{R: 104, G: 104, B: 104, A: 255}, //10 gray
+	color.RGBA{R: 249, G: 185, B: 134, A: 255}, //11 lt blue
+	color.RGBA{R: 49, G: 131, B: 240, A: 255},  //12 orange
+	color.RGBA{R: 157, G: 175, B: 244, A: 255}, //13 pink
+	color.RGBA{R: 82, G: 251, B: 254, A: 255},  //14 yellow
+	color.RGBA{R: 255, G: 255, B: 255, A: 255}, //15 white
 }
 
 // 	{R: 0, G: 0, B: 0},
@@ -85,6 +105,7 @@ type CRTC struct {
 
 	graph *render.SDL2Driver
 
+	mem          *mmu.MMU
 	videoMainMem []byte
 	videoAuxMem  []byte
 	charRom      []byte
@@ -122,10 +143,11 @@ const (
 )
 
 var (
-	Set_MEM   byte = 0
-	Set_MODE  byte = 0
-	Set_PAGE  byte = 0
-	Set_MIXED byte = 0
-	Set_HIRES byte = 0
-	Set_80COL byte = 0
+	Set_MEM      byte = 0
+	Set_MODE     byte = 0
+	Set_PAGE     byte = 0
+	Set_MIXED    byte = 0
+	Set_HIRES    byte = 0
+	Set_80COL    byte = 0
+	Set_DBLWIDTH byte = 0
 )

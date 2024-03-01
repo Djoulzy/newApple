@@ -21,6 +21,7 @@ var (
 	is_PAGE2   bool = false
 	is_ALTCHAR bool = false
 	is_80COL   bool = false
+	is_AN3ON   bool = true
 )
 
 type SoftSwitch struct {

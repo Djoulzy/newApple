@@ -53,6 +53,9 @@ func InterractiveMode() bool {
 				case 13:
 					fmt.Println("")
 					hx, _ := strconv.ParseInt(addr, 16, 64)
+					allMAIN()
+					MEM.Dump(uint16(hx))
+					allAUX()
 					MEM.Dump(uint16(hx))
 					addr = ""
 					endAddr = true
@@ -61,6 +64,7 @@ func InterractiveMode() bool {
 					addr += string(rr)
 				}
 			}
+
 		case 'p':
 			fmt.Printf("Disass> ")
 			endAddr = false

@@ -50,6 +50,7 @@ func (C *CRTC) StandardTextModeA2(X int, Y int) {
 //////////////////////////////////////////////////////////////////////
 
 func (C *CRTC) Standard80ColTextMode(X int, Y int) {
+	C.enableDoubleWidth()
 	// AUX Mem
 	screenChar = C.videoAuxMem[screenLine[C.RasterLine]+uint16(C.CCLK>>1)]
 	pixelData = C.charRom[uint16(screenChar)<<3+uint16(C.RasterCount)]
@@ -80,6 +81,7 @@ func (C *CRTC) Standard80ColTextMode(X int, Y int) {
 }
 
 func (C *CRTC) StandardTextModeA2E(X int, Y int) {
+	C.disableDoubleWidth()
 	screenChar = C.videoMainMem[screenLine[C.RasterLine]+uint16(C.CCLK)]
 	pixelData = C.charRom[uint16(screenChar)<<3+uint16(C.RasterCount)]
 	pixelData = ^pixelData
@@ -101,9 +103,14 @@ func (C *CRTC) LoResMode(X int, Y int) {
 		if C.conf.Model == "Apple2" {
 			C.StandardTextModeA2(X, Y)
 		} else {
-			C.StandardTextModeA2E(X, Y)
+			if Set_80COL == 1 {
+				C.Standard80ColTextMode(X, Y)
+			} else {
+				C.StandardTextModeA2E(X, Y)
+			}
 		}
 	} else {
+		C.disableDoubleWidth()
 		screenChar = C.videoMainMem[screenLine[C.RasterLine]+uint16(C.CCLK)]
 		if C.RasterCount < 4 {
 			color = screenChar & 0b00001111
@@ -120,21 +127,27 @@ func (C *CRTC) LoRes80ColMode(X int, Y int) {
 	var color byte
 
 	if Set_MIXED == 1 && C.RasterLine >= 20 {
-		C.Standard80ColTextMode(X, Y)
+		if Set_80COL == 1 {
+			C.Standard80ColTextMode(X, Y)
+		} else {
+			C.StandardTextModeA2E(X, Y)
+		}
 	} else {
+		C.enableDoubleWidth()
+		memIndice := screenLine[C.RasterLine] + uint16(C.CCLK>>1)
 		// AUX Mem
-		screenChar = C.videoAuxMem[screenLine[C.RasterLine]+uint16(C.CCLK>>1)]
+		screenChar = C.videoAuxMem[memIndice]
 		if C.RasterCount < 4 {
 			color = screenChar & 0b00001111
 		} else {
 			color = screenChar >> 4
 		}
 		for column := 0; column < 7; column++ {
-			C.graph.DrawDoubleHeightPixel(X+column, Y, Colors[color])
+			C.graph.DrawDoubleHeightPixel(X+column, Y, ColorsAux[color])
 		}
 
 		// MAIN Mem
-		screenChar = C.videoMainMem[screenLine[C.RasterLine]+uint16(C.CCLK>>1)]
+		screenChar = C.videoMainMem[memIndice]
 		if C.RasterCount < 4 {
 			color = screenChar & 0b00001111
 		} else {
@@ -157,9 +170,14 @@ func (C *CRTC) HiResMode(X int, Y int) {
 		if C.conf.Model == "Apple2" {
 			C.StandardTextModeA2(X, Y)
 		} else {
-			C.StandardTextModeA2E(X, Y)
+			if Set_80COL == 1 {
+				C.Standard80ColTextMode(X, Y)
+			} else {
+				C.StandardTextModeA2E(X, Y)
+			}
 		}
 	} else {
+		C.disableDoubleWidth()
 		if C.conf.ColorDisplay {
 			if C.CCLK%2 == 0 {
 				line := boxLine[Y%8]

@@ -1,6 +1,7 @@
 package io
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 )
@@ -43,6 +44,7 @@ func (C *SoftSwitch) Write(addr uint16, val byte) {
 		if !is_STORE {
 			C.Video.SetPage1()
 		} else {
+			fmt.Println("MAIN")
 			C.Mmu.Mount("MN_TXT", "MN_TXT")
 			if is_HIRES {
 				C.Mmu.Mount("MN_HGR", "MN_HGR")
@@ -53,12 +55,19 @@ func (C *SoftSwitch) Write(addr uint16, val byte) {
 		if !is_STORE {
 			C.Video.SetPage2()
 		} else {
+			fmt.Println("AUX")
 			C.Mmu.Mount("AX_TXT", "AX_TXT")
 			if is_HIRES {
 				C.Mmu.Mount("AX_HGR", "AX_HGR")
 			}
 		}
 		is_PAGE2 = true
+	case CLRAN3:
+		is_AN3ON = false
+		C.Video.SetDoubleWidth()
+	case SETAN3:
+		is_AN3ON = true
+		C.Video.SetNormalWidth()
 
 	case RDMAINRAM:
 		C.Mmu.MountReader("MN___1")

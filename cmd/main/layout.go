@@ -130,6 +130,26 @@ func apple2e_Roms() {
 // 	CHARGEN = mmu.NewROM("CHARGEN", chargenSize*2, conf.Rom_Apple2e.Chargen)
 // }
 
+func allMAIN() {
+	MEM.Mount("MN_ZPS", "MN_ZPS")
+	MEM.Mount("MN___1", "MN___1")
+	MEM.Mount("MN_TXT", "MN_TXT")
+	MEM.Mount("MN___2", "MN___2")
+	MEM.Mount("MN_HGR", "MN_HGR")
+	MEM.Mount("MN___3", "MN___3")
+	MEM.Mount("MN_SLT", "MN_SLT")
+}
+
+func allAUX() {
+	MEM.Mount("AX_ZPS", "AX_ZPS")
+	MEM.Mount("AX___1", "AX___1")
+	MEM.Mount("AX_TXT", "AX_TXT")
+	MEM.Mount("AX___2", "AX___2")
+	MEM.Mount("AX_HGR", "AX_HGR")
+	MEM.Mount("AX___3", "AX___3")
+	MEM.Mount("AX_SLT", "AX_SLT")
+}
+
 func initRam() {
 	MN_ZPS.Clear(0x1000, 0xFF)
 	MN___1.Clear(0x1000, 0xFF)
@@ -175,13 +195,7 @@ func initRam() {
 	MEM.Attach(AX_BK2, 0xD0)
 	MEM.Attach(AX___4, 0xE0)
 
-	MEM.Mount("MN_ZPS", "MN_ZPS")
-	MEM.Mount("MN___1", "MN___1")
-	MEM.Mount("MN_TXT", "MN_TXT")
-	MEM.Mount("MN___2", "MN___2")
-	MEM.Mount("MN_HGR", "MN_HGR")
-	MEM.Mount("MN___3", "MN___3")
-	MEM.Mount("MN_SLT", "MN_SLT")
+	allMAIN()
 }
 
 func setupMemoryLayout() {

@@ -41,7 +41,7 @@ func (C *CRTC) Init(mem *mmu.MMU, chargen *mmu.ROM, video *render.SDL2Driver, co
 	C.screenHeight = int(C.Reg[R6]) * 8 // * 2
 
 	C.graph = video
-	C.graph.Init(560, 384, 1, "Go Apple II", true, false)
+	C.graph.Init(560, 384, &C.VBL, 1, "Go Apple II", true, false)
 	C.conf = conf
 	// C.VideoPages[0] = [2]uint16{0x0400, 0x2000}
 	// C.VideoPages[1] = [2]uint16{0x0400, 0x2000}
@@ -49,6 +49,7 @@ func (C *CRTC) Init(mem *mmu.MMU, chargen *mmu.ROM, video *render.SDL2Driver, co
 
 	C.charRom = chargen.Buff
 
+	C.mem = mem
 	C.VideoMEM[0][0][0] = mem.GetChipMem("MN_TXT") // [main][textmode][page1]
 	C.VideoMEM[0][0][1] = mem.GetChipMem("MN___2") // [main][textmode][page2]
 	C.VideoMEM[0][1][0] = mem.GetChipMem("MN_HGR") // [main][hires][page1]
@@ -80,6 +81,18 @@ func (C *CRTC) Init(mem *mmu.MMU, chargen *mmu.ROM, video *render.SDL2Driver, co
 	}
 }
 
+func (C *CRTC) enableDoubleWidth() {
+	C.Reg[R0] = 126
+	C.Reg[R1] = 80
+	C.pixelSize = 2
+}
+
+func (C *CRTC) disableDoubleWidth() {
+	C.Reg[R0] = 63
+	C.Reg[R1] = 40
+	C.pixelSize = 1
+}
+
 func (C *CRTC) UpdateDisplayMode() {
 
 	if C.conf.Model == "Apple2" {
@@ -107,22 +120,22 @@ func (C *CRTC) UpdateDisplayMode() {
 		} else {
 			if Set_HIRES == 0 {
 				C.videoMainMem = C.VideoMEM[0][0][Set_PAGE]
-				if Set_80COL == 0 {
-					fmt.Println("LoResMode")
-					C.videoMode = (*CRTC).LoResMode
-				} else {
+				if Set_80COL == 1 && Set_DBLWIDTH == 1 {
 					fmt.Println("LoRes80ColMode")
 					C.videoAuxMem = C.VideoMEM[1][0][Set_PAGE]
 					C.videoMode = (*CRTC).LoRes80ColMode
+				} else {
+					fmt.Println("LoResMode")
+					C.videoMode = (*CRTC).LoResMode
 				}
 			} else {
 				C.videoMainMem = C.VideoMEM[0][1][Set_PAGE]
-				if Set_80COL == 0 {
-					C.videoMode = (*CRTC).HiResMode
-				} else {
-					C.videoAuxMem = C.VideoMEM[1][1][Set_PAGE]
-					C.videoMode = (*CRTC).DoubleHiResMode
-				}
+				// if Set_80COL == 0 {
+				C.videoMode = (*CRTC).HiResMode
+				// } else {
+				// 	C.videoAuxMem = C.VideoMEM[1][1][Set_PAGE]
+				// 	C.videoMode = (*CRTC).DoubleHiResMode
+				// }
 			}
 		}
 	}
@@ -135,17 +148,11 @@ func (C *CRTC) SetTexMode() {
 
 func (C *CRTC) Set40Cols() {
 	Set_80COL = 0
-	C.Reg[R0] = 63
-	C.Reg[R1] = 40
-	C.pixelSize = 1
 	C.UpdateDisplayMode()
 }
 
 func (C *CRTC) Set80Cols() {
 	Set_80COL = 1
-	C.Reg[R0] = 126
-	C.Reg[R1] = 80
-	C.pixelSize = 2
 	C.UpdateDisplayMode()
 }
 
@@ -174,13 +181,21 @@ func (C *CRTC) SetHiResMode() {
 
 func (C *CRTC) SetPage1() {
 	Set_PAGE = 0
-	fmt.Println("Page 1")
 	C.UpdateDisplayMode()
 }
 
 func (C *CRTC) SetPage2() {
 	Set_PAGE = 1
-	fmt.Println("Page 2")
+	C.UpdateDisplayMode()
+}
+
+func (C *CRTC) SetDoubleWidth() {
+	Set_DBLWIDTH = 1
+	C.UpdateDisplayMode()
+}
+
+func (C *CRTC) SetNormalWidth() {
+	Set_DBLWIDTH = 0
 	C.UpdateDisplayMode()
 }
 
@@ -247,11 +262,17 @@ func (C *CRTC) DumpMode() {
 		if Set_MIXED == 1 {
 			mode = mode + " Mixed"
 		}
+		if Set_DBLWIDTH == 1 {
+			mode = mode + " Dbl Width"
+		}
 	}
 	fmt.Printf("Mode: %s - Page: %d - 80Cols: %d - Mem: %d\n", mode, Set_PAGE, Set_80COL, Set_MEM)
 }
 
 func (C *CRTC) Run() bool {
+	if C.VBL == 0 {
+		return true
+	}
 	C.BeamX = int(C.CCLK) * 7
 
 	// log.Printf("BeamX: %d - BeamY: %d - CCLK: %02d - RasterLine: %02d", C.BeamX, C.BeamY, C.CCLK, C.RasterLine)
@@ -279,6 +300,7 @@ func (C *CRTC) Run() bool {
 				C.RasterLine++
 				C.RasterCount = 0
 			}
+			// Drawing
 			C.VBL = 0x80
 		}
 	}
